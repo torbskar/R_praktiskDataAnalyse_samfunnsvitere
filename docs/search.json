@@ -26,5 +26,40 @@
     "title": "1  Grafikk med ggplot",
     "section": "1.4 Oppgaver",
     "text": "1.4 Oppgaver\nSlå opp i boken R for data science hvis du står fast eller ikke skjønner hva koden betyr.\n\nExercise 1.1 Last ned datasettet abu89 fra angitt hjemmeside og les inn dataene til R som vist ovenfor. Lag den samme grafikken som vist her, gjør noen endringer på kodene for å endre utseendet på plottene. Det er et mål at du skal forstå hva hver enkelt kommando gjør.\n\n\nExercise 1.2 Last inn datasettet NorLAG i R. Velg noen variable som du selv tenker kan være informative å se nærmere på. Bruk de samme teknikkene på disse variablene."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Veldig praktisk dataanalyse",
+    "section": "",
+    "text": "Forord\nDenne boken er beregnet som en veldig praktisk innføring i dataanalyse med R. Med det som gjennomgås i denne boken skal du være i stand til å skrive en enkel rapport, med deskriptive tabeller og figur, og grunnleggende regresjonsanalyse.\nDette er imidlertid ikke en lærebok i statistikk og metode, så det vil ikke vektlegges dypere forklaringer av statistiske begreper, fordelinger, designvalg osv. Du bør konsultere en annen standard lærebok for slike ting. Men all statistikk gjøres i praksis med datamaskiner og programmering. Denne boken vektlegger denne praktiske siden.\nR er et programmeringsspråk spesielt godt egnet for statistisk analyse og databehandling, og det er viktig å lære å skrive kode både for databehandling og analyse. Men boken er ikke ment som en innføring i programmering, og målsettingen er ikke at du skal beherske R-programmering som sådan. Det overordnede fokuset er å få gjort analyser raskt og effektivt.\nDette er en bok som lærer deg hvordan få ting gjort med R. Fra import av data til output av publiserbar kvalitet. Det vektlegges arbeidsflyt, mappestruktur og stilistiske elementer. Dette er for å lette arbeidet ditt, gjøre koden lettere å lese og generelt holde orden.\nBoken vektlegger også det estetiske. Alle tabeller og figurer skal være pene i den forstand at de skal være informative, lette å lese, og bruke en layout som er tiltalende. Dessuten skal alt kunne eksporteres til vanlige tekstbehandlingsprogram. Klipp-og-lim skal være unødvendig.\nEt moment ved det estetiske er fargebruk. I tillegg til at R støtter avansert fargebruk er det også enkle fargepaletter tilgjengelig. Men det er viktig at fargebruken er funksjonell så alle kan lese det. Derfor må fargevalg ta hensyn til slike ting som fargeblindhet. Slikt dekkes også."
+  },
+  {
+    "objectID": "index.html#hvordan-bli-god",
+    "href": "index.html#hvordan-bli-god",
+    "title": "Veldig praktisk dataanalyse",
+    "section": "Hvordan bli god?",
+    "text": "Hvordan bli god?\nAnalyse av data er praktiske ferdigheter og for å bli god må du øve. Hvert kapittel inneholder derfor en rekke oppgaver som du må jobbe med. Teksten har mange eksempler med bruk av ett eller flere datasett, og så skal du gjøre tilsvarende med andre datasett. Bruk gjerne helt andre datasett også, og jobb praktisk med oppgaver."
+  },
+  {
+    "objectID": "index.html#datasett",
+    "href": "index.html#datasett",
+    "title": "Veldig praktisk dataanalyse",
+    "section": "Datasett",
+    "text": "Datasett\nDe aller fleste datasettene som brukes i denne boken finnes tilgjengelig i diverse R-pakker, og det er referanser til disse gjennomgående slik at du lett kan finne dem. I tillegg er datasettene gjort tilgjengelig på bokens ressursside. Noen datasett som brukes er hentet fra andre kilder, som for eksempel offisiell statistikk fra SSB, eller utdrag fra andre datasett som ikke nødvendigvis er åpent tilgjengelig ellers.\nFor en oversikt over andre datasett lett tilgjengelig i R, se hjemmesiden til Vincent Arel-Bundock som inneholder en oversikt."
+  },
+  {
+    "objectID": "index.html#til-studenter",
+    "href": "index.html#til-studenter",
+    "title": "Veldig praktisk dataanalyse",
+    "section": "Til studenter",
+    "text": "Til studenter\nFor all kvantitativ analyse er det svært viktig at man jobber med kode. Når du har gjort alt arbeidet med kode kan du enkelt gjøre analysen på nytt med samme data eller nye data. Koden er langt på vei dokumentasjon på den jobben du gjør, og gjør analysene dine reproduserbare. Å lære seg dataanalyse med meny-baserte verktøy er derfor ikke et alternativ for seriøse analyser. Vitenskapen skal være reproduserbar, og da må det skrives kode.\nDette betyr ikke at du behøver være spesielt interessert i datamaskiner eller informatikk. Å kunne kode har visse nerde-assosisasjoner, men ikke la deg affisere av det. Her er det det praktiske som vektlegges og du skal lære så lite programmering som mulig - men nok til å gå gjort det du skal. Du trenger forsåvidt en god del, så det blir mye kode som skal skrives.\nHvis du er av den typen som gjerne skulle vært litt mer nerdete så er du kanskje mer bekymret for at det blir for lite kode? Dette er uansett et godt sted å starte. Denne boken er lagt opp som en innføring på relativt lavt nivå, men utøver konsekvent prinsipper du trenger på et høyere nivå. Alt i denne boken kan påbygges til avansert programmering."
+  },
+  {
+    "objectID": "index.html#til-undervisere",
+    "href": "index.html#til-undervisere",
+    "title": "Veldig praktisk dataanalyse",
+    "section": "Til undervisere",
+    "text": "Til undervisere\nDenne boken har gjort en del strategiske valg av pakker og funksjoner som brukes gjennomgående. Først og fremst brukes tidyverse gjennomgående, og andre funksjoner som brukes vil være kompatible med tidyverse. Dette gir en konsistent og effektiv kode gjennomgående.\nDet vektlegges gjennomgående at alle resultater skal bli pene, i publiserbar kvalitet, og i en form som lar seg eksportere til tekstbehandlingsprogram i MS Office, fordi det i praksis er dette de fleste bruker. Men det er også vektlagt å bruke eksportfunksjoner som også kan eksportere til andre formater som pdf, html or rft, og er kompatible med Markdown/Quarto. Selv om de fleste nybegynnere i R ikke jobber i disse formatene skal de ikke behøve å bytte funksjoner hvis de skulle ha behov for det senere."
   }
 ]

@@ -1,6 +1,6 @@
 # Grafikk med ggplot
 
-I dette kapittelet skal vi bruke følgende pakker: 
+I dette kapittelet skal vi bruke følgende pakker:     
 ```{r}
 #| error: false
 #| message: false
@@ -8,7 +8,20 @@ I dette kapittelet skal vi bruke følgende pakker:
 library(tidyverse)
 library(ggforce)
 library(ggthemes)
+library(datasets)
 ```
+
+
+```{r}
+
+
+
+
+
+
+```
+
+
 
 ```{r}
 #| echo: false
