@@ -1,0 +1,290 @@
+# Grafikk med ggplot
+
+I dette kapittelet skal vi bruke følgende pakker: 
+```{r}
+#| error: false
+#| message: false
+#| warning: false
+library(tidyverse)
+library(ggforce)
+library(ggthemes)
+```
+
+```{r}
+#| echo: false
+abu89 <- haven::read_dta("data/abu89.dta") %>% 
+  labelled::unlabelled()
+
+
+```
+
+
+I R er det flere systemer for grafikk. Noen er spesialiserte og knyttet til spesielle analysemetoder og gir deg et spesifikt output slik at funksjonen `plot()` gir deg akkurat det du skal ha. Det er forsåvidt veldig praktisk, men er ikke gode nok til å bli med i en rapport. 
+
+Vi skal her vektlegge et *generelt system* for grafikk som finnes i pakken {ggplot2} som er en del av tidyverse. Funksjonen `ggplot` kan brukes til all slags grafikk, fra helt grunnleggende til avansert, professjonell grafikk. Funksjonen `ggplot` er bygget opp som en *gramatikk* for grafisk fremstilling. Det ligger altså en teori til grunn som er utledet i boken ved omtrent samme navn: [The grammar of graphics](https://link.springer.com/book/10.1007/0-387-28695-0). Det er mye som kan sies om dette, men det viktige er at grafikken er bygget opp rundt noen bestanddeler. Når du behersker disse kan du fremstille nær sagt hva som helst av kvantitativ informasjon grafisk. Dette er altså et system for grafikk, ikke bare kommandoer for spesifikke typer plot. Vi skal likevel bare dekke de mest grunnleggende typer plot her. 
+
+
+## Lagvis grafikk
+Systemet er bygd opp *lagvis*. Det gjelder selve koden, men også hvordan det ser ut visuelt. Man kan utvide plottet med flere lag i samme plot og det legges da oppå hverandre i den rekkefølgen som angis i koden. 
+
+For enkle plot som vi skal bruke her angir man i denne rekkefølgen og med en `+` mellom hver del (vanligvis per linje, men linjeskift spiller ingen rolle). Hver del av koden spesifiserer enten *hva* som skal plottes eller *hvordan* det plottes, mens andre deler kan kontrollere utseende på akser, fargeskalaer, støttelinjer eller andre ting som har med layout å gjøre. 
+
+1) Angi data og *hva* som skal plottes med `ggplot()`
+1) Angi *hvordan* det skal plottes med `geom_*()` 
+1) Angi andre spesifikasjoner (farger, titler, koordinatsystemer osv)
+
+Dette blir tydeligere i eksemplene og forklares underveis. 
+
+* Det første argumentet i `ggplot` er data. Altså: hvilket datasett informasjonen hentes fra. 
+* Inni `ggplot()` må det spesifiseres `aes()`, "*aestethics*", som er *hvilke variable* som skal plottes. Først og fremst hva som skal på x-akse og y-akse (og evt. z-akse), men også spesifikasjon av om linjer (farge, linjetype) og fyllfarger, skal angis etter en annen variabel. 
+* `geom_*` står for *geometric* og sier noe om *hvordan* data skal se ut. Det kan være punkter, histogram, stolper, linjer osv. 
+* `coord_*` definerer koordinatsystemet. Stort sett blir dette bestemt av variablene. Men du kan også snu grafen eller definere sirkulært koordinatsystem, eller andre enklere ting. 
+* `facet_*` definerer hvordan du vil dele opp grafikken i undergrupper
+
+
+
+## Grafikk for kategoriske data  
+
+### Stolpediagram 
+
+```{r}
+library(ggforce)
+ggplot(abu89, aes(x = klasse89)) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+Noen ganger ønsker man å vise fordelingen for to ulike grupper, la oss si for kjønn. En mulighet er da å rett og slett lage to stolpediagram ved siden av hverandre. Til dette kan man spesifisere at dataene er gruppert etter variabelen *female* og at fyllfargen skal settes etter denne variablen med `fill = factor(female)`. Merk bruken av `factor(female)` fordi variabelen er *numerisk* og det vil da ellers brukes en kontinuerlig fargeskale, mens å gjøre om variabelen til kategorisk brukes en annen fargeskala. 
+
+I tillegg gjør vi her to ting til: setter et annet grafisk tema med `theme_minimal()` og snur plotvinduet slik at kategoriene er litt lettere å lese. Dette er smak og behag. 
+
+```{r}
+ggplot(abu89, aes(x = klasse89, group = female, fill = factor(female))) +
+  geom_bar(position="dodge") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90))+
+  coord_flip()
+
+```
+
+Et alternativ er å plassere grafikken for menn og kvinner ved siden av hverandre. Å legge til `facet_wrap()` gjør dette. 
+
+```{r}
+ggplot(abu89, aes(x = klasse89)) +
+  geom_bar() +
+  facet_wrap(~factor(female)) +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+Et automatisk forvalg for `geom_bar()` er hvordan gruppene plasseres som er `position="stack"`. Det betyr at gruppene stables oppå hverandre. Dette er godt egnet hvis poenget er å vise hvor mange av hvert kjønn som er i hver gruppe. Det er mindre egnet hvis du ønsker å sammenligne menn og kvinner. Da er alternativet å velge `position="dodge"` som følger:  
+
+
+### Kakediagram  
+
+Generelt er ikke kakediagram å anbefale da korrekt tolkning involverer å tolke et areal som inneholder vinkel. Det er intuitivt vanskelig å se hvor store hvert kakestykke er med det blotte øyet - med mindre man skriver tallene på,da. Men da kunne man jo også bare laget en tabell?
+
+Med få kategorier som er rimelig forskjellig kan det gi et ok inntrykk, men ofte ender man opp med å måtte skrive på tallene likevel. Vi tar det med her egentlig bare fordi mange insisterer på å bruke det. Så vet du at det er mulig. 
+
+Det enkleste er å bruke funksjonen `pie()` som gir følgende resultat. 
+
+```{r}
+tab <- table(abu89$klasse89) 
+tab
+
+pie(tab)
+```
+
+Men hvis man skal bruke ggplot er det litt mer jobb. Fordelen med ggplot er at du har bedre kontroll for å lage publiserbar kvalitet. (Akkurat for kakediagram er det kanskje ikke så farlige, for du bør ikke bruke det i publikasjoner hvis du kan la være).
+
+
+```{r}
+pc <- abu89 %>% 
+  group_by(klasse89) %>% 
+  summarise(n = n()) %>% 
+  mutate(pct = n/sum(n)*100) %>% 
+  ungroup()
+
+
+ggplot(pc, aes(x = "", y = pct, fill = (klasse89))) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  theme_void()+
+  geom_text( aes(label = paste0( round(pct,1), "%"), x = 1.4), 
+            position = position_stack(vjust=.5), check_overlap = F) +
+  labs(x = NULL, y = NULL, fill = NULL)+
+  theme(axis.line = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank()) +
+  scale_fill_brewer(palette="Blues", direction = -1)
+
+
+```
+
+
+
+
+## Grafikk for kontinuerlige data 
+
+
+
+
+### Histogram 
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+ggplot(abu89, aes(x = time89)) +
+  geom_histogram()
+```
+
+Det er også vanlig å fremstille det samme på en "tetthetsskala", der arealet summeres til 1. Det betyr at arealet for hvert intervall tilsvarer en andel. Visuelt sett er det vel så mye arealet vi oppfatter som høyden på stolpene. Men det er bare skalaen på y-aksen som har endret seg. Visuelt sett, ser histogrammene helt like ut. 
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+ggplot(abu89, aes(x = time89, y = ..density..)) +
+  geom_histogram()
+```
+
+
+
+### Density plot 
+Density plot er en måte å fremstille det samme på, men i stedet for å dele inn i intervaller som i histogram lager vi en glattet kurve. Det blir på skalaen "tetthet" som i histogrammet ovenfor. 
+
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+ggplot(abu89, aes(x = time89)) +
+  geom_density()
+
+```
+
+
+
+
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+ggplot(abu89, aes(x = time89)) +
+  geom_histogram(aes(y = ..density..), fill = "lightgrey", col = "grey") +
+  geom_density(col = "red", linewidth = 1) +
+  theme_minimal()
+```
+
+En fordel med denne fremstillingen er at det er lettere å sammenligne grupper. Her er et eksempel med density plot etter hvor mye man drikker. 
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+#| 
+ggplot(abu89, aes(x = time89, group = klasse89, linetype = klasse89)) +
+  geom_density(linewidth = 1)+
+  guides(fill = guide_legend(override.aes = list(shape = 1 ) ) ) +
+  theme_minimal()
+
+
+```
+
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+ggplot(abu89, aes(x = time89)) +
+  geom_density(linewidth = 1)+
+  theme_minimal()+
+  facet_wrap(~klasse89, scales="free")
+
+```
+
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+#| 
+ggplot(abu89, aes(x = time89, group = female,  fill = factor(female))) +
+  geom_density(alpha = .3)+
+  guides(fill=guide_legend(title="Kjønn"))+
+  theme_minimal()
+
+
+```
+
+
+### Flere variable samtidig 
+
+
+####  Boksplot 
+
+
+```{r}
+#| warning: false
+#| message: false
+#| error : false
+ggplot(abu89, aes(y = time89, group = klasse89)) +
+  geom_boxplot()+
+  theme_minimal()
+```
+
+
+
+
+
+#### Scatterplot 
+
+```{r}
+#| warning: false
+#| message: false
+#| error : false
+
+ggplot(abu89, aes(x = age, y = time89)) +
+  geom_point(alpha=.3)+
+  theme_minimal()
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| error : false
+ggplot(abu89, aes(x = age, y = time89)) +
+  geom_jitter(alpha=.1, width = .3)+
+  theme_minimal()
+```
+
+
+
+#### Ridgeplot 
+
+Ridgeplot er en annen måte å sammenligne en kontinuerlig fordeling betinget på en gruppering. 
+```{r}
+#| warning: false
+#| message: false
+#| error : false
+library(ggridges)
+ggplot( abu89,  aes(y = klasse89, x = time89)) +
+  geom_density_ridges() 
+```
+
+
+
+## Oppgaver
+
+Slå opp i boken [R for data science](https://r4ds.had.co.nz/data-visualisation.html) hvis du står fast eller ikke skjønner hva koden betyr. 
+
+::: {#exr-}
+Last ned datasettet abu89 fra angitt hjemmeside og les inn dataene til R som vist ovenfor. Lag den samme grafikken som vist her, gjør noen endringer på kodene for å endre utseendet på plottene. Det er et mål at du skal forstå hva hver enkelt kommando gjør. 
+:::
+
+
+::: {#exr-}
+Last inn datasettet NorLAG i R. Velg noen variable som du selv tenker kan være informative å se nærmere på. Bruk de samme teknikkene på disse variablene. 
+:::
+

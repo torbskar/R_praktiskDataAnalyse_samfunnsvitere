@@ -1,0 +1,28 @@
+project: 
+  type: book
+  output-dir: docs
+
+book:
+  navbar:
+    search: true
+  title: "Veldig praktisk dataanalyse"
+  subtitle: "En innføring i bruk av R"
+  author: "Torbjørn Skardhamar"
+  date: today
+  version: 0.1
+  page-navigation: true
+  chapters:
+    - index.qmd
+    - grafikk.qmd
+
+  downloads: [pdf]
+  
+bibliography: references.bib
+
+
+format:
+  html: 
+    theme: cosmo
+    code-copy: true
+  pdf: default 
+
