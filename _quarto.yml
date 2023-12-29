@@ -13,6 +13,7 @@ book:
   page-navigation: true
   chapters:
     - index.qmd
+    - lese_inn_datasett.qmd
     - grafikk.qmd
 
   downloads: [pdf]
