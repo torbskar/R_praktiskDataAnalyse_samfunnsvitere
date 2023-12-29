@@ -7,8 +7,6 @@ library(tidyverse)
 library(janitor)
 
 
-library(janitor)
-
 # Leser inn Ungdata 2010-2023, rydder og lagrer utvalg til fil
 bane <- "C:/Users/torbskar/OneDrive - Universitetet i Oslo/Dokumenter/Undervisning/PHS/kvantMetode/data/Ungdata 2010-2023"
 fil <- paste0(bane, "/", "NSD3157-V1.dta")
@@ -17,16 +15,20 @@ ungdata0 <- read_dta(fil) %>%
   clean_names() 
 
 ungdata <- ungdata0 %>%
-  mutate(kommune_nr = as.character(kommune),
-         fylke_nr = as.character(fylke)) %>%
+  mutate(kommune_nr = str_pad(as.character(kommune), width = 4, pad = "0"),
+         fylke_nr = str_pad(as.character(fylke), width = 2, pad = "0")) %>%
   labelled::unlabelled() 
 
+ungdata %>% 
+  select(kommune_nr, kommune, fylke_nr, fylke) %>% 
+  head()
 
 
 #glimpse(ungdata[,1:40])
 
 #detach("package:ggforce", unload = TRUE)
 
+## Data for alkoholbruk ####
 ungdata_alko <- ungdata %>% 
   filter(!is.na(klasse), !is.na(alko1), !is.na(kjonn) ) %>% 
   select(klasse,  ar, kjonn, alko1) %>% 
@@ -35,7 +37,21 @@ ungdata_alko <- ungdata %>%
 
 saveRDS(ungdata_alko, "data/ungdata_alko.rds")
 
-levels(ungdata$livskval1)
+## Data for alkoholbruk og geografi ####
+ungdata_geo <- ungdata %>% 
+  filter( ar == 2020) %>% 
+  filter(!is.na(klasse), !is.na(alko1), !is.na(kjonn) ) %>% 
+  mutate(drikker = as.numeric(alko1 != "Aldri")) %>% 
+  select(kommune_nr, kommune, fylke_nr, fylke, drikker, klasse, kjonn) %>% 
+  group_by(kommune, kjonn) %>% 
+  summarise(n = n(), 
+            drikker = sum(drikker == 1, na.rm = T)/n()) %>% 
+  ungroup() 
+
+head(ungdata_geo)
+
+
+## Data for kontinuerlige variable (indekser) ####
 
 # Ungdata med kjønn, klasse, og indeks for livskvalitet og atferdsproblemer
 ungdata_kont <- ungdata %>% 
@@ -62,6 +78,8 @@ ungdata_kont <- ungdata %>%
 glimpse(ungdata_kont)
 
 saveRDS(ungdata_kont, "data/ungdata_kont.rds")
+
+
 
 ungdata_kont %>% 
   filter(complete.cases(.)) %>%

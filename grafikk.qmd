@@ -183,6 +183,9 @@ Det er også mulig å lage et kakediagram for hver gruppe. Da må vi legge til `
 
 ```{r}
 #| echo: false
+#| error: false
+#| message: false
+#| warning: false
 alko1_sum2 <- ungdata_alko %>% 
   group_by(alko1, kjonn) %>% 
   summarise(n = n()) %>% 
@@ -198,7 +201,7 @@ alko1_sum2
 
 
 ```{r}
-ggplot(alko1_sum, aes(x = "", y = pct, fill = alko1)) +
+ggplot(alko1_sum2, aes(x = "", y = pct, fill = alko1)) +
   geom_col() +
   coord_polar("y", start=0) +
   theme_void()+

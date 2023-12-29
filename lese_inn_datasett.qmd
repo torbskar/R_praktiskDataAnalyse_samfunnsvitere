@@ -33,7 +33,7 @@ Vi bruker her et lite utvalg variable fra Ungdata 2010-2020 (@ungdata) som er la
 ungdata_alko <- readRDS("data/ungdata_alko.rds")
 ```
 
-En første ting man bør sjekke er om dataene er lest inn riktig og at det rett og slett ser greit ut. Det er lite som kan gå galt når man leser inn en rds-fil, men det kan være en fordel for deg selv å se på dataene og se hvordan de ser ut. Vi kan se på objektet *ungdata_alko* ved å skrive navnet på objektet i konsollen. Da vil R i utgangspunktet skrive *hele* datasettet i konsollen.   
+En første ting man bør sjekke er om dataene er lest inn riktig og at det rett og slett ser greit ut. Det er lite som kan gå galt når man leser inn en rds-fil, men det kan være en fordel for deg selv å se på dataene og se hvordan de ser ut. Vi kan se på objektet *ungdata_alko* ved å skrive navnet på objektet i konsollen. Da vil R i utgangspunktet skrive *hele* datasettet i konsollen.
 
 ```{r}
 ungdata_alko
@@ -46,7 +46,7 @@ Det er imidlertid sjelden hensiktsmessig å se på hele datasettet på denne må
 View(ungdata_alko)
 ```
 
-![ ](imgs/View_ungdata_alko.png)
+![](imgs/View_eksempel.png){fig-alt="bilde av datasett"}
 
 Du kan lukke dette vinduet med dataene uten at det har noe å si for dataene, som fremdeles er tilgjengelig i objektet på samme måte som før.
 
@@ -56,17 +56,15 @@ Det er vanligvis ikke så nyttig å se på datasettet på denne måten heller. D
 head(ungdata_alko)
 ```
 
-Hvis det er mange variable i datasettet vil det ikke bli plass i consoll-vinduet til å vise alle variablene. Da vil R bare vise de første variablene og skrive at det er flere variable som ikke vises. Da kan det være mer hensiktsmessig å bruke funksjonen `glimpse` som viser variabelnavnene i rader, med de tilhørende første verdiene. 
+Hvis det er mange variable i datasettet vil det ikke bli plass i consoll-vinduet til å vise alle variablene. Da vil R bare vise de første variablene og skrive at det er flere variable som ikke vises. Da kan det være mer hensiktsmessig å bruke funksjonen `glimpse` som viser variabelnavnene i rader, med de tilhørende første verdiene.
 
 ```{r}
 glimpse(ungdata_alko)
 ```
-`glimpse` gir også noe ytterligere informasjon, som antall observasjoner i datasettet og og hvilken type variablene er. Når det i output står "dbl" betyr at det er en numerisk variabel, og "fct" betyr at det er en faktorvariabel. 
 
-Det finnes også andre variabeltyper enn det som er i eksempelet, herunder betyr "chr" at det er en tekstvariabel, "int" betyr at det er en heltallsvariabel, "date" betyr at det er en dato-variabel, og "lgl" betyr at det er en logisk variabel (dvs. en variabel som kan ha verdiene TRUE eller FALSE). Vi kommer tilbake til disse variabeltypene etterhvert. 
+`glimpse` gir også noe ytterligere informasjon, som antall observasjoner i datasettet og og hvilken type variablene er. Når det i output står "dbl" betyr at det er en numerisk variabel, og "fct" betyr at det er en faktorvariabel.
 
-
-
+Det finnes også andre variabeltyper enn det som er i eksempelet, herunder betyr "chr" at det er en tekstvariabel, "int" betyr at det er en heltallsvariabel, "date" betyr at det er en dato-variabel, og "lgl" betyr at det er en logisk variabel (dvs. en variabel som kan ha verdiene TRUE eller FALSE). Vi kommer tilbake til disse variabeltypene etterhvert.
 
 Funksjonen `class()` gir informasjon om hva slags objekt man har. Her sjekkes objektet *ungdata_alko*:
 
@@ -87,8 +85,6 @@ dim(ungdata_alko)
 
 Her får vi vite at det er `r dim(ungdata_alko)[1]` rader (dvs. observasjoner) og `r dim(ungdata_alko)[2]` kollonner (dvs. variable).
 
-
-
 ### Undersøke enkeltvariable med `codebook()` fra pakken {memisc}
 
 Noen ganger vil man ha litt mer informasjon om enkeltvariablene. Noen datasett vil komme med labler (omtalt annet sted) eller faktorvariable, som gjør at variablene inneholder både tallverdier og tekst.
@@ -106,6 +102,3 @@ codebook(ungdata_alko$alko1)
 ```
 
 Grunnen til å bruke `codebook` er å få et raskt innblikk i enkeltvariable, inkludert fordelingen av verdier. Dette er mest informativt for kategoriske variable eller numeriske variable med relativt få verdier.
-
-
-

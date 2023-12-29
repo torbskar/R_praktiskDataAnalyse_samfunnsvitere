@@ -235,52 +235,53 @@ div.csl-indent {
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ungdata_alko</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 868,602 × 4
-   klasse   alko1                         ar    drikker
-   &lt;fct&gt;    &lt;fct&gt;                         &lt;fct&gt;   &lt;dbl&gt;
- 1 9. trinn Aldri                         2014        0
- 2 9. trinn Aldri                         2014        0
- 3 8. trinn Aldri                         2014        0
- 4 9. trinn Aldri                         2014        0
- 5 8. trinn Aldri                         2014        0
- 6 9. trinn Aldri                         2014        0
- 7 8. trinn Aldri                         2014        0
- 8 8. trinn Har bare smakt noen få ganger 2014        1
- 9 8. trinn Aldri                         2014        0
-10 9. trinn Har bare smakt noen få ganger 2014        1
-# ℹ 868,592 more rows</code></pre>
+<pre><code># A tibble: 845,100 × 5
+   klasse   ar    kjonn  alko1                         drikker
+   &lt;fct&gt;    &lt;fct&gt; &lt;fct&gt;  &lt;fct&gt;                           &lt;dbl&gt;
+ 1 9. trinn 2014  Gutter Aldri                               0
+ 2 9. trinn 2014  Gutter Aldri                               0
+ 3 8. trinn 2014  Gutter Aldri                               0
+ 4 9. trinn 2014  Gutter Aldri                               0
+ 5 8. trinn 2014  Gutter Aldri                               0
+ 6 9. trinn 2014  Jenter Aldri                               0
+ 7 8. trinn 2014  Gutter Aldri                               0
+ 8 8. trinn 2014  Gutter Har bare smakt noen få ganger       1
+ 9 8. trinn 2014  Jenter Aldri                               0
+10 9. trinn 2014  Jenter Har bare smakt noen få ganger       1
+# ℹ 845,090 more rows</code></pre>
 </div>
 </div>
 <p>Det er imidlertid sjelden hensiktsmessig å se på hele datasettet på denne måten. Det er for det første ikke plass til å vise hele datasettet i konsollen, og for det andre er det ikke så lett å få oversikt over datasettet på denne måten. Hvis du virkelig vil se på hele datasettet er det bedre å bruke <code>View</code>-funksjonen som åpner datasettet i et eget vindu.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(ungdata_alko)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><img src="imgs/View_ungdata_alko.png" class="img-fluid"></p>
+<p><img src="imgs/View_eksempel.png" class="img-fluid" alt="bilde av datasett"></p>
 <p>Du kan lukke dette vinduet med dataene uten at det har noe å si for dataene, som fremdeles er tilgjengelig i objektet på samme måte som før.</p>
 <p>Det er vanligvis ikke så nyttig å se på datasettet på denne måten heller. Det er derfor vanligvis mer hensiktsmessig å se på en del av datasettet med å bare be om å få se de første observasjonene. Da får du et innblikk i datastrukturen, variable og verdier. Dette gjøres med funksjonen <code>head</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ungdata_alko)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 4
-  klasse   alko1 ar    drikker
-  &lt;fct&gt;    &lt;fct&gt; &lt;fct&gt;   &lt;dbl&gt;
-1 9. trinn Aldri 2014        0
-2 9. trinn Aldri 2014        0
-3 8. trinn Aldri 2014        0
-4 9. trinn Aldri 2014        0
-5 8. trinn Aldri 2014        0
-6 9. trinn Aldri 2014        0</code></pre>
+<pre><code># A tibble: 6 × 5
+  klasse   ar    kjonn  alko1 drikker
+  &lt;fct&gt;    &lt;fct&gt; &lt;fct&gt;  &lt;fct&gt;   &lt;dbl&gt;
+1 9. trinn 2014  Gutter Aldri       0
+2 9. trinn 2014  Gutter Aldri       0
+3 8. trinn 2014  Gutter Aldri       0
+4 9. trinn 2014  Gutter Aldri       0
+5 8. trinn 2014  Gutter Aldri       0
+6 9. trinn 2014  Jenter Aldri       0</code></pre>
 </div>
 </div>
 <p>Hvis det er mange variable i datasettet vil det ikke bli plass i consoll-vinduet til å vise alle variablene. Da vil R bare vise de første variablene og skrive at det er flere variable som ikke vises. Da kan det være mer hensiktsmessig å bruke funksjonen <code>glimpse</code> som viser variabelnavnene i rader, med de tilhørende første verdiene.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(ungdata_alko)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 868,602
-Columns: 4
+<pre><code>Rows: 845,100
+Columns: 5
 $ klasse  &lt;fct&gt; 9. trinn, 9. trinn, 8. trinn, 9. trinn, 8. trinn, 9. trinn, 8.…
-$ alko1   &lt;fct&gt; "Aldri", "Aldri", "Aldri", "Aldri", "Aldri", "Aldri", "Aldri",…
 $ ar      &lt;fct&gt; 2014, 2014, 2014, 2014, 2014, 2014, 2014, 2014, 2014, 2014, 20…
+$ kjonn   &lt;fct&gt; Gutter, Gutter, Gutter, Gutter, Gutter, Jenter, Gutter, Gutter…
+$ alko1   &lt;fct&gt; "Aldri", "Aldri", "Aldri", "Aldri", "Aldri", "Aldri", "Aldri",…
 $ drikker &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0,…</code></pre>
 </div>
 </div>
@@ -299,10 +300,10 @@ $ drikker &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(ungdata_alko)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 868602      4</code></pre>
+<pre><code>[1] 845100      5</code></pre>
 </div>
 </div>
-<p>Her får vi vite at det er 868602 rader (dvs. observasjoner) og 4 kollonner (dvs. variable).</p>
+<p>Her får vi vite at det er 845100 rader (dvs. observasjoner) og 5 kollonner (dvs. variable).</p>
 <section id="undersøke-enkeltvariable-med-codebook-fra-pakken-memisc" class="level3" data-number="1.2.1">
 <h3 data-number="1.2.1" class="anchored" data-anchor-id="undersøke-enkeltvariable-med-codebook-fra-pakken-memisc"><span class="header-section-number">1.2.1</span> Undersøke enkeltvariable med <code>codebook()</code> fra pakken {memisc}</h3>
 <p>Noen ganger vil man ha litt mer informasjon om enkeltvariablene. Noen datasett vil komme med labler (omtalt annet sted) eller faktorvariable, som gjør at variablene inneholder både tallverdier og tekst.</p>
@@ -323,11 +324,11 @@ $ drikker &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1
 
    Levels and labels                                 N  Valid
                                                              
-   1 'Aldri'                                    384350   44.2
-   2 'Har bare smakt noen få ganger'            179236   20.6
-   3 'Av og til, men ikke så ofte som månedlig' 150152   17.3
-   4 'Nokså jevnt 1-3 ganger i måneden'         115591   13.3
-   5 'Hver uke'                                  39273    4.5</code></pre>
+   1 'Aldri'                                    374957   44.4
+   2 'Har bare smakt noen få ganger'            174322   20.6
+   3 'Av og til, men ikke så ofte som månedlig' 145934   17.3
+   4 'Nokså jevnt 1-3 ganger i måneden'         112311   13.3
+   5 'Hver uke'                                  37576    4.4</code></pre>
 </div>
 </div>
 <p>Grunnen til å bruke <code>codebook</code> er å få et raskt innblikk i enkeltvariable, inkludert fordelingen av verdier. Dette er mest informativt for kategoriske variable eller numeriske variable med relativt få verdier.</p>
