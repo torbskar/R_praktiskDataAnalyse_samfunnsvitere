@@ -13,9 +13,11 @@ book:
   page-navigation: true
   chapters:
     - index.qmd
+    - installering.qmd
+    - kort_intro_R.qmd
     - lese_inn_datasett.qmd
     - grafikk.qmd
-
+    
   downloads: [pdf]
   
 bibliography: references.bib

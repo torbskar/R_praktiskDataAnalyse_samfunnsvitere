@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Veldig praktisk dataanalyse - 1&nbsp; Lese inn datasett</title>
+<title>Veldig praktisk dataanalyse - 3&nbsp; Lese inn datasett</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -84,7 +84,7 @@ div.csl-indent {
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./grafikk.html" rel="next">
-<link href="./index.html" rel="prev">
+<link href="./kort_intro_R.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -140,7 +140,7 @@ div.csl-indent {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lese_inn_datasett.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lese_inn_datasett.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -168,14 +168,26 @@ div.csl-indent {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./installering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Installere R og Rstudio</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kort_intro_R.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">En veldig kjapp intro til R</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./lese_inn_datasett.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./grafikk.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></span></a>
   </div>
 </li>
     </ul>
@@ -188,10 +200,10 @@ div.csl-indent {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#generelt-om-ulike-dataformat" id="toc-generelt-om-ulike-dataformat" class="nav-link active" data-scroll-target="#generelt-om-ulike-dataformat"><span class="header-section-number">1.1</span> Generelt om ulike dataformat</a></li>
-  <li><a href="#lese-inn-datasett-og-få-oversikt" id="toc-lese-inn-datasett-og-få-oversikt" class="nav-link" data-scroll-target="#lese-inn-datasett-og-få-oversikt"><span class="header-section-number">1.2</span> Lese inn datasett og få oversikt</a>
+  <li><a href="#generelt-om-ulike-dataformat" id="toc-generelt-om-ulike-dataformat" class="nav-link active" data-scroll-target="#generelt-om-ulike-dataformat"><span class="header-section-number">3.1</span> Generelt om ulike dataformat</a></li>
+  <li><a href="#lese-inn-datasett-og-få-oversikt" id="toc-lese-inn-datasett-og-få-oversikt" class="nav-link" data-scroll-target="#lese-inn-datasett-og-få-oversikt"><span class="header-section-number">3.2</span> Lese inn datasett og få oversikt</a>
   <ul class="collapse">
-  <li><a href="#undersøke-enkeltvariable-med-codebook-fra-pakken-memisc" id="toc-undersøke-enkeltvariable-med-codebook-fra-pakken-memisc" class="nav-link" data-scroll-target="#undersøke-enkeltvariable-med-codebook-fra-pakken-memisc"><span class="header-section-number">1.2.1</span> Undersøke enkeltvariable med <code>codebook()</code> fra pakken {memisc}</a></li>
+  <li><a href="#undersøke-enkeltvariable-med-codebook-fra-pakken-memisc" id="toc-undersøke-enkeltvariable-med-codebook-fra-pakken-memisc" class="nav-link" data-scroll-target="#undersøke-enkeltvariable-med-codebook-fra-pakken-memisc"><span class="header-section-number">3.2.1</span> Undersøke enkeltvariable med <code>codebook()</code> fra pakken {memisc}</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -201,7 +213,7 @@ div.csl-indent {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></h1>
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></h1>
 </div>
 
 
@@ -221,12 +233,12 @@ div.csl-indent {
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(memisc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="generelt-om-ulike-dataformat" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="generelt-om-ulike-dataformat"><span class="header-section-number">1.1</span> Generelt om ulike dataformat</h2>
+<section id="generelt-om-ulike-dataformat" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="generelt-om-ulike-dataformat"><span class="header-section-number">3.1</span> Generelt om ulike dataformat</h2>
 <p>Data kan være lagret i mange ulike formater, og du vil kunne få data i et format som ikke er tilrettelagt verken i eller for R. Å gjøre om data fra et format til et annet kan være en avgjørende oppgave for å få gjort noe som helst. R kan imidlertid håndtere det aller meste av dataformater på en eller annen måte. Foreløpig skal vi kun se på et dataformat som er spesielt egnet for R, nemlig rds-formatet. Alle datasett som følger med denne boken vil være i rds-formatet, med unntak av kapittelet der temaet er import av andre formater.</p>
 </section>
-<section id="lese-inn-datasett-og-få-oversikt" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="lese-inn-datasett-og-få-oversikt"><span class="header-section-number">1.2</span> Lese inn datasett og få oversikt</h2>
+<section id="lese-inn-datasett-og-få-oversikt" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="lese-inn-datasett-og-få-oversikt"><span class="header-section-number">3.2</span> Lese inn datasett og få oversikt</h2>
 <p>Vi bruker her et lite utvalg variable fra Ungdata 2010-2020 (<span class="citation" data-cites="ungdata">NOVA and Bakken (<a href="#ref-ungdata" role="doc-biblioref">2023</a>)</span>) som er lagret i rds-format. Dette datasettet er tilgjengelig på <a href="https://surveybanken.sikt.no/no/study/7ae7f902-ddde-4bd8-8311-21f16ce93fdf/6">NSD sine sider</a>. Følgende kode bruker funksjonen <code>readRDS</code> for å lese inn datasettet. Filbanen er angitt å ligge i en mappe som heter “data” i prosjektmappen, og filnavnet er “ungdata_alko.rds”. Når man leser inn dataene legges de i et “objekt” som vi her kaller <em>ungdata_alko</em>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ungdata_alko <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/ungdata_alko.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -304,8 +316,8 @@ $ drikker &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1
 </div>
 </div>
 <p>Her får vi vite at det er 845100 rader (dvs. observasjoner) og 5 kollonner (dvs. variable).</p>
-<section id="undersøke-enkeltvariable-med-codebook-fra-pakken-memisc" class="level3" data-number="1.2.1">
-<h3 data-number="1.2.1" class="anchored" data-anchor-id="undersøke-enkeltvariable-med-codebook-fra-pakken-memisc"><span class="header-section-number">1.2.1</span> Undersøke enkeltvariable med <code>codebook()</code> fra pakken {memisc}</h3>
+<section id="undersøke-enkeltvariable-med-codebook-fra-pakken-memisc" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="undersøke-enkeltvariable-med-codebook-fra-pakken-memisc"><span class="header-section-number">3.2.1</span> Undersøke enkeltvariable med <code>codebook()</code> fra pakken {memisc}</h3>
 <p>Noen ganger vil man ha litt mer informasjon om enkeltvariablene. Noen datasett vil komme med labler (omtalt annet sted) eller faktorvariable, som gjør at variablene inneholder både tallverdier og tekst.</p>
 <p>Å få ut noe deskriptiv statistikk og se på fordelinger er da gjerne neste steg som vil bli behandlet i de etterfølgende kapitlene.</p>
 <p>Pakken {memisc} inneholder en rekke funksjoner for å håndtere surveydata, som vi ikke skal gå nærmere inn på her. Men akkurat funksjonen <code>codebook()</code> gir litt mer informativt output.</p>
@@ -578,13 +590,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./index.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Forord</span>
+      <a href="./kort_intro_R.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">En veldig kjapp intro til R</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="./grafikk.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

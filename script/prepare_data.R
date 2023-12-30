@@ -129,3 +129,44 @@ ggplot(alko1, aes(x = ar, y = drikker, group = klasse, color = klasse)) +
   theme_bw() +
   theme(legend.position = "bottom")
 
+
+
+# ESS-data #### 
+ess0 <- read_dta("data/ESS10.dta") %>% 
+  clean_names() 
+
+glimpse(ess0)
+
+# ESS-data ####
+# basert på https://link.springer.com/article/10.1007/s11205-019-02212-x
+ess <- ess0 %>%
+  select(cntry, agea, eduyrs, gndr, wkhtot,
+         happy, stflife,
+         ppltrst, pplfair, pplhlp,
+         trstprl, trstlgl, trstplt, trstep, trstun, trstplc
+         ) %>% 
+  filter(cntry == "NO") %>% 
+  zap_missing() %>% 
+  filter(complete.cases(.)) %>%
+  mutate(happy = as.numeric(happy), 
+         stflife = as.numeric(stflife),
+         overallhappy = (happy + stflife)/2) %>% 
+  mutate(across(starts_with("trst"), ~as.numeric(.x))) %>%
+  mutate(trust_pol = select(., starts_with("trst")) |> rowMeans(na.rm = T)) %>%
+  mutate(across(starts_with("ppl"), ~as.numeric(.x))) %>%
+  mutate(trust_soc = select(., starts_with("ppl")) |> rowMeans(na.rm = T)) %>%
+  labelled::unlabelled() %>% 
+  select(-starts_with("trst"), -starts_with("ppl"))
+  
+summary(ess)
+
+saveRDS(ess, "data/ess_trust.rds")  
+
+ggplot(ess, aes(x = trust_soc, y = overallhappy))+
+  geom_jitter(alpha = .3)+
+  geom_smooth(method = "lm", se = F)
+
+
+ggplot(ess, aes(x = trust_soc, y = overallhappy)) +
+  geom_density2d_filled()+
+  theme_minimal()

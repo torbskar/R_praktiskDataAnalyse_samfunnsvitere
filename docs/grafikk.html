@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Veldig praktisk dataanalyse - 2&nbsp; Grafikk med ggplot</title>
+<title>Veldig praktisk dataanalyse - 4&nbsp; Grafikk med ggplot</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -120,7 +120,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./grafikk.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./grafikk.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -148,14 +148,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./installering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Installere R og Rstudio</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kort_intro_R.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">En veldig kjapp intro til R</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./lese_inn_datasett.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./grafikk.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></span></a>
   </div>
 </li>
     </ul>
@@ -168,17 +180,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#lagvis-grafikk" id="toc-lagvis-grafikk" class="nav-link active" data-scroll-target="#lagvis-grafikk"><span class="header-section-number">2.1</span> Lagvis grafikk</a></li>
-  <li><a href="#stolpediagram" id="toc-stolpediagram" class="nav-link" data-scroll-target="#stolpediagram"><span class="header-section-number">2.2</span> Stolpediagram</a></li>
-  <li><a href="#stolpediagram-med-flere-variable" id="toc-stolpediagram-med-flere-variable" class="nav-link" data-scroll-target="#stolpediagram-med-flere-variable"><span class="header-section-number">2.3</span> Stolpediagram med flere variable</a>
+  <li><a href="#lagvis-grafikk" id="toc-lagvis-grafikk" class="nav-link active" data-scroll-target="#lagvis-grafikk"><span class="header-section-number">4.1</span> Lagvis grafikk</a></li>
+  <li><a href="#stolpediagram" id="toc-stolpediagram" class="nav-link" data-scroll-target="#stolpediagram"><span class="header-section-number">4.2</span> Stolpediagram</a></li>
+  <li><a href="#stolpediagram-med-flere-variable" id="toc-stolpediagram-med-flere-variable" class="nav-link" data-scroll-target="#stolpediagram-med-flere-variable"><span class="header-section-number">4.3</span> Stolpediagram med flere variable</a>
   <ul class="collapse">
-  <li><a href="#kakediagram" id="toc-kakediagram" class="nav-link" data-scroll-target="#kakediagram"><span class="header-section-number">2.3.1</span> Kakediagram</a></li>
+  <li><a href="#kakediagram" id="toc-kakediagram" class="nav-link" data-scroll-target="#kakediagram"><span class="header-section-number">4.3.1</span> Kakediagram</a></li>
   </ul></li>
-  <li><a href="#grafikk-for-kontinuerlige-data" id="toc-grafikk-for-kontinuerlige-data" class="nav-link" data-scroll-target="#grafikk-for-kontinuerlige-data"><span class="header-section-number">2.4</span> Grafikk for kontinuerlige data</a>
+  <li><a href="#grafikk-for-kontinuerlige-data" id="toc-grafikk-for-kontinuerlige-data" class="nav-link" data-scroll-target="#grafikk-for-kontinuerlige-data"><span class="header-section-number">4.4</span> Grafikk for kontinuerlige data</a>
   <ul class="collapse">
-  <li><a href="#histogram" id="toc-histogram" class="nav-link" data-scroll-target="#histogram"><span class="header-section-number">2.4.1</span> Histogram</a></li>
-  <li><a href="#density-plot" id="toc-density-plot" class="nav-link" data-scroll-target="#density-plot"><span class="header-section-number">2.4.2</span> Density plot</a></li>
-  <li><a href="#flere-variable-samtidig" id="toc-flere-variable-samtidig" class="nav-link" data-scroll-target="#flere-variable-samtidig"><span class="header-section-number">2.4.3</span> Flere variable samtidig</a></li>
+  <li><a href="#histogram" id="toc-histogram" class="nav-link" data-scroll-target="#histogram"><span class="header-section-number">4.4.1</span> Histogram</a></li>
+  <li><a href="#density-plot" id="toc-density-plot" class="nav-link" data-scroll-target="#density-plot"><span class="header-section-number">4.4.2</span> Density plot</a></li>
+  <li><a href="#flere-variable-samtidig" id="toc-flere-variable-samtidig" class="nav-link" data-scroll-target="#flere-variable-samtidig"><span class="header-section-number">4.4.3</span> Flere variable samtidig</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -188,7 +200,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Grafikk med ggplot</span></h1>
 </div>
 
 
@@ -212,8 +224,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>I R er det flere systemer for grafikk. Noen er spesialiserte og knyttet til spesielle analysemetoder og gir deg et spesifikt output slik at funksjonen <code>plot()</code> gir deg akkurat det du skal ha. Det er forsåvidt veldig praktisk, men er ikke gode nok til å bli med i en rapport.</p>
 <p>Vi skal her vektlegge et <em>generelt system</em> for grafikk som finnes i pakken {ggplot2} som er en del av tidyverse. Funksjonen <code>ggplot</code> kan brukes til all slags grafikk, fra helt grunnleggende til avansert, professjonell grafikk. Funksjonen <code>ggplot</code> er bygget opp som en <em>gramatikk</em> for grafisk fremstilling. Det ligger altså en teori til grunn som er utledet i boken ved omtrent samme navn: <a href="https://link.springer.com/book/10.1007/0-387-28695-0">The grammar of graphics</a>. Det er mye som kan sies om dette, men det viktige er at grafikken er bygget opp rundt noen bestanddeler. Når du behersker disse kan du fremstille nær sagt hva som helst av kvantitativ informasjon grafisk. Dette er altså et system for grafikk, ikke bare kommandoer for spesifikke typer plot. Vi skal likevel bare dekke de mest grunnleggende typer plot her.</p>
-<section id="lagvis-grafikk" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="lagvis-grafikk"><span class="header-section-number">2.1</span> Lagvis grafikk</h2>
+<section id="lagvis-grafikk" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="lagvis-grafikk"><span class="header-section-number">4.1</span> Lagvis grafikk</h2>
 <p>Systemet er bygd opp <em>lagvis</em>. Det gjelder selve koden, men også hvordan det ser ut visuelt. Man kan utvide plottet med flere lag i samme plot og det legges da oppå hverandre i den rekkefølgen som angis i koden.</p>
 <p>For enkle plot som vi skal bruke her angir man i denne rekkefølgen og med en <code>+</code> mellom hver del (vanligvis per linje, men linjeskift spiller ingen rolle). Hver del av koden spesifiserer enten <em>hva</em> som skal plottes eller <em>hvordan</em> det plottes, mens andre deler kan kontrollere utseende på akser, fargeskalaer, støttelinjer eller andre ting som har med layout å gjøre.</p>
 <ol type="1">
@@ -230,8 +242,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>facet_*</code> definerer hvordan du vil dele opp grafikken i undergrupper</li>
 </ul>
 </section>
-<section id="stolpediagram" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="stolpediagram"><span class="header-section-number">2.2</span> Stolpediagram</h2>
+<section id="stolpediagram" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="stolpediagram"><span class="header-section-number">4.2</span> Stolpediagram</h2>
 <p>Eksempeldataene her er fra Ungdata 2010-20202, og vi skal se på selvrapportert bruk av alkohol. Variabelen <em>alko1</em> er for spørsmålet om hvor ofte intervjupersonenene drikker alkohol, og det er en kategorisk variabel med 5 kategorier: Aldri, sjelden, av og til, ofte og veldig ofte.</p>
 <p>Vi lager et plot med funksjonen <code>ggplot</code> med koden nednefor. Første linje spesifiserer hva som skal plottes. Her er det første argumentet datasettet som skal brukes, og det andre er <code>aes()</code> som står for <em>aestethics</em> og er en funksjon som spesifiserer hvilke variable som skal brukes. Her er det bare en variabel som skal plottes, og det er <em>alko1</em> som plasseres langs x-aksen. Det andre argumentet er <code>geom_bar</code> som spesifiserer at det skal være stolpediagram. Når man skriver kun <code>geom_bar</code> er en forkortelse for <code>geom_bar(stat = "count")</code> som betyr at det skal være en stolpe for hver kategori og høyden på stolpen skal være antall observasjoner i hver kategori.</p>
 <div class="cell">
@@ -279,8 +291,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="stolpediagram-med-flere-variable" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="stolpediagram-med-flere-variable"><span class="header-section-number">2.3</span> Stolpediagram med flere variable</h2>
+<section id="stolpediagram-med-flere-variable" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="stolpediagram-med-flere-variable"><span class="header-section-number">4.3</span> Stolpediagram med flere variable</h2>
 <p>Noen ganger ønsker man å vise fordelingen for to ulike grupper, la oss si for kjønn. En mulighet er da å rett og slett lage to stolpediagram ved siden av hverandre. Til dette kan man spesifisere at dataene er gruppert etter variabelen <em>kjonn</em> og at fyllfargen skal settes etter denne variablen med <code>fill = kjonn</code>.</p>
 <p>Det er også mulig å spesifisere at stolpene skal plasseres ved siden av hverandre i stedet for oppå hverandre. Det gjøres med <code>position = "dodge"</code>. <a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
 <p>Tegnforklaringen plasseres automatisk til høyre for plottet. Vi kan imidlertid flytte den til bunnen med <code>theme(legend.position = "bottom")</code> og fjerne tittelen på tegnforklaringen med <code>legend.title = element_blank()</code>.</p>
@@ -313,8 +325,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Et automatisk forvalg for <code>geom_bar()</code> er hvordan gruppene plasseres som er <code>position="stack"</code>. Det betyr at gruppene stables oppå hverandre. Dette er godt egnet hvis poenget er å vise hvor mange av hvert kjønn som er i hver gruppe. Det er mindre egnet hvis du ønsker å sammenligne menn og kvinner. Da er alternativet å velge <code>position="dodge"</code> som følger:</p>
-<section id="kakediagram" class="level3" data-number="2.3.1">
-<h3 data-number="2.3.1" class="anchored" data-anchor-id="kakediagram"><span class="header-section-number">2.3.1</span> Kakediagram</h3>
+<section id="kakediagram" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="kakediagram"><span class="header-section-number">4.3.1</span> Kakediagram</h3>
 <p>Generelt er ikke kakediagram å anbefale da korrekt tolkning involverer å tolke et areal som inneholder vinkel. Det er intuitivt vanskelig å se hvor store hvert kakestykke er med det blotte øyet - med mindre man skriver tallene på,da. Men da kunne man jo også bare laget en tabell?</p>
 <p>Med få kategorier som er rimelig forskjellig kan det gi et ok inntrykk, men ofte ender man opp med å måtte skrive på tallene likevel. Vi tar det med her egentlig bare fordi mange insisterer på å bruke det. Så vet du at det er mulig.</p>
 <p>Første steg er å lage et aggregert datasett med antall observasjoner og prosent i hver kategori, som vist nedenfor. Dette dekker vi i et senere kapittel og fokuserer på selve plottet her.</p>
@@ -383,11 +395,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="grafikk-for-kontinuerlige-data" class="level2" data-number="2.4">
-<h2 data-number="2.4" class="anchored" data-anchor-id="grafikk-for-kontinuerlige-data"><span class="header-section-number">2.4</span> Grafikk for kontinuerlige data</h2>
+<section id="grafikk-for-kontinuerlige-data" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="grafikk-for-kontinuerlige-data"><span class="header-section-number">4.4</span> Grafikk for kontinuerlige data</h2>
 <p>Vi skal nå se på hvordan vi kan fremstille kontinuerlige data. Vi bruker et annet uttrekk fra Ungdata der en rekke spørsmål er aggregert til en indeks for livskvalitet og en indeks for atferdsproblemer. Indeksene er laget ved å ta gjennomsnittet av de enkelte spørsmålene, og konstruert slik at høyere verdier betyr bedre livskvalitet og færre atferdsproblemer.</p>
-<section id="histogram" class="level3" data-number="2.4.1">
-<h3 data-number="2.4.1" class="anchored" data-anchor-id="histogram"><span class="header-section-number">2.4.1</span> Histogram</h3>
+<section id="histogram" class="level3" data-number="4.4.1">
+<h3 data-number="4.4.1" class="anchored" data-anchor-id="histogram"><span class="header-section-number">4.4.1</span> Histogram</h3>
 <p>Histogram er en vanlig måte å fremstille kontinuerlige data på. Det er en måte å gruppere dataene i intervaller og høyden på stolpene representerer antall observasjoner i hvert intervall. Alternativt kan stolpene representere <em>andelen</em> i hvert intervall eller <em>tettheten</em>.</p>
 <p>Vi starter med å lage et histogram for livskvalitet. Det gjøres med <code>geom_histogram</code>.</p>
 <div class="cell">
@@ -414,8 +426,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="density-plot" class="level3" data-number="2.4.2">
-<h3 data-number="2.4.2" class="anchored" data-anchor-id="density-plot"><span class="header-section-number">2.4.2</span> Density plot</h3>
+<section id="density-plot" class="level3" data-number="4.4.2">
+<h3 data-number="4.4.2" class="anchored" data-anchor-id="density-plot"><span class="header-section-number">4.4.2</span> Density plot</h3>
 <p>Density plot er en måte å fremstille det samme på, men i stedet for å dele inn i intervaller som i histogram lager vi en glattet kurve. Det blir på skalaen “tetthet” som i histogrammet ovenfor. På tilsvarende måte som <code>binwidth</code> kan vi justere hvor glatt kurven skal være med <code>bw</code> som står for <em>bandwidth</em>. Høyere tall gir mer glattet kurve, mens lavere tall gir mer detaljert kurve. Vanligvis vil det automatiske forvalget som R gjør for deg være bra nok, men det kan også være aktuelt å justere dette selv som vist nedenfor.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ungdata_kont, <span class="fu">aes</span>(<span class="at">x =</span> livskval)) <span class="sc">+</span></span>
@@ -465,10 +477,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="flere-variable-samtidig" class="level3" data-number="2.4.3">
-<h3 data-number="2.4.3" class="anchored" data-anchor-id="flere-variable-samtidig"><span class="header-section-number">2.4.3</span> Flere variable samtidig</h3>
-<section id="boksplot" class="level4" data-number="2.4.3.1">
-<h4 data-number="2.4.3.1" class="anchored" data-anchor-id="boksplot"><span class="header-section-number">2.4.3.1</span> Boksplot</h4>
+<section id="flere-variable-samtidig" class="level3" data-number="4.4.3">
+<h3 data-number="4.4.3" class="anchored" data-anchor-id="flere-variable-samtidig"><span class="header-section-number">4.4.3</span> Flere variable samtidig</h3>
+<section id="boksplot" class="level4" data-number="4.4.3.1">
+<h4 data-number="4.4.3.1" class="anchored" data-anchor-id="boksplot"><span class="header-section-number">4.4.3.1</span> Boksplot</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ungdata_kont, <span class="fu">aes</span>(<span class="at">y =</span> livskval, <span class="at">group =</span> kjonn)) <span class="sc">+</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()<span class="sc">+</span></span>
@@ -478,8 +490,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="ridgeplot" class="level4" data-number="2.4.3.2">
-<h4 data-number="2.4.3.2" class="anchored" data-anchor-id="ridgeplot"><span class="header-section-number">2.4.3.2</span> Ridgeplot</h4>
+<section id="ridgeplot" class="level4" data-number="4.4.3.2">
+<h4 data-number="4.4.3.2" class="anchored" data-anchor-id="ridgeplot"><span class="header-section-number">4.4.3.2</span> Ridgeplot</h4>
 <p>Ridgeplot er en annen måte å sammenligne en kontinuerlig fordeling betinget på en gruppering.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggridges)</span>
@@ -490,8 +502,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="scatterplot" class="level4" data-number="2.4.3.3">
-<h4 data-number="2.4.3.3" class="anchored" data-anchor-id="scatterplot"><span class="header-section-number">2.4.3.3</span> Scatterplot</h4>
+<section id="scatterplot" class="level4" data-number="4.4.3.3">
+<h4 data-number="4.4.3.3" class="anchored" data-anchor-id="scatterplot"><span class="header-section-number">4.4.3.3</span> Scatterplot</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ungdata_kont, <span class="fu">aes</span>(<span class="at">x =</span> livskval, <span class="at">y =</span> samfunnstillit)) <span class="sc">+</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
@@ -777,7 +789,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./lese_inn_datasett.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Lese inn datasett</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

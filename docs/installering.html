@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Torbjørn Skardhamar">
-<meta name="dcterms.date" content="2023-12-30">
 
-<title>Veldig praktisk dataanalyse</title>
+<title>Veldig praktisk dataanalyse - 1&nbsp; Installere R og Rstudio</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,7 +20,60 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -32,7 +83,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./installering.html" rel="next">
+<link href="./kort_intro_R.html" rel="next">
+<link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -88,7 +140,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Forord</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./installering.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Installere R og Rstudio</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -110,13 +162,13 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Forord</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./installering.html" class="sidebar-item-text sidebar-link">
+  <a href="./installering.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Installere R og Rstudio</span></span></a>
   </div>
 </li>
@@ -148,13 +200,17 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#forord" id="toc-forord" class="nav-link active" data-scroll-target="#forord">Forord</a>
+  <li><a href="#ikke-alle-feilmeldinger-er-like-nøye" id="toc-ikke-alle-feilmeldinger-er-like-nøye" class="nav-link active" data-scroll-target="#ikke-alle-feilmeldinger-er-like-nøye"><span class="header-section-number">1.0.1</span> Ikke alle feilmeldinger er like nøye</a></li>
+  <li><a href="#spesielt-om-windows-maskiner-installer-rtools" id="toc-spesielt-om-windows-maskiner-installer-rtools" class="nav-link" data-scroll-target="#spesielt-om-windows-maskiner-installer-rtools"><span class="header-section-number">1.0.2</span> Spesielt om Windows-maskiner: installer Rtools</a></li>
+  <li><a href="#spesielt-om-mac-maskiner" id="toc-spesielt-om-mac-maskiner" class="nav-link" data-scroll-target="#spesielt-om-mac-maskiner"><span class="header-section-number">1.0.3</span> Spesielt om Mac-maskiner</a></li>
+  <li><a href="#spesielt-om-linux-maskiner" id="toc-spesielt-om-linux-maskiner" class="nav-link" data-scroll-target="#spesielt-om-linux-maskiner"><span class="header-section-number">1.0.4</span> Spesielt om Linux-maskiner</a></li>
+  <li><a href="#spesielt-om-chromebook" id="toc-spesielt-om-chromebook" class="nav-link" data-scroll-target="#spesielt-om-chromebook"><span class="header-section-number">1.0.5</span> Spesielt om Chromebook</a></li>
+  <li><a href="#oppsett-og-forberedelser" id="toc-oppsett-og-forberedelser" class="nav-link" data-scroll-target="#oppsett-og-forberedelser"><span class="header-section-number">1.1</span> Oppsett og forberedelser</a>
   <ul class="collapse">
-  <li><a href="#hvordan-bli-god" id="toc-hvordan-bli-god" class="nav-link" data-scroll-target="#hvordan-bli-god">Hvordan bli god?</a></li>
-  <li><a href="#datasett" id="toc-datasett" class="nav-link" data-scroll-target="#datasett">Datasett</a></li>
-  <li><a href="#til-studenter" id="toc-til-studenter" class="nav-link" data-scroll-target="#til-studenter">Til studenter</a></li>
-  <li><a href="#til-undervisere" id="toc-til-undervisere" class="nav-link" data-scroll-target="#til-undervisere">Til undervisere</a></li>
+  <li><a href="#utseende-i-rstudio" id="toc-utseende-i-rstudio" class="nav-link" data-scroll-target="#utseende-i-rstudio"><span class="header-section-number">1.1.1</span> Utseende i Rstudio</a></li>
   </ul></li>
+  <li><a href="#rstudio-projects" id="toc-rstudio-projects" class="nav-link" data-scroll-target="#rstudio-projects"><span class="header-section-number">1.2</span> Rstudio projects</a></li>
+  <li><a href="#åpne-rstudio-og-opprett-et-.rproject" id="toc-åpne-rstudio-og-opprett-et-.rproject" class="nav-link" data-scroll-target="#åpne-rstudio-og-opprett-et-.rproject"><span class="header-section-number">1.3</span> Åpne RStudio og opprett et .Rproject</a></li>
   </ul>
 </nav>
     </div>
@@ -163,27 +219,14 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Veldig praktisk dataanalyse</h1>
-<p class="subtitle lead">En innføring i bruk av R</p>
+<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Installere R og Rstudio</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Torbjørn Skardhamar </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">December 30, 2023</p>
-    </div>
-  </div>
   
     
   </div>
@@ -191,36 +234,76 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="forord" class="level1 unnumbered">
-<h1 class="unnumbered">Forord</h1>
-<p>Denne boken er beregnet som en veldig praktisk innføring i dataanalyse med R. Med det som gjennomgås i denne boken skal du være i stand til å skrive en enkel rapport, med deskriptive tabeller og figur, og grunnleggende regresjonsanalyse.</p>
-<p>Dette er imidlertid ikke en lærebok i statistikk og metode, så det vil ikke vektlegges dypere forklaringer av statistiske begreper, fordelinger, designvalg osv. Du bør konsultere en annen standard lærebok for slike ting. Men all statistikk gjøres i praksis med datamaskiner og programmering. Denne boken vektlegger denne praktiske siden.</p>
-<p>R er et programmeringsspråk spesielt godt egnet for statistisk analyse og databehandling, og det er viktig å lære å skrive kode både for databehandling og analyse. Men boken er <em>ikke</em> ment som en innføring i programmering, og målsettingen er ikke at du skal beherske R-programmering som sådan. Det overordnede fokuset er å få gjort analyser raskt og effektivt.</p>
-<p>Dette er en bok som lærer deg hvordan få ting gjort med R. Fra import av data til output av publiserbar kvalitet. Det vektlegges arbeidsflyt, mappestruktur og stilistiske elementer. Dette er for å lette arbeidet ditt, gjøre koden lettere å lese og generelt holde orden.</p>
-<p>Boken vektlegger også det estetiske. Alle tabeller og figurer skal være <em>pene</em> i den forstand at de skal være informative, lette å lese, og bruke en layout som er tiltalende. Dessuten skal alt kunne eksporteres til vanlige tekstbehandlingsprogram. Klipp-og-lim skal være unødvendig.</p>
-<p>Et moment ved det estetiske er fargebruk. I tillegg til at R støtter avansert fargebruk er det også enkle fargepaletter tilgjengelig. Men det er viktig at fargebruken er funksjonell så alle kan lese det. Derfor må fargevalg ta hensyn til slike ting som fargeblindhet. Slikt dekkes også.</p>
-<section id="hvordan-bli-god" class="level2">
-<h2 class="anchored" data-anchor-id="hvordan-bli-god">Hvordan bli god?</h2>
-<p>Analyse av data er praktiske ferdigheter og for å bli god må du øve. Hvert kapittel inneholder derfor en rekke oppgaver som du må jobbe med. Teksten har mange eksempler med bruk av ett eller flere datasett, og så skal du gjøre tilsvarende med andre datasett. Bruk gjerne helt andre datasett også, og jobb praktisk med oppgaver.</p>
+<p>Installer nyeste versjon av R herfra: <a href="https://cran.uib.no/">https://cran.uib.no/</a> Du trenger det som heter «base» når man installerer for første gang. Hvis du har R installert på maskinen din fra før, sørg for at du har siste versjon installert. Siste versjon er 4.1.2. Versjon etter 4.0 bør gå bra, men tidligere versjoner vil kunne gi problemer.</p>
+<p>Installer nyeste versjon av RStudio (gratisversjon) herfra: <a href="https://rstudio.com/products/rstudio/download/">https://rstudio.com/products/rstudio/download/</a></p>
+<p>Viktig: du må installere R før du installerer Rstudio for Rstudio finner R på din datamaskin og vil gi feilmelding hvis den ikke finner R. Hvis du har en eldre datamaskin og du får feilmelding ved installasjon av RStudio kan du vurdere å installere forrige versjon av Rstudio herfra: <a href="https://www.rstudio.com/products/rstudio/older-versions/">https://www.rstudio.com/products/rstudio/older-versions/</a></p>
+<p>R og Rstudio er to programmer er integrert i hverandre og du åpner heretter R ved å åpne RStudio. Merk: R er navnet på programmeringsspråket og programmet som gjør selve utregningene. Det kjører fra en kommandolinje og er ikke veldig brukervennlig alene. RStudio er et “integrated development environment” (IDE) til R. Det integrerer R med en konsoll, grafikk-vindu og en del andre nyttige ting. Det gjør det lettere å bruke R.</p>
+<section id="ikke-alle-feilmeldinger-er-like-nøye" class="level3" data-number="1.0.1">
+<h3 data-number="1.0.1" class="anchored" data-anchor-id="ikke-alle-feilmeldinger-er-like-nøye"><span class="header-section-number">1.0.1</span> Ikke alle feilmeldinger er like nøye</h3>
+<p>Mange av dere vil få en feilmelding av denne typen når dere starter R:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Error <span class="cf">in</span> <span class="fu">file.exists</span>(pythonPath) <span class="sc">:</span> </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  file name conversion problem <span class="sc">--</span> name too long?</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Ikke bry dere om akkurat den. Det spiller ingen rolle.</p>
 </section>
-<section id="datasett" class="level2">
-<h2 class="anchored" data-anchor-id="datasett">Datasett</h2>
-<p>De aller fleste datasettene som brukes i denne boken finnes tilgjengelig i diverse R-pakker, og det er referanser til disse gjennomgående slik at du lett kan finne dem. I tillegg er datasettene gjort tilgjengelig på bokens ressursside. Noen datasett som brukes er hentet fra andre kilder, som for eksempel offisiell statistikk fra SSB, eller utdrag fra andre datasett som ikke nødvendigvis er åpent tilgjengelig ellers.</p>
-<p>For en oversikt over andre datasett lett tilgjengelig i R, se <a href="https://vincentarelbundock.github.io/Rdatasets/articles/data.html">hjemmesiden til Vincent Arel-Bundock</a> som inneholder en oversikt.</p>
+<section id="spesielt-om-windows-maskiner-installer-rtools" class="level3" data-number="1.0.2">
+<h3 data-number="1.0.2" class="anchored" data-anchor-id="spesielt-om-windows-maskiner-installer-rtools"><span class="header-section-number">1.0.2</span> Spesielt om Windows-maskiner: installer Rtools</h3>
+<p>Hvis du jobber på en Windows-maskin må du også installere Rtools herfra: <a href="https://cran.r-project.org/bin/windows/Rtools/">https://cran.r-project.org/bin/windows/Rtools/</a></p>
 </section>
-<section id="til-studenter" class="level2">
-<h2 class="anchored" data-anchor-id="til-studenter">Til studenter</h2>
-<p>For all kvantitativ analyse er det svært viktig at man jobber med kode. Når du har gjort alt arbeidet med kode kan du enkelt gjøre analysen på nytt med samme data eller nye data. Koden er langt på vei dokumentasjon på den jobben du gjør, og gjør analysene dine reproduserbare. Å lære seg dataanalyse med meny-baserte verktøy er derfor ikke et alternativ for seriøse analyser. Vitenskapen skal være reproduserbar, og da må det skrives kode.</p>
-<p>Dette betyr ikke at du behøver være spesielt interessert i datamaskiner eller informatikk. Å kunne kode har visse nerde-assosisasjoner, men ikke la deg affisere av det. Her er det det praktiske som vektlegges og du skal lære så lite programmering som mulig - men nok til å gå gjort det du skal. Du trenger forsåvidt en god del, så det blir mye kode som skal skrives.</p>
-<p>Hvis du er av den typen som gjerne skulle vært litt mer nerdete så er du kanskje mer bekymret for at det blir for lite kode? Dette er uansett et godt sted å starte. Denne boken er lagt opp som en innføring på relativt lavt nivå, men utøver konsekvent prinsipper du trenger på et høyere nivå. Alt i denne boken kan påbygges til avansert programmering.</p>
+<section id="spesielt-om-mac-maskiner" class="level3" data-number="1.0.3">
+<h3 data-number="1.0.3" class="anchored" data-anchor-id="spesielt-om-mac-maskiner"><span class="header-section-number">1.0.3</span> Spesielt om Mac-maskiner</h3>
+<p>R skal normalt installere på Mac uten problemer. Noen har fått beskjed om at de også trenger å installere XQuartz eller Xcode. I så fall installerer du de også. Se mer informasjon her: <a href="https://cran.r-project.org/bin/macosx/tools/">https://cran.r-project.org/bin/macosx/tools/</a></p>
 </section>
-<section id="til-undervisere" class="level2">
-<h2 class="anchored" data-anchor-id="til-undervisere">Til undervisere</h2>
-<p>Denne boken har gjort en del strategiske valg av pakker og funksjoner som brukes gjennomgående. Først og fremst brukes <em>tidyverse</em> gjennomgående, og andre funksjoner som brukes vil være kompatible med tidyverse. Dette gir en konsistent og effektiv kode gjennomgående.</p>
-<p>Det vektlegges gjennomgående at alle resultater skal bli pene, i publiserbar kvalitet, og i en form som lar seg eksportere til tekstbehandlingsprogram i MS Office, fordi det i praksis er dette de fleste bruker. Men det er også vektlagt å bruke eksportfunksjoner som <em>også</em> kan eksportere til andre formater som pdf, html or rft, og er kompatible med Markdown/Quarto. Selv om de fleste nybegynnere i R ikke jobber i disse formatene skal de ikke behøve å bytte funksjoner hvis de skulle ha behov for det senere.</p>
+<section id="spesielt-om-linux-maskiner" class="level3" data-number="1.0.4">
+<h3 data-number="1.0.4" class="anchored" data-anchor-id="spesielt-om-linux-maskiner"><span class="header-section-number">1.0.4</span> Spesielt om Linux-maskiner</h3>
+<p>Har du Linux vet du antakelig hva du driver med. Siste versjon av R og Rstudio kan antakeligvis installeres fra distroens repository.</p>
+</section>
+<section id="spesielt-om-chromebook" class="level3" data-number="1.0.5">
+<h3 data-number="1.0.5" class="anchored" data-anchor-id="spesielt-om-chromebook"><span class="header-section-number">1.0.5</span> Spesielt om Chromebook</h3>
+<p>Chromebook kjører et annet operativsystem og R vil ikke uten videre fungere. Derimot kan man på de fleste slike maskiner åpne opp for å kjøre Linux og da kan man installere linux-versjon av R og Rstudio. <a href="https://blog.sellorm.com/2018/12/20/installing-r-and-rstudio-on-a-chromebook/">https://blog.sellorm.com/2018/12/20/installing-r-and-rstudio-on-a-chromebook/</a></p>
+</section>
+<section id="oppsett-og-forberedelser" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="oppsett-og-forberedelser"><span class="header-section-number">1.1</span> Oppsett og forberedelser</h2>
+<p>Dette oppsettet gjelder både hvis du har en lokal installasjon og for skyløsninger. Utseendet spiller ingen rolle, og R kan også fungere uten å opprette “projects” som beskrevet her. Men det er lettere å bruke og du har bedre orden hvis du gjør dette.</p>
+<section id="utseende-i-rstudio" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="utseende-i-rstudio"><span class="header-section-number">1.1.1</span> Utseende i Rstudio</h3>
+<p>Endre gjerne på oppsettet i RStudio ved å gå til Tools og deretter Global options, så Pane Layout.</p>
+<p><img src="imgs/oppsett1.png" class="img-fluid"></p>
+<p>Det spiller ingen rolle for funksjonaliteten hvor du har hvilken fane, men her er et forslag.</p>
+<p><img src="imgs/oppsett2.png" class="img-fluid"></p>
+<p>Dette kan også endres senere og har altså bare med hvordan Rstudio ser ut.</p>
+</section>
+</section>
+<section id="rstudio-projects" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="rstudio-projects"><span class="header-section-number">1.2</span> Rstudio projects</h2>
+<p>Når du åpner Rstudio skal du alltid åpne som «project» (se <a href="https://www-int.uio.no/studier/emner/sv/iss/SOSGEO1120/undervisningsvideoer/OpenR_forsteGang.mp4">video</a> med instruksjon og i R4DS (<span class="citation" data-cites="r4ds">Wickham and Grolemund (<a href="#ref-r4ds" role="doc-biblioref">2017</a>)</span>)). Arbeidsområdet er da definert og du kan åpne data ved å bruke relative filbaner, dvs. at du oppgir hvor dataene ligger med utgangspunkt i prosjektmappen. Se kursvideo og instruksjoner i R4DS og gjør følgende:</p>
+<p>Opprettet mappestruktur med prosjektmappen som øverste nivå og egne undermapper for data, script, og output.</p>
+</section>
+<section id="åpne-rstudio-og-opprett-et-.rproject" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="åpne-rstudio-og-opprett-et-.rproject"><span class="header-section-number">1.3</span> Åpne RStudio og opprett et .Rproject</h2>
+<p><img src="imgs/proj2.png" class="img-fluid"></p>
+<p>Bruk funksjonen <code>getwd()</code> og se at du har riktig filbane til arbeidsområdet. Hvis du ikke er sikker på hva det betyr, må du spørre noen eller finne det ut på annen måte!</p>
+<p>Det første dere må gjøre er å sørge for å ha orden i datasett, script og annet på din egen datamaskin. Å f.eks. lagre alle filer på skrivebordet bør du aldri gjøre, og særlig ikke i dette kurset eller når man jobber med større prosjekter og datasett.</p>
+<p>For dette kurset skal du ha en mappestruktur med en hovedmappe for dette kurset og tilhørende undermapper. Det spiller ingen rolle hvor på datamaskinen du legger disse mappene, men du må vite hvor det er. Lag første en mappe med et hensiktsmessig navn for kurset, og innunder denne mappen lager du tre andre mapper med navnene data, output og script. Du kan ha andre mapper i tillegg ved behov. Det kan se slik ut:</p>
+<p><img src="imgs/proj1.png" class="img-fluid"></p>
+<p>Du skal opprette et Rstudio-prosjekt for hele kurset. Dette er beskrevet nærmere i R4DS i kapittel 6. Når du har åpnet RStudio skal du aller først klikke New Project.</p>
+<p><img src="imgs/proj2.png" class="img-fluid"></p>
+<p>Deretter klikker du du «Existing Directory»</p>
+<p><img src="imgs/proj3.png" class="img-fluid"></p>
+<p>Klikk «Browse» og bla deg så frem til mappen du har laget for dette kurset.</p>
+<p>RStudio-prosjektet ligger så i den mappen du har valgt. I filutforsker på datamaskinen vil nå disse to filene dukke opp:</p>
+<p><img src="imgs/proj4.png" class="img-fluid"></p>
+<p>For å starte R videre i dette kurset skal du dobbeltklikke det første ikonet, så vil R åpne seg med riktig arbeidsområde. Mappen .Rproj.user skal du ikke røre. I RStudio vil du se at prosjektet er åpnet ved at det i øvre høyre hjørne er dette ikonet:</p>
+<p><img src="imgs/proj5.png" class="img-fluid"></p>
+<p>En stor fordel med å bruke projects er at du kan flytte hele mappen til et annet sted, eller til en annen datamaskin og alt vil fungere akkurat som før. Hvis du bruker en skytjeneste (OneDrive, Dropbox etc) vil du kunne åpne Rstudio projects på samme måte fra flere maskiner.</p>
 
 
-</section>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-r4ds" class="csl-entry" role="listitem">
+Wickham, Hadley, and Garrett Grolemund. 2017. <em>R for Data Science</em>. Beijing, China: <a href="https://r4ds.had.co.nz/index.html" class="uri">https://r4ds.had.co.nz/index.html</a>; O’Reilley.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->
@@ -459,10 +542,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Forord</span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./installering.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Installere R og Rstudio</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./kort_intro_R.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">En veldig kjapp intro til R</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

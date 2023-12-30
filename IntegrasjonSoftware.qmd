@@ -1,0 +1,78 @@
+## Kombinere R med annen software
+
+### Stata og SPSS 
+Det er mange forskjellige statistikksoftware i bruk, og i samfunnsvitenskap har Stata vært dominerende inntil nylig. Før det var SPSS det dominerende. Nå tar R over, men en gang fremtiden er det kanskje noe helt annet. Uansett vil du lett havne i en situasjon der du trenger å forhold deg til Stata og kanskje også SPSS eller andre software. Et vanlig case er at du skal samarbeide med noen. En annen mulighet er at du skal ta et videregående metodekurs der de bruker f.eks. Stata. 
+
+Dette er ikke stedet å diskutere ulike software sine styrker og svakheter. Hvis du vil se lange diskusjoner om hvilken software som er best, så er det nok av diskusjonsgrupper på nettet der dette er temaet. Det er riktignok bortkastet tid fordi folk har ulike behov og verdsetter ulike ting. Grunnen til at du skal forhold deg til annen software er først og fremst at andre folk bruker dem.
+
+Men det er likevel én substansiell grunn til at du kan støte på Stata f.eks. på avanserte metodekurs: Stata er svært god på en del regresjonsmodeller. Selv om det aller meste også kan estimeres i R kan det være ulik brukerterskel for noen av disse. Stata er kjent for svært strømlinjeformet syntax med forvalg som gjør at man kan skrive enkel kode. Instruksjoner for hvordan bruke disse modellene vil ofte ha medfølgende Stata kode. Det er altså mulig å betrakte Stata som en spesialisert software for viktige familier av regresjonsmodeller. 
+
+
+#### Fremtiden er muligens flerspråklig 
+Poenget her er at det er ingen grunn til å lære seg et helt nytt programmeringsspråk bare fordi man trenger å kjøre en snutt i annen software. Man vil lett kunne havne i en situasjon der man bare trenger å gjøre noen ting i annen software. Hvis man jobber i R kan det være at man trenger å gjøre noe spesisielt i Stata, Python, QGIS eller noe helt annet. Det er viktig å være klar over at det er en tendens mot integrasjon på tvers av statistikksoftware nettopp av denne grunn. Du kan dermed ikke regne med å ha lært deg kvantitativ dataanalyse en gang for alle bare ved å ha lært deg én ting. 
+
+Så er det motsatte også sant: Mye annen software har integrasjon mot R slik at man kan kjøre R fra Stata, SPSS, Python osv. Det er til og med mulig å kjøre R fra systemer som Excel og Power BI. 
+
+
+#### Generell strategi: eksport-import
+
+
+
+### Kjøre Stata direkte fra R
+Pakken {Rstata} lar deg gjøre to ting: 
+
+* Skrive Stata-kode i R og utføre det i Stata
+* Skrive eget script med Stata-kode og utføre det i Stata fra R 
+
+Du installerer pakken på vanlig måte slik: 
+```{r}
+#| eval: false
+
+install.packages("RStata")
+
+```
+
+Så må du spesifisere filbane for hvor Stata er installert på din datamaskin, og også angi versjonsnummer. Det vil typisk ligge på din C-disk, under mappen "Program Files". På Windows skal du angi den mappen hvor exe-filen ligger, og filnavnet til exe-filen, men uten filhalen ".exe". Hos meg ligger Stata her "C:\Program Files\Stata17\StataSE-64.exe" og jeg kan da angi dette som følger: 
+
+```{r}
+#| eval: FALSE
+library(RStata)
+
+stata_path = "\"C:\\Program Files\\Stata17\\StataSE-64\""
+options("RStata.StataPath" = stata_path)
+options("RStata.StataVersion" = 17)
+```
+
+Det kan hende at en pc som tilhører lærestedet ditt eller jobben din har et annet oppsett. Spør i så fall IT-hjelp om filbanen til din Stata-installasjon. 
+
+Da kan du kjøre Stata fra R. Merk at du bruker funksjonen `stata()` og alt innenfor denne funksjonen må være standard Stata-kode. Ingenting av det du kan om R funker innenfor denne parentesen. 
+
+```{r}
+#| eval: FALSE
+stata('display 2+2')
+```
+
+
+
+
+### Kjøre SPSS direkte fra R
+Nyere versjoner av SPSS kommer med ferdig installerte funksjonalitet for integrasjon med R: https://www.ibm.com/docs/en/spss-statistics/beta?topic=r-spss-statistics-essentials 
+
+
+
+## Annen integrasjon
+
+### Python 
+Pakkene {reticulate} og {arrow} lar deg jobbe sømløst i R og Python samtidig fra Rstudio. 
+
+
+### Qgis 
+
+
+
+### Databaser 
+
+
+
+
+
