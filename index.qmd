@@ -1,3 +1,10 @@
+```{r}
+#| label: setup-pakker
+#| include: false
+# Skanner alle .qmd-filer og installerer eventuelle manglende pakker
+source("script/install_packages.R")
+```
+
 # Forord {.unnumbered}
 
 Denne boken er ment som en praktisk innføring i bruk av R til dataanalyse for studenter i samfunnsvitenskap. Fokuset er på *hvordan* man gjør dataanalyse i R -- fra innlesning av data, via datahåndtering og deskriptiv analyse, til statistisk modellering og visualisering.
@@ -18,14 +25,33 @@ En av de store forskjellene fra SPSS og Stata er at R *ikke* har muligheten for 
 
 ## Pakker som brukes
 
-Boken bruker en rekke R-pakker konsekvent:
+Boken bruker en rekke R-pakker. Tabellen nedenfor genereres automatisk ved å skanne alle kapittelfiler, og oppdateres hvis det gjøres endringer i prosjektet.
 
-- **tidyverse** for generell datahåndtering og grafikk (inkluderer dplyr, ggplot2, tidyr, readr, forcats, stringr, purrr)
-- **gtsummary** og **gt** for deskriptive tabeller
-- **modelsummary** og **gt** for regresjonstabeller
-- **haven** og **labelled** for import av data fra Stata og SPSS
-- **sf** og **tmap** for kart
-- **marginaleffects** for marginaleffekter
+```{r}
+#| label: pakkeoversikt
+#| echo: false
+#| message: false
+pakker <- hent_prosjektpakker()
+
+versjoner <- sapply(pakker, function(p) {
+  if (p %in% rownames(installed.packages())) {
+    as.character(packageVersion(p))
+  } else {
+    "ikke installert"
+  }
+})
+
+df <- data.frame(
+  Pakke   = pakker,
+  Versjon = versjoner,
+  row.names = NULL
+)
+
+knitr::kable(
+  df,
+  caption = paste0("R-pakker brukt i prosjektet (n\u00a0=\u00a0", nrow(df), ")")
+)
+```
 
 
 ## Bokens oppbygning
