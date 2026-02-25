@@ -1,0 +1,204 @@
+# Modelldiagnostikk
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(haven)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+abu89 <- read_stata("data/abu89.dta") %>%
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.))) %>%
+  filter(!is.na(time89))
+```
+
+Når vi estimerer en regresjonsmodell gjør vi en del antakelser om dataene. Disse antakelsene er ikke bare formaliteter -- de har betydning for om vi kan stole på resultatene. Modelldiagnostikk handler om å sjekke om disse antakelsene holder rimelig godt. Heldigvis finnes det enkle grafiske verktøy og tester som gjør dette ganske oversiktlig.
+
+Vi bruker en enkel regresjonsmodell som utgangspunkt for diagnostikken. Her predikerer vi timelønn med alder og kjønn:
+
+```{r}
+#| warning: false
+#| message: false
+mod1 <- lm(time89 ~ age + female, data = abu89)
+summary(mod1)
+```
+
+
+## Hva er det vi sjekker?
+
+De viktigste antakelsene i lineær regresjon er:
+
+1. **Linearitet**: Sammenhengen mellom forklaringsvariable og utfallsvariabel er tilnærmet lineær.
+2. **Normalfordelte residualer**: Residualene (avvikene fra regresjonslinjen) er tilnærmet normalfordelt.
+3. **Homoskedastisitet**: Variansen i residualene er omtrent lik for alle verdier av forklaringsvariablene.
+4. **Ingen ekstreme observasjoner** som alene driver resultatene.
+5. **Ingen alvorlig multikollinearitet**: Forklaringsvariablene er ikke for sterkt korrelert med hverandre.
+
+Ingen av disse trenger å holde *perfekt*. Regresjon er ganske robust, og poenget er å avdekke grove brudd som kan påvirke konklusjonene.
+
+
+## Residualplot: Residualer mot predikerte verdier
+
+Det mest grunnleggende diagnostiske plottet er å sette residualene opp mot de predikerte (fitted) verdiene. Hvis alt er som det skal, vil punktene ligge tilfeldig spredt rundt null uten noe tydelig mønster.
+
+```{r}
+#| warning: false
+#| message: false
+abu89 <- abu89 %>%
+  mutate(fitted_val = fitted(mod1),
+         resid_val  = residuals(mod1))
+
+ggplot(abu89, aes(x = fitted_val, y = resid_val)) +
+  geom_point(alpha = .2) +
+  geom_hline(yintercept = 0, col = "red") +
+  labs(x = "Predikerte verdier", y = "Residualer") +
+  theme_minimal()
+```
+
+Her ser vi etter systematiske mønstre. Hvis punktene danner en trakt (vifteform), tyder det på heteroskedastisitet. Hvis det er en kurve, kan det tyde på at sammenhengen ikke er lineær. I dette tilfellet ser vi at variansen ser ut til å øke noe med predikerte verdier, og det er noen observasjoner med veldig store residualer.
+
+
+## QQ-plot for normalitet
+
+Et QQ-plot (quantile-quantile plot) sammenligner fordelingen av residualene med en teoretisk normalfordeling. Hvis residualene er normalfordelt, vil punktene ligge omtrent langs en rett linje.
+
+```{r}
+#| warning: false
+#| message: false
+ggplot(abu89, aes(sample = resid_val)) +
+  stat_qq(alpha = .2) +
+  stat_qq_line(col = "red") +
+  labs(x = "Teoretiske kvantiler", y = "Observerte kvantiler") +
+  theme_minimal()
+```
+
+Her ser vi at punktene følger linjen rimelig bra i midten, men avviker i halene. Det betyr at fordelingen har tyngre haler enn normalfordelingen. Med store utvalg er dette sjelden et stort problem for estimatene, men det er greit å vite om.
+
+
+## De fire standard diagnostikkplottene
+
+R har en innebygd funksjon som gir fire diagnostiske plot samtidig. Man bruker bare `plot()` på et `lm`-objekt:
+
+```{r}
+#| warning: false
+#| message: false
+#| fig-height: 8
+par(mfrow = c(2, 2))
+plot(mod1)
+par(mfrow = c(1, 1))
+```
+
+Disse fire plottene viser:
+
+1. **Residuals vs Fitted**: Sjekker linearitet og homoskedastisitet (det vi allerede har sett på).
+2. **Normal Q-Q**: Sjekker normalitet i residualene.
+3. **Scale-Location**: Sjekker homoskedastisitet. Linjen bør være tilnærmet flat.
+4. **Residuals vs Leverage**: Identifiserer innflytelsesrike observasjoner.
+
+Legg merke til at R merker noen observasjoner med radnummer. Det er de mest avvikende observasjonene som du kanskje bør se nærmere på.
+
+
+## Heteroskedastisitet
+
+Heteroskedastisitet betyr at variansen i residualene varierer systematisk. Det påvirker ikke selve estimatene, men det gjør at standardfeilene kan bli feil -- og dermed også p-verdier og konfidensintervaller.
+
+Vi har allerede sett visuelt etter dette i residualplottet. Man kan også bruke en formell test. Breusch-Pagan-testen sjekker om variansen i residualene korrelerer med de predikerte verdiene:
+
+```{r}
+#| warning: false
+#| message: false
+library(lmtest)
+bptest(mod1)
+```
+
+En lav p-verdi (under 0.05) tyder på at heteroskedastisitet er til stede. Men husk at med store utvalg vil selv små avvik bli statistisk signifikante, så det visuelle inntrykket fra residualplottet er vel så viktig.
+
+
+## Innflytelsesrike observasjoner og Cooks avstand
+
+Noen enkeltobservasjoner kan ha uforholdsmessig stor innflytelse på regresjonsresultatene. Cooks avstand (Cook's distance) er et samlemål for hvor mye hvert datapunkt påvirker de estimerte koeffisientene. En tommelfingerregel er at verdier over $4/n$ (der $n$ er antall observasjoner) bør undersøkes nærmere.
+
+```{r}
+#| warning: false
+#| message: false
+abu89 <- abu89 %>%
+  mutate(cooks_d = cooks.distance(mod1))
+
+ggplot(abu89, aes(x = seq_along(cooks_d), y = cooks_d)) +
+  geom_point(alpha = .3) +
+  geom_hline(yintercept = 4 / nrow(abu89), col = "red", linetype = "dashed") +
+  labs(x = "Observasjon", y = "Cooks avstand") +
+  theme_minimal()
+```
+
+Punktene over den røde linjen er observasjoner som har relativt stor innflytelse. Det betyr ikke nødvendigvis at de er feil eller at de bør fjernes, men det er lurt å sjekke hva slags observasjoner det er. I lønnsdata er det gjerne folk med uvanlig høy inntekt som trekker resultatene.
+
+
+## Multikollinearitet og VIF
+
+Multikollinearitet oppstår når forklaringsvariablene er sterkt korrelert med hverandre. Det gjør at det blir vanskelig å skille effektene fra hverandre, og standardfeilene blåses opp.
+
+VIF (Variance Inflation Factor) måler dette. En VIF på 1 betyr ingen korrelasjon med andre forklaringsvariable. Tommelfingerregler varierer, men VIF over 5 gir grunn til bekymring, og over 10 er et klart problem.
+
+La oss utvide modellen med noen flere variable og sjekke VIF:
+
+```{r}
+#| warning: false
+#| message: false
+mod2 <- lm(time89 ~ age + female + ed, data = abu89)
+
+library(car)
+vif(mod2)
+```
+
+Her ser vi at VIF-verdiene er lave, noe som betyr at multikollinearitet ikke er et problem i denne modellen. Hvis du hadde inkludert variable som i praksis måler det samme, ville VIF blitt høyere.
+
+
+## Rask diagnostikk med `performance`-pakken
+
+Pakken {performance} har en veldig nyttig funksjon som gjør mye av diagnostikken i ett steg. Funksjonen `check_model()` lager et sett med diagnostiske plot som dekker de viktigste antakelsene.
+
+```{r}
+#| warning: false
+#| message: false
+#| fig-height: 9
+library(performance)
+check_model(mod2)
+```
+
+Dette gir deg et samlet bilde av modellens egenskaper, inkludert linearitet, homoskedastisitet, normalitet, innflytelsesrike observasjoner og multikollinearitet. Det er en fin snarvei for en rask sjekk.
+
+Du kan også få en tekstbasert oppsummering:
+
+```{r}
+#| warning: false
+#| message: false
+check_model(mod2, check = "all") |> summary()
+```
+
+
+## Hva gjør man hvis antakelsene brytes?
+
+I praksis er det sjelden at alle antakelser holder perfekt. Her er noen praktiske råd:
+
+**Heteroskedastisitet**: Bruk robuste standardfeil. Det endrer ikke estimatene, men gir korrekte standardfeil og p-verdier. I R kan du bruke pakken {sandwich} sammen med {lmtest}, eller rapportere robuste standardfeil direkte via {modelsummary}.
+
+**Ikke-normalfordelte residualer**: Med store utvalg (over noen hundre observasjoner) er dette sjelden et problem for estimatene eller standardfeilene takket være sentralgrenseteoremet. Men det kan tyde på at modellen mangler noe viktig.
+
+**Innflytelsesrike observasjoner**: Sjekk hva slags observasjoner det er. Kjør modellen med og uten disse observasjonene. Hvis resultatene endrer seg mye, bør du diskutere dette.
+
+**Ikke-linearitet**: Vurder å transformere variablene (f.eks. logaritme) eller inkludere polynomiske ledd.
+
+**Multikollinearitet**: Vurder om du trenger alle variablene i modellen. Kanskje noen av dem måler det samme og du kan droppe en av dem.
+
+Det viktigste er at du *faktisk sjekker* antakelsene. Det er mye bedre å gjøre en enkel sjekk og diskutere eventuelle problemer enn å ignorere diagnostikk fullstendig. Og husk: ingen modell er perfekt. Poenget er at den er nyttig nok til å fortelle oss noe meningsfullt om dataene.

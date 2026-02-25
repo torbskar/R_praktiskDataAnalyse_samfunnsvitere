@@ -1,0 +1,158 @@
+# Prompt engineering
+
+Det er mye snakk om kunstig intelligens for tiden, og i praksis er det ofte chatGPT eller andre store språkmodeller (LLM) man tenker på. En av de tingene som LLM som chatGPT faktisk er god på er å skrive kode, deriblant i R. Det som kalles "prompt engineering" er prosessen hvor man formulerer en god forespørsel til en LLM for å få best mulig svar. Med andre ord: du kan få hjelp fra LLM til å skrive kode for deg. 
+
+Vi skal her gi en introduksjon til hvordan bruke prompt engineering i R på to måter: 
+
+1) Den første fremgangsmåten er å bruke chatGPT. Til dette kan bruke en vanlig brukerkonto på OpenAI eller en tilrettelagt tjeneste for sikrere bruk som [GPT UiO](gpt.uio.no).  
+1) Den andre er å bruke Github Copilot, som er en LLM som er spesialisert på kode og som er kan integreres direkte i Rstudio. 
+
+*Hensikten* med å bruke LLM for koding kan være flere, men som nybegynner i programmering bør første steget være å lære seg å skrive kode selv. Når du vet hva du driver med må du gjerne bruke LLM for å skrive kode fortere slik at du kan gjøre kjedelige oppgaver fortere, eller for å lære deg helt nye ting. Vi fokuserer her på å bruke LLM for å lære seg R og å kunne fokusere på data analyse i stedet for å bruke tid på å forstå selve kodingen. 
+
+Det er ingenting ved LLM/GPT som gjør at du ikke trenger å tenke selv og du må fremdeles lære deg å kode. For det første er egen kunnskap din viktigste ressurs for å skrive gode promt. Det kan faktisk innebære noe kode og forståelse av datastruktur og databehandling. For det andre er du nødt til å vite om de foreslåtte løsningene gjør det du faktisk ønsker. Det er ingen garanti for at det som foreslås er riktig. Du må altså kunne vurdere output og sjekke i praksis. Kort sagt: du må vite hva du driver med. 
+
+Fordelen med å bruke LLM er altså at det kan gjøre læringen litt lettere, og at du bruker mindre tid på å stå fast på ting som ikke funkerer. *Debugging* er nemlig en stor del av programmering, og det er en stor fordel å kunne få hjelp til dette.
+
+
+## Gode prinsipper for prompt
+Å skrive prompter for kode er i prinsippet det samme som for annen bruk av LLM. 
+
+1) **Tydelighet**. Du må være tydelig på hva du ønsker å oppnå.
+1) **Spesifikk**. Du må være spesifikk på hva du ønsker å oppnå.
+1) **Grad av variasjon**. Du må være klar på hvor mye variasjon du ønsker i svaret.
+1) **Kontekst**. Du må gi god kontekst for hva du ønsker å oppnå.
+
+Viktigste kontekst her er å angi tydelig hvilket språk du jobber i, som altså er R. I tillegg er det viktig å angi hvilke pakker du ønsker å bruke. Her vektlegger vi tidyverse, så angi det.
+
+
+### andre triks
+
+* angi med markdown uthevinger 
+* angi med anførselsetegn 
+* angi deler med linjeskift og --- 
+
+
+
+
+## chat med GPT 
+
+
+
+For å få gode svar fra chatGPT er det viktig at du formulerer promptet ditt godt. Det er også viktig at du har en viss forståelse av hva du driver med. Du må vite hva du vil oppnå. Du må også kunne vurdere om løsningen som chatGPT foreslår er rimelig.
+
+
+
+
+### Få hjelp av chatGPT 
+
+
+Effektiv bruk av chatGPT innebærer at du kan formulere promptet godt. For å få til det bør du derfor vite hva du driver med. Du trenger også kunnskap og erfaring for å se om kodeforslaget ser rimelig ut, og vurdere om løsningen bruker riktige pakker. Det er ofte lurt å spesifisere at du vil ha en løsning med tidyverse eller andre spesifikke pakker. Oppfølgingsspørsmål kan også være nødvendig. 
+
+Du må *aldri* bruk kode fra chatGPT (eller andre verktøy) uten at du forstår hva koden faktisk gjør. Det kan innebære at du må teste koden på dine data grundig. Det krever også ferdigheter. Du må rett og slett ha et godt grunnlag for å forstå koden. I mellomtiden kan du godt bruke chatGPT til å *lære deg* R. 
+
+Hvis du skal bruke chatGPT så bør du starte med å bruke det til å forstå instruksjoner du har problemer med. Prøv ut med følgende prompt: 
+
+```{r}
+#| eval: false
+#| warning: false
+#| error: false
+#| message: false
+
+Kan du forklare følgende kode? 
+  dinedata %>% 
+  group_by(gruppe) %>% 
+  mutate(antall = n(), gjennomsnitt = mean(varA), 
+         avvik = varA - gjennomsnitt) %>% 
+  arrange(gruppe, desc(avvik)) %>% 
+  filter(row_number() == 1)
+
+```
+![](imgs/chatgpt1.png)
+
+
+Du kan også bruke chatGPT til å finne feil i koden du ikke klarer å finne ut av selv. Du kan legge til en "kontekst" og be chatGPT om å finne feilen som gjør at du ikke får det resultatet du forventer. Prøv ut med følgende prompt: 
+
+```{r}
+#| eval: false
+#| warning: false
+#| error: false
+#| message: false
+Jeg ønsker å få aggregerte statistikker for et datasett, men det blir ikke riktig. Jeg ønsker å få en linje per gruppe, men resultatet gir aggregering per observasjon i stedet for en linje per gruppe. Kan du finne feilen i følgende kode?  
+  dinedata %>% 
+  group_by(gruppe) %>% 
+  mutate(antall = n(), gjennomsnitt = mean(varA), 
+         avvik = varA - gjennomsnitt) %>% 
+  arrange(gruppe, desc(avvik)) %>% 
+  filter(row_number() == 1)
+
+```
+![](imgs/chatgpt1.png)
+
+Merk at chatGPT da vil foreslå en løsning, men det kan godt hende du får et litt annet svar enn det som er gjengitt ovenfor. Det er ikke gitt at den forstår problemet ditt korrekt og løsningen er heller ikke nødvendigvis riktig! 
+
+For å få et godt svar er det viktig at du i promptet gir en god beskrivelse av *konteksten*, som innebærer hva du ønsker å gjøre, hva resultatet blir og hva du tror er feil. For at dette skal fungere godt trenger du altså å forstå problemet ditt og beskrive det så tydelig som mulig. Så må du teste løsningen på din egen datamaskin og sjekke at det faktisk fungerer. 
+
+
+
+## Github Copilot i Rstudio
+
+Github Copilot er en LLM som er spesialisert på kode og som er kan integreres direkte i Rstudio. Den er spesielt god på å foreslå kode, og kan være en god hjelp til å skrive kode raskere. 
+
+For installasjon i Rstudio, se på (hjemmesiden)[https://docs.posit.co/ide/user/ide/guide/tools/copilot.html]
+
+
+### Automatisk kodeforslag 
+
+
+### Scriptet er kontekst og prompt!  
+Copilot bruker scriptet ditt som promt når den foreslår kode. Det betyr at mye av de samme prinsippene for promt engieering gjelder for Copilot. Du må være tydelig på hva du ønsker å oppnå, spesifikk på hva du ønsker å oppnå. 
+
+Dette gjøres ved å skrive ryddige script som er godt kommentert. Start gjerne skriptet med en overordnet beskrivelse av hva scriptet gjør. Underveis beskriver du hva de ulike delene av scriptet gjør. Dette er altså intensjoner som Copilot benytter seg av for å foreslå kode. 
+
+En overordnet beskrivelse av skriptet kan f.eks. se slik ut:
+
+```{r}
+#| eval: false
+
+# Formål:       Bruker data xxx til å analysere hvordan variabel yyy påvirker zzz
+#               Bruker modellen mmm med robuste standardfeil og ... 
+# Bygger på:    Databearbeiding er gjort i scriptet "data_bearbeiding.R"   
+# Pakker:       tidyverse, broom, lmtest, plm, sandwich       
+#               gt, gtsummary, modelsummary 
+# Input:        Data xxx med variabler yyy og zzz
+# Output:       tabeller med deskriptiv statistikk, eksportert til Word
+#               grafikk eksportert til png-format 
+#               modellresultater i tabellform, eksportert til Word
+```
+
+En slik beskrivelse av et skript kan være en god regel også for deg selv, for å holde orden på hva du gjør. Det er også en god regel for å kunne dele skriptet med andre. 
+
+
+
+**MERK!** at når Copilot bruker scriptet ditt som kontekst og promt, så betyr det at du deler informasjon med en tredjepart. Du bør derfor ikke dele kode som inneholder personlig informasjon. Du bør uansett ikke skrive personlig informasjon som passord eller lignende i kode, men det er ekstra viktig når du bruker Copilot. Copilot vil imidlertid ikke plukke opp informasjon fra dataene du jobber med. 
+
+
+
+
+### Chatte med copilot med {chattr}
+[Pakken {chattr}](https://mlverse.github.io/chattr/articles/copilot-chat.html) er en pakke som lar deg chatte med Copilot direkte i Rstudio. Du kan installere pakken med følgende kode: 
+
+```{r}
+#| eval: false
+remotes::install_github("mlverse/chattr")
+``` 
+
+Når du starter opp chattr åpnes et eget vindu i Rstudio hvor du kan chatte med Copilot. Du kan skrive kode og få forslag til kode fra Copilot. Du starter opp chattr ved å først velge hvilken tjeneste du vil bruke (her Copilot) og deretter starte chatten.^(Andre valg er `gpt4`, `gpt35` og `llamagpt`. Du trenger en brukerkonto hos OpenAI for å bruke disse tjenestene, mens Github copilot må være aktivert i Rstudio.) 
+
+
+```{r}
+#| eval: false
+
+library(chattr)
+
+chattr_use("copilot")
+chattr_app()
+```
+
+Når du er ferdig med chatten, klikk på "Stop" eller bruk "Esc"-tasten for å avslutte chatten.
+

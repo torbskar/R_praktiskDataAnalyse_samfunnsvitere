@@ -1,0 +1,209 @@
+# Import av Excel-filer
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(readxl)
+```
+
+Forbløffende mye data finnes i Excel-format. Selv om Excel ikke er designet for statistisk analyse, er det slik at svært mange organisasjoner, kommuner og offentlige etater lagrer og distribuerer data i Excel. Du vil nesten garantert støte på Excel-filer i løpet av studiene eller i arbeidslivet, så det er greit å vite hvordan du håndterer dem i R.
+
+Excel-filer kan være litt mer kronglete enn csv-filer fordi de kan inneholde flere ark, sammenslåtte celler, formatering og formler. Men R har gode verktøy for å håndtere dette.
+
+
+## Lese inn Excel-filer med `readxl`
+
+Pakken `readxl` er den anbefalte pakken for å lese inn Excel-filer i R. Den er en del av tidyverse-familien og håndterer både `.xls` (gammelt format) og `.xlsx` (nytt format). Den enkleste bruken er helt rett frem:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+wagepan_xlsx <- read_excel("data/wagepan_eksempel.xlsx")
+glimpse(wagepan_xlsx)
+```
+
+Funksjonen `read_excel()` gjetter selv om det er `.xls` eller `.xlsx` basert på filendelsen. Du kan også bruke `read_xlsx()` eller `read_xls()` direkte hvis du vil være eksplisitt.
+
+
+## Velge ark med `sheet`
+
+En Excel-fil kan inneholde flere ark (sheets). Som standard leser `read_excel()` inn det første arket. For å se hvilke ark som finnes i en fil kan du bruke `excel_sheets()`:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+excel_sheets("data/wagepan_eksempel.xlsx")
+```
+
+Du kan velge ark enten med navn eller nummer:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+# Med navn
+df <- read_excel("data/wagepan_eksempel.xlsx", sheet = "Sheet1")
+
+# Med nummer (første ark)
+df <- read_excel("data/wagepan_eksempel.xlsx", sheet = 1)
+```
+
+Hvis du trenger data fra flere ark kan du lese dem inn hver for seg og eventuelt koble dem sammen etterpå.
+
+
+## Håndtere overskriftsrader og hoppe over rader
+
+I praksis ser Excel-filer sjelden så ryddige ut som man skulle ønske. Det er vanlig at de første radene inneholder titler eller merknader som ikke er en del av dataene. Med `skip` hopper du over et gitt antall rader fra toppen:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+# Hopp over de 3 første radene
+df <- read_excel("data/wagepan_eksempel.xlsx", skip = 3)
+```
+
+Noen ganger har ikke filen variabelnavn i det hele tatt. Da kan du bruke `col_names`:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+# Ingen overskriftsrad - R lager egne navn (X1, X2, ...)
+df <- read_excel("data/wagepan_eksempel.xlsx", col_names = FALSE)
+
+# Sett egne variabelnavn
+df <- read_excel("data/wagepan_eksempel.xlsx",
+                 col_names = c("id", "alder", "kjonn", "inntekt"))
+```
+
+
+## Spesifisere celleområde med `range`
+
+Hvis dataene bare ligger i en del av regnearket, kan du spesifisere nøyaktig hvilke celler som skal leses inn.
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+# Les bare cellene B2 til F100
+df <- read_excel("data/wagepan_eksempel.xlsx", range = "B2:F100")
+
+# Du kan også spesifisere ark og celleområde samtidig
+df <- read_excel("data/wagepan_eksempel.xlsx", range = "Sheet1!B2:F100")
+```
+
+Du kan også bruke `cell_rows()` og `cell_cols()` for å spesifisere bare rader eller kolonner:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+# Bare radene 5 til 50
+df <- read_excel("data/wagepan_eksempel.xlsx", range = cell_rows(5:50))
+
+# Bare kolonnene A til D
+df <- read_excel("data/wagepan_eksempel.xlsx", range = cell_cols("A:D"))
+```
+
+
+## Vanlige problemer med Excel-filer
+
+### Datoer
+Excel lagrer datoer som tall internt, og det kan noen ganger bli krøll ved innlesning. Hvis datoene ser rare ut (f.eks. som femsifrede tall), kan du konvertere dem:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+# Excel bruker 1899-12-30 som nullpunkt
+excel_tall <- 44927
+as.Date(excel_tall, origin = "1899-12-30")
+```
+
+Som regel håndterer `readxl` datoer automatisk, men det er greit å vite om dette.
+
+### Sammenslåtte celler
+Sammenslåtte celler er en gjenganger. Ved innlesning får bare den første cellen verdien, resten blir `NA`. Løsningen er å fylle nedover med `tidyr::fill()`:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+# Eksempel: Fyll NA-verdier nedover (typisk etter sammenslåtte celler)
+demo <- tibble(
+  kategori = c("Menn", NA, NA, "Kvinner", NA, NA),
+  alder = c("18-29", "30-49", "50+", "18-29", "30-49", "50+"),
+  antall = c(120, 340, 280, 135, 360, 295)
+)
+
+demo %>%
+  fill(kategori, .direction = "down")
+```
+
+### Flere tabeller i samme ark
+Noen bruker ett Excel-ark til å plassere flere tabeller ved siden av hverandre eller under hverandre. Da er `range`-argumentet din beste venn. Les inn hver tabell for seg med hvert sitt celleområde.
+
+### Tekst i tallkolonner
+Hvis noen har skrevet en kommentar eller merknad i en celle som ellers inneholder tall, vil hele kolonnen kunne bli lest inn som tekst. Sjekk variabeltypene med `glimpse()` og konverter om nødvendig med `as.numeric()`.
+
+
+## Skrive Excel-filer
+
+Noen ganger trenger du å lagre data som Excel-fil, f.eks. fordi noen du samarbeider med foretrekker det. Pakken `openxlsx` er et godt alternativ:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+library(openxlsx)
+
+# Enkel eksport
+write.xlsx(wagepan_xlsx, file = "data/eksempel_ut.xlsx")
+
+# Med flere ark i samme fil
+write.xlsx(list("Datasett1" = wagepan_xlsx,
+                "Oppsummering" = summary(wagepan_xlsx) %>% as.data.frame()),
+           file = "data/eksempel_flere_ark.xlsx")
+```
+
+Et enklere alternativ er pakken `writexl` som ikke har noen avhengigheter til Java eller andre systemer:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+library(writexl)
+write_xlsx(wagepan_xlsx, path = "data/eksempel_ut.xlsx")
+```
+
+Begge fungerer fint for enkel eksport. `openxlsx` gir deg mer kontroll over formatering, mens `writexl` er mer lettvektig og enklere å installere.
+
+
+## Tips for rotete Excel-filer
+
+I virkeligheten er Excel-filer ofte rotete. Her er noen praktiske tips:
+
+1. **Åpne filen i Excel først** og se på strukturen. Legg merke til hvilke rader og kolonner dataene faktisk ligger i.
+2. **Bruk `excel_sheets()`** for å se hvilke ark som finnes.
+3. **Start med `range`** hvis dataene ikke begynner i celle A1.
+4. **Sjekk variabeltypene** med `glimpse()` rett etter innlesning. Hvis en tallkolonne er blitt tekst, er det gjerne en kommentar eller et spesialtegn som lurer seg inn.
+5. **Bruk `fill()`** etter innlesning dersom det har vært sammenslåtte celler.
+6. **Unngå å redigere Excel-filen manuelt** for å "rydde" den. Skriv heller R-kode som håndterer rotet. Da er arbeidet reproduserbart og du slipper å gjøre det om igjen neste gang du får oppdaterte data.
+
+Det siste punktet er kanskje det viktigste. Det er fristende å fikse ting manuelt i Excel, men da mister du sporbarhet. Gjør du alt i R-kode, kan du og andre kjøre koden på nytt og få nøyaktig samme resultat.

@@ -1,0 +1,191 @@
+# Håndtering av store datasett
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+```
+
+I de foregående kapitlene har vi jobbet med datasett som er relativt små og håndterlige. Men hva skjer når datasettet blir stort? I dette kapittelet ser vi på noen praktiske strategier for når ting begynner å gå tregt -- eller når datasettet rett og slett ikke får plass i minnet på datamaskinen din.
+
+## Når blir data "store"?
+
+For de fleste samfunnsvitenskapelige datasett vil du aldri oppleve problemer med størrelsen. Et spørreundersøkelse med noen tusen respondenter og noen hundre variable er egentlig ganske lite i dataverdenen. Men det finnes situasjoner der ting kan bli tyngre:
+
+- Registerdata med millioner av observasjoner over mange år
+- Tekstdata, f.eks. fra sosiale medier, med millioner av poster
+- Geodata med svært detaljert oppløsning
+- Koblede datasett der mange registre er koblet sammen
+
+R holder alle data i minnet (RAM) på datamaskinen. En typisk laptop har 8-16 GB RAM, og operativsystemet bruker en del av dette. Når datasettet nærmer seg størrelsen på tilgjengelig RAM, begynner ting å gå veldig tregt -- og til slutt krasjer R.
+
+
+## Sjekke størrelsen på datasett
+
+Det er nyttig å vite hvor mye plass et datasett tar. Funksjonen `object.size()` gir deg en enkel oversikt:
+
+```{r}
+#| warning: false
+#| message: false
+# Lager et eksempel-datasett
+eksempel <- data.frame(
+  id = 1:100000,
+  verdi = rnorm(100000),
+  kategori = sample(letters[1:5], 100000, replace = TRUE)
+)
+
+object.size(eksempel)
+print(object.size(eksempel), units = "Mb")
+```
+
+For en mer nøyaktig måling kan du bruke `lobstr::obj_size()` som tar hensyn til delte objekter i minnet:
+
+```{r}
+#| eval: false
+library(lobstr)
+obj_size(eksempel)
+```
+
+Som en tommelfingerregel: et datasett på noen hundre megabyte er uproblematisk. Når det nærmer seg noen gigabyte bør du begynne å tenke på alternativer.
+
+
+## Effektive filformater: Parquet
+
+Csv-filer er enkle og universelle, men de er trege å lese inn og tar mye plass. For større datasett finnes det langt bedre alternativer. De to viktigste er *feather* og *parquet*, som begge håndteres av pakken `arrow`.
+
+Parquet-formatet er spesielt nyttig fordi det:
+
+- Tar vesentlig mindre plass enn csv (ofte 5-10 ganger mindre)
+- Er mye raskere å lese inn
+- Bevarer datatyper (du slipper problemer med at tall blir lest inn som tekst)
+- Kan leses av både R, Python og mange andre verktøy
+
+Her er et eksempel på hvordan du skriver og leser parquet-filer:
+
+```{r}
+#| eval: false
+library(arrow)
+
+# Skrive til parquet
+write_parquet(eksempel, "data/eksempel.parquet")
+
+# Lese fra parquet
+eksempel_parquet <- read_parquet("data/eksempel.parquet")
+```
+
+Forskjellen i hastighet merkes godt på store filer. En csv-fil som tar 30 sekunder å lese inn kan ta under ett sekund som parquet. Hvis du jobber med store datasett og leser inn de samme dataene flere ganger, er det absolutt verdt å konvertere til parquet.
+
+
+## data.table: Et raskt alternativ
+
+Gjennom hele denne boken har vi brukt tidyverse og dplyr for datahåndtering. Det fungerer utmerket for de aller fleste formål. Men hvis du jobber med svært store datasett og synes ting går tregt, finnes det et alternativ: pakken `data.table`.
+
+`data.table` er designet for hastighet og minneeffektivitet. Syntaksen er ganske annerledes enn tidyverse, men for noen operasjoner kan den være mange ganger raskere. Her er en liten smakebit:
+
+```{r}
+#| eval: false
+library(data.table)
+
+# Konvertere til data.table
+dt <- as.data.table(eksempel)
+
+# Filtrere og aggregere (tilsvarer filter + group_by + summarise)
+dt[kategori == "a", .(gjennomsnitt = mean(verdi)), by = kategori]
+```
+
+Merk at `data.table` bruker en kompakt syntax med klammeparenteser: `dt[i, j, by]` der `i` er radfiltrering, `j` er hva du vil gjøre med kolonnene, og `by` er gruppering. Det er effektivt, men kan være vanskeligere å lese for nybegynnere.
+
+For de fleste studenter er tidyverse absolutt å anbefale. Men det er greit å vite at `data.table` finnes dersom du en gang jobber med data der hastighet er kritisk. Det går også an å kombinere de to tilnærmingene med pakken `dtplyr`, som lar deg skrive dplyr-kode som kjøres med data.table i bakgrunnen.
+
+
+## Lazy evaluation med Arrow
+
+Hva gjør du når datasettet er *større* enn minnet på datamaskinen? Da kan du bruke `arrow` til å jobbe med data uten å laste alt inn i minnet. Dette kalles *lazy evaluation*: du bygger opp en serie operasjoner, og arrow utfører dem først når du eksplisitt ber om resultatet.
+
+```{r}
+#| eval: false
+library(arrow)
+
+# Åpne datasett uten å laste det i minnet
+stort_datasett <- open_dataset("data/stor_mappe/")
+
+# Bygg opp operasjoner (ingenting kjøres ennå)
+resultat <- stort_datasett |>
+  filter(aar >= 2015) |>
+  select(id, aar, inntekt, kommune) |>
+  group_by(kommune) |>
+  summarise(snitt_inntekt = mean(inntekt))
+
+# Hent resultatet inn i minnet
+resultat_df <- collect(resultat)
+```
+
+Her er poenget at `filter()`, `select()` og `summarise()` ikke utføres med en gang. Det er først når du kaller `collect()` at arrow faktisk leser og prosesserer dataene -- og da leser den bare de delene den trenger. Syntaksen er altså helt vanlig dplyr-kode, men den kjøres på en smartere måte i bakgrunnen.
+
+Dette fungerer spesielt godt med parquet-filer som er delt opp i flere filer i en mappe (såkalt *partisjonert* data).
+
+
+## Databasetilkoblinger
+
+For virkelig store data, eller data som oppdateres kontinuerlig, er det vanlig å bruke databaser. R kan koble seg til de fleste typer databaser via pakkene `DBI` og `dbplyr`. Med `dbplyr` kan du skrive vanlig dplyr-kode, men i bakgrunnen oversettes det til SQL-spørringer mot databasen.
+
+```{r}
+#| eval: false
+library(DBI)
+library(dbplyr)
+
+# Koble til en database (eksempel med SQLite)
+con <- dbConnect(RSQLite::SQLite(), "min_database.sqlite")
+
+# Referere til en tabell i databasen
+tabell <- tbl(con, "min_tabell")
+
+# Bruke vanlig dplyr-syntax
+resultat <- tabell |>
+  filter(aar == 2020) |>
+  group_by(kommune) |>
+  summarise(antall = n()) |>
+  collect()
+
+# Lukke tilkoblingen
+dbDisconnect(con)
+```
+
+De fleste studenter vil ikke trenge dette, men det er godt å vite at muligheten finnes. Noen forskningsprosjekter benytter databaser som PostgreSQL, MySQL eller Oracle for lagring av store datamengder, og da er dette veien å gå.
+
+
+## Praktiske tips for store datasett
+
+Uansett hvilke verktøy du bruker, er det noen enkle grep som hjelper:
+
+1. **Velg kun de kolonnene du trenger.** Ikke les inn 500 variable hvis du bare skal bruke 10. Bruk `select()` så tidlig som mulig.
+
+2. **Filtrer tidlig.** Hvis du bare trenger data fra et bestemt år eller en bestemt kommune, filtrer *før* du gjør tunge beregninger.
+
+3. **Bruk effektive datatyper.** Tekstvariable tar mer plass enn numeriske. Konverter kategoriske variable til factor med `as.factor()` for å spare plass.
+
+4. **Lagre mellomresultater.** Hvis du har gjort en tung bearbeiding, lagre resultatet som en rds- eller parquet-fil slik at du slipper å gjøre det på nytt.
+
+5. **Unngå unødvendige kopier.** Hver gang du lager et nytt objekt i R, brukes mer minne. Fjern objekter du ikke trenger lenger med `rm()` og frigjør minne med `gc()`.
+
+```{r}
+#| eval: false
+# Fjerne et objekt og frigjøre minne
+rm(stort_objekt)
+gc()
+```
+
+
+## Når R ikke er nok
+
+I noen sjeldne tilfeller kan det hende at R rett og slett ikke strekker til. Dette gjelder typisk for svært store data (mange titalls gigabyte eller mer) eller oppgaver som krever distribuert beregning. Da kan det være aktuelt å se på:
+
+- **Python** med pandas eller polars for datahåndtering, eventuelt via pakken `reticulate` som lar deg kjøre Python-kode direkte fra R
+- **Apache Spark** for distribuert databehandling, tilgjengelig fra R via pakken `sparklyr`
+
+Men for de aller, aller fleste samfunnsvitenskapelige analyser er R mer enn kraftig nok. Og med verktøyene vi har sett på i dette kapittelet -- parquet-filer, arrow og eventuelt data.table -- kommer du veldig langt.

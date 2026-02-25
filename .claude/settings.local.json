@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"C:\\\\Users\\\\torbskar\\\\OneDrive - Universitetet i Oslo\\\\Dokumenter\\\\Paper\\\\Claude_Code_uttesting\\\\Praktisk_dataanalyse_opprydding\\\\bok\\\\oppdater_script\"\" 2>&1 || ls -lR \"C:/Users/torbskar/OneDrive - Universitetet i Oslo/Dokumenter/Paper/Claude_Code_uttesting/Praktisk_dataanalyse_opprydding/bok/oppdater_script/ \")",
+      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" -e \"library\\(quarto\\); quarto_render\\(''forste_analyse.qmd'', output_format=''html''\\)\")",
+      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\":*)",
+      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" test_forste_analyse.R)",
+      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" test_tidstrend.R)",
+      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" test_nettverk.R)",
+      "Bash(ls:*)",
+      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" -e:*)",
+      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" test_kart_data.R)",
+      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" test_kart.R)"
+    ]
+  }
+}

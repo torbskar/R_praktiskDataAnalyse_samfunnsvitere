@@ -1,0 +1,435 @@
+# Datahåndtering med tidyverse
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(haven)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+abu89 <- read_stata("data/abu89.dta") %>%
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+```
+
+I et tidligere kapittel ble det nevnt at R har ulike "dialekter". I denne boken bruker vi **tidyverse** konsekvent, og dette kapittelet går grundigere inn i hvordan man bruker tidyverse til datahåndtering. Datahåndtering er alt man gjør med dataene *før* man analyserer dem: lage nye variable, velge ut variable, filtrere observasjoner, sortere, gruppere og oppsummere.
+
+Tidyverse er en samling pakker som deler en felles filosofi og syntaks. Kjernepakken for datahåndtering er `dplyr`, som lastes automatisk når du laster `tidyverse`. Poenget med tidyverse er at koden skal være lesbar og logisk, nesten som å lese setninger.
+
+Vi bruker datasettet *abu89* i eksemplene som følger. Dette datasettet inneholder informasjon om lønn, alder, utdanning, kjønn, klasse og sektor for et utvalg arbeidstakere. La oss først se på dataene:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+glimpse(abu89)
+```
+
+
+## Pipe-operatoren: `%>%`
+
+Det viktigste konseptet i tidyverse er "pipen" `%>%`. Den betyr rett og slett "ta dette, og gjør deretter...". Pipen sender resultatet fra venstre side videre som input til funksjonen på høyre side.
+
+Hurtigtasten er **Ctrl + Shift + M** (du kommer til å bruke denne mye!).
+
+Uten pipe ville vi skrevet noe slikt:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+head(abu89)
+```
+
+Med pipe kan vi skrive det slik:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+abu89 %>% head()
+```
+
+I dette enkle eksempelet er det ingen stor forskjell. Men pipen blir veldig nyttig når man skal gjøre *flere ting etter hverandre*. Uten pipe ender man opp med enten svært uleselig nøsting av funksjoner eller mange mellomliggende objekter. Med pipe kan man kjede sammen operasjoner slik:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+abu89 %>%
+  filtrer noe %>%
+  lag ny variabel %>%
+  oppsummer
+```
+
+Dette er pseudokode, men illustrerer poenget: man leser koden fra topp til bunn, steg for steg. Merk at det finnes en nyere pipe i base R: `|>`. Den fungerer omtrent likt for de aller fleste formål, og du vil se begge brukt i kodeeksempler på nettet. I denne boken bruker vi `%>%` konsekvent.
+
+
+## `mutate()` -- lage nye variable
+
+Funksjonen `mutate()` brukes til å lage nye variable eller endre eksisterende. Nye variable legges til som en ny kolonne i datasettet.
+
+### Enkel beregning
+La oss si vi ønsker å lage en variabel som inneholder alderen i måneder:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  mutate(alder_mnd = age * 12) %>%
+  select(io_nr, age, alder_mnd) %>%
+  head()
+```
+
+Merk at vi ikke har endret det opprinnelige datasettet. For å lagre endringen må vi legge resultatet tilbake i et objekt:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 <- abu89 %>%
+  mutate(alder_mnd = age * 12)
+```
+
+### Lage aldersgrupper med `case_when()`
+Et svært vanlig behov er å lage kategorier basert på en kontinuerlig variabel. Det gjøres med `case_when()` inni `mutate()`:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 <- abu89 %>%
+  mutate(aldersgruppe = case_when(
+    age < 30              ~ "Under 30",
+    age >= 30 & age < 40  ~ "30-39",
+    age >= 40 & age < 50  ~ "40-49",
+    age >= 50             ~ "50+"
+  ))
+
+abu89 %>%
+  select(age, aldersgruppe) %>%
+  head(10)
+```
+
+`case_when()` går gjennom betingelsene fra topp til bunn og tildeler verdien på høyre side av `~` for den første betingelsen som er oppfylt. Rekkefølgen har altså betydning.
+
+### Lage en binær variabel med `ifelse()`
+For enklere tilfeller med bare to kategorier kan man bruke `ifelse()`:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 <- abu89 %>%
+  mutate(hoy_lonn = ifelse(time89 > 150, "Høy lønn", "Lav/middels lønn"))
+
+abu89 %>%
+  select(time89, hoy_lonn) %>%
+  head()
+```
+
+
+## `select()` -- velge variable
+
+Funksjonen `select()` brukes til å velge ut variable (kolonner) du ønsker å beholde -- eller fjerne de du ikke trenger.
+
+### Velge variable
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  select(io_nr, age, time89, female) %>%
+  head()
+```
+
+### Fjerne variable
+Bruker man minus-tegn foran variabelnavnet fjernes den:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  select(-io_nr, -alder_mnd, -aldersgruppe, -hoy_lonn) %>%
+  head()
+```
+
+### Hjelpefunksjoner i `select()`
+Det finnes nyttige hjelpefunksjoner for å velge variable basert på navnemønster:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+#| eval: false
+# Velg alle variable som starter med en bestemt tekst
+abu89 %>% select(starts_with("time"))
+
+# Velg alle variable som inneholder en bestemt tekst
+abu89 %>% select(contains("89"))
+
+# Velg alle numeriske variable
+abu89 %>% select(where(is.numeric))
+```
+
+Disse er spesielt nyttige når man jobber med datasett som har mange variable.
+
+
+## `filter()` -- filtrere rader
+
+Mens `select()` velger kolonner, velger `filter()` rader basert på betingelser. Her brukes logiske operatorer som `==`, `!=`, `>`, `<`, `>=`, `<=`, `&` (og), `|` (eller).
+
+### Filtrere på én betingelse
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  filter(age > 50) %>%
+  head()
+```
+
+### Filtrere på flere betingelser
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  filter(age > 40, female == 1) %>%
+  select(io_nr, age, female, time89) %>%
+  head()
+```
+
+Når man skriver flere betingelser adskilt med komma inni `filter()` tolkes det som "og" (`&`). Alternativt kan man bruke `|` for "eller":
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  filter(age < 25 | age > 60) %>%
+  select(io_nr, age, time89) %>%
+  head()
+```
+
+### Fjerne manglende verdier
+En vanlig bruk av `filter()` er å fjerne rader med manglende verdier (NA) på en bestemt variabel:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89_komplett <- abu89 %>%
+  filter(!is.na(time89))
+```
+
+Her betyr `!is.na()` "er *ikke* NA".
+
+::: {.callout-note}
+Merk forskjellen: `select()` velger *kolonner* (variable), mens `filter()` velger *rader* (observasjoner). Denne distinksjonen er viktig!
+:::
+
+
+## `summarise()` -- oppsummere data
+
+Funksjonen `summarise()` (eller `summarize()`, begge stavemåter fungerer) beregner oppsummerende statistikk og returnerer en ny, liten tabell.
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  summarise(
+    snitt_lonn = mean(time89, na.rm = TRUE),
+    sd_lonn    = sd(time89, na.rm = TRUE),
+    snitt_alder = mean(age, na.rm = TRUE),
+    antall     = n()
+  )
+```
+
+Merk at `n()` gir antall observasjoner. Argumentet `na.rm = TRUE` sier at manglende verdier skal ignoreres i beregningen. Uten dette argumentet vil resultatet bli NA hvis det finnes noen manglende verdier.
+
+
+## `group_by()` -- grupperte operasjoner
+
+`group_by()` gjør egentlig ingenting synlig i seg selv, men endrer hvordan etterfølgende funksjoner oppfører seg. Når man bruker `group_by()` etterfulgt av `summarise()` beregnes statistikken *per gruppe*.
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  group_by(klasse89) %>%
+  summarise(
+    snitt_lonn = mean(time89, na.rm = TRUE),
+    antall     = n()
+  )
+```
+
+Man kan også gruppere etter flere variable:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  group_by(klasse89, female) %>%
+  summarise(
+    snitt_lonn = mean(time89, na.rm = TRUE),
+    antall     = n()
+  )
+```
+
+::: {.callout-tip}
+Husk å bruke `ungroup()` etter at du er ferdig med grupperingen, spesielt hvis du skal gjøre flere operasjoner etterpå. Ellers kan grupperingen påvirke senere beregninger på uventede måter.
+:::
+
+
+`group_by()` kan også brukes sammen med `mutate()`. Da legges den nye variabelen til i datasettet, men beregningen gjøres per gruppe. Et typisk eksempel er å beregne gruppegjennomsnittet og legge det til som en variabel:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  group_by(klasse89) %>%
+  mutate(snitt_lonn_klasse = mean(time89, na.rm = TRUE)) %>%
+  ungroup() %>%
+  select(io_nr, klasse89, time89, snitt_lonn_klasse) %>%
+  head(10)
+```
+
+
+## `arrange()` -- sortere data
+
+Funksjonen `arrange()` sorterer datasettet etter en eller flere variable. Som standard sorteres det i stigende rekkefølge.
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  select(io_nr, age, time89) %>%
+  arrange(time89) %>%
+  head()
+```
+
+For synkende rekkefølge brukes `desc()`:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  select(io_nr, age, time89) %>%
+  arrange(desc(time89)) %>%
+  head()
+```
+
+
+## Kombinere funksjoner med pipe
+
+Den virkelige styrken med tidyverse er at man kan kombinere alle disse funksjonene i én sammenhengende arbeidsflyt. Her er et eksempel som gjør flere ting:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  filter(!is.na(time89)) %>%                         # Fjern manglende verdier
+  mutate(ed_aar = as.numeric(as.character(ed))) %>%   # Gjør utdanning numerisk
+  group_by(klasse89) %>%                              # Grupper etter klasse
+  summarise(
+    snitt_lonn = mean(time89, na.rm = TRUE),          # Gjennomsnittslønn
+    snitt_alder = mean(age, na.rm = TRUE),             # Gjennomsnittsalder
+    antall = n()                                       # Antall per gruppe
+  ) %>%
+  arrange(desc(snitt_lonn))                            # Sorter etter lønn
+```
+
+Denne koden leses som: "Ta datasettet abu89, fjern deretter rader med manglende lønn, lag deretter en numerisk utdanningsvariabel, grupper deretter etter klasse, beregn deretter gjennomsnitt per klasse, og sorter til slutt etter lønn."
+
+Det er god praksis å legge til kommentarer i koden med `#` slik at du husker hva hvert steg gjør.
+
+
+## `across()` -- samme operasjon på flere variable
+
+Noen ganger ønsker man å gjøre det samme med flere variable samtidig. Funksjonen `across()` brukes inni `mutate()` eller `summarise()` for å anvende en funksjon på flere kolonner.
+
+Her er et eksempel der vi beregner gjennomsnittet av alle numeriske variable per klasse:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  group_by(klasse89) %>%
+  summarise(across(where(is.numeric), ~mean(.x, na.rm = TRUE))) %>%
+  head()
+```
+
+Syntaksen `~mean(.x, na.rm = TRUE)` er en forkortet måte å skrive en funksjon på der `.x` er et plassholdernavn for variabelen. `where(is.numeric)` velger alle numeriske variable. Man kan også angi variabelnavn direkte:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+abu89 %>%
+  summarise(across(c(age, time89),
+                   list(snitt = ~mean(.x, na.rm = TRUE),
+                        sd = ~sd(.x, na.rm = TRUE))))
+```
+
+Her beregnes både gjennomsnitt og standardavvik for variablene age og time89. Resultatnavnene settes automatisk sammen av variabelnavn og funksjonsnavnet angitt i `list()`.
+
+`across()` er svært nyttig for å unngå repetitiv kode, men kan virke litt kryptisk i starten. Det er helt greit å skrive ut variabel for variabel til man er komfortabel med `across()`.
+
+
+## Oppsummering
+
+Her er en oversikt over de viktigste funksjonene i dplyr:
+
+| Funksjon       | Hva den gjør                           |
+|:---------------|:---------------------------------------|
+| `mutate()`     | Lager nye variable / endrer eksisterende |
+| `select()`     | Velger (eller fjerner) kolonner        |
+| `filter()`     | Filtrerer rader basert på betingelser  |
+| `summarise()`  | Beregner oppsummerende statistikk      |
+| `group_by()`   | Grupperer data for etterfølgende operasjoner |
+| `arrange()`    | Sorterer rader                         |
+| `across()`     | Anvender funksjoner på flere kolonner  |
+
+Alle disse kan kombineres med `%>%` for å lage ryddige, lesbare arbeidsflyter.
+
+
+## Oppgaver
+
+::: {#exr-}
+Bruk datasettet abu89 og lag en ny variabel som angir om en person er over eller under 40 år. Bruk `mutate()` og `ifelse()`.
+:::
+
+::: {#exr-}
+Filtrer datasettet slik at du bare har personer som jobber i privat sektor, og beregn gjennomsnittslønn og gjennomsnittsalder for dette utvalget med `summarise()`.
+:::
+
+::: {#exr-}
+Bruk `group_by()` og `summarise()` til å beregne gjennomsnittlig timelønn for hver klasse, fordelt på kjønn. Sorter resultatet etter synkende lønn med `arrange()`.
+:::
+
+::: {#exr-}
+Skriv en sammenhengende pipe som filtrerer bort manglende verdier på timelønn, grupperer etter aldersgruppe (som du lager med `case_when()`), og beregner gjennomsnitt, standardavvik og antall per gruppe.
+:::

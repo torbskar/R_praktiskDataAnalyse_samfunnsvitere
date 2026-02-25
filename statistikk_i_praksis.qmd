@@ -1,0 +1,142 @@
+# Statistikk i praksis
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+library(tidyverse)
+library(gtsummary)
+library(modelsummary)
+
+```
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| error: false
+#| message: false
+
+library(haven)
+abu89 <- read_stata("data/abu89.dta") %>% 
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+
+
+```
+
+
+Statistiske analyser innebærer å analysere data og vurdere usikkerhet. En kjerneoppgave er å *sammenligne*. Enten mellom grupper eller på ulike steder langs en kontinuerlig skala. Når vi sammenligner Usikkerheten i sammenligningen uttrykkes ved p-verdier og konfidensintervaller. 
+
+
+## Deskriptiv statistikk
+Når man har en tabell med deskriptiv statistikk fordelt på grupper, så gjør man jo en sammenligning av disse gruppene på de aktuelle variablene. Da kan man bare legge til en statistisk test for denne sammenligningen. I følgende eksempel brukes `tbl_summary` med tilhørende `add_difference`. I første omgang tar vi bare med kontinuerlige variable. Resultatet blir tilsvarende som i det tidligere kapittelet for deskriptiv statistikk, men her legges det til tre kolonner: forskjellen i gjennomsnitt, konfidensintervallet og p-verdi fra en $t$-test.^(Legg merke til fotnoten som spesifiserer "Welch two sample t-test". Dette er den vanlig t-testen. Den opprinnelige "Student's t-test" forutsetter lik varians i begge grupper, noe som Welch t-test ikke gjør. Vi kaller det bare for $t$-test. Dette bare til oppklaring.)
+
+```{r}
+#| message: false
+#| error: false
+
+theme_gtsummary_mean_sd()
+abu89 %>% 
+  #select(-io_nr) %>%
+  select(female, time89, ed,  fexp, age) %>% 
+  mutate(female = ifelse(female == 0, "Menn", "Kvinner")) %>% 
+    tbl_summary(by = female, 
+                label = list(klasse89 = "Klasse"), 
+              type = list(ed ~ "continuous"), 
+              missing = "no") %>% 
+  add_difference() 
+```
+
+Legg merke til at kollonnen "Difference" er forskjellen i gjennomsnitt i de to gruppene, og konfidensintervallet gjelder for denne differansen. Den gjennomsnittlige forskjellen i timelønn for menn er altså 21 kroner høyere enn for kvinner, men når vi tar feilmarginen med i beregningen er det rimelig å si at den ligger mellom 19 og 23 kroner høyere for menn enn for kvinner, siden et 95% konfidensintervall tilsier det.
+
+
+
+```{r}
+#| message: false
+#| error: false
+abu89 %>% 
+  select(female, time89, ed,  fexp, age) %>% 
+  mutate(female = ifelse(female == 0, "Menn", "Kvinner")) %>% 
+    tbl_summary(by = female, 
+                label = list(klasse89 = "Klasse"), 
+              type = list(ed ~ "continuous"), 
+              missing = "no") %>% 
+  add_p() 
+```
+
+
+
+For kategoriske variable bruker man ikke en t-test, men en test som omtales som $\chi^2$ test (uttales som "kji-kvadrat test").^[Denne gir identisk resultat som z-test for andeler.]
+
+```{r}
+abu89 %>% 
+  select(female, klasse89, promot, private) %>% 
+  mutate(female = ifelse(female == 0, "Menn", "Kvinner")) %>% 
+    tbl_summary(by = female, 
+                label = list(klasse89 = "Klasse"), 
+              missing = "no") %>% 
+  add_p() 
+```
+
+
+Det kan også settes sammen i en felles tabell. 
+
+```{r}
+abu89 %>% 
+  select(-io_nr) %>%
+  mutate(female = ifelse(female == 0, "Menn", "Kvinner")) %>% 
+    tbl_summary(by = female, 
+                label = list(klasse89 = "Klasse"), 
+              type = list(ed ~ "continuous"), 
+              missing = "no") %>% 
+  add_overall() %>% 
+  add_p() 
+```
+
+
+## Regresjon 
+For regresjon er det i prinsippet det samme: regresjonskoeffisientene er estimater med usikkerhet som uttrykkes med standardfeil og tilhørende konfidenstintervaller og p-verdier. Merk at p-verdiene er resultat av en helt ordinær t-test: 
+
+$$
+t = \frac{\beta}{se_\beta} 
+$$
+
+Husk at $\beta$ er et estimat på en forskjell mellom grupper eller nivåer på en kontinuerlig variabel. Tolkningen er derfor lik som for t-test: kan denne *forskjellen* skyldes tilfeldig variasjon? Eller er forskjellen såpass stor i forhold til feilmarginen at vi velger å tolke det som en systematisk forskjell? Hvis p-verdien er høy (typisk: større enn 0.05), så er vi ikke tilstrekkelig sikker på at det ikke bare er tilfeldig støy. 
+
+
+
+```{r}
+lm_est1 <- lm(time89 ~ female , data = abu89)
+modelsummary(lm_est1)
+```
+
+
+### Multippel regresjon 
+
+```{r}
+lm_est2 <- lm(time89 ~ female + age , data = abu89)
+modelsummary(lm_est2)
+```
+
+### Interaksjonsledd 
+
+```{r}
+lm_est3 <- lm(time89 ~ female + age + female * age , data = abu89)
+modelsummary(lm_est3)
+```
+
+
+
+```{r}
+modelsummary(list(lm_est1, lm_est2, lm_est3))
+```
+
+
+

@@ -1,0 +1,251 @@
+# Bruk KI som kodehjelp
+
+KI-verktøy (kunstig intelligens) har blitt svært gode til å skrive kode i mange språk, deriblant R. Du kan bruke dem til å forstå kode, finne feil, og generere nye løsninger. Det finnes mange slike verktøy, blant annet ChatGPT, Claude, GitHub Copilot og Gemini. Prinsippene i dette kapittelet gjelder uansett hvilket verktøy du bruker, og vi omtaler dem samlet som *KI-verktøy*.
+
+Men la det være helt klart: KI-verktøy gjør *ikke* at du kan hoppe over å lære å kode selv. Du må forstå koden for å vite om den gjør det du faktisk ønsker, og du må kunne vurdere om resultatene er riktige. KI er et hjelpemiddel -- ikke en erstatning for forståelse.
+
+Mange universiteter og høyskoler har egne retningslinjer for bruk av KI-verktøy. Ved UiO finnes det for eksempel en egen tjeneste kalt [GPT UiO](https://www.uio.no/tjenester/it/ki/gpt-uio/) som er tilpasset personvernkravene ved universitetet. Sjekk hvilke verktøy som er godkjent ved din institusjon.
+
+Disse verktøyene utvikler seg raskt. Konkrete funksjoner og grensesnitt kan endres, men prinsippene for hvordan du bruker dem effektivt er de samme.
+
+
+## Hva er en KI-kodehjelp?
+
+Med KI-kodehjelp mener vi verktøy basert på store språkmodeller som du kan kommunisere med via tekst. Du skriver en instruksjon -- et *prompt* -- og verktøyet gir deg et svar i form av kode, forklaringer, eller begge deler.
+
+Det finnes to hovedtyper:
+
+- **Chat-baserte verktøy** (ChatGPT, Claude, Gemini): Du åpner en nettside, limer inn kode eller skriver et spørsmål, og får svar i en samtale. Dette er den enkleste måten å komme i gang på.
+- **Integrerte verktøy** (GitHub Copilot, Positron-assistenten): Disse er bygd inn i kodeeditoren din og kan foreslå kode mens du skriver. Det krever litt mer oppsett, men kan være effektivt når du har kommet i gang.
+
+For nybegynnere anbefaler vi å starte med et chat-basert verktøy. Det gjør at du ser hele samtalen og kan følge med på hva som skjer. De fleste har gratis versjoner som er mer enn tilstrekkelige for studentbruk.
+
+
+## Bruk KI til å forstå kode
+
+Det beste stedet å begynne er å bruke KI til å *forstå* kode du har problemer med. Det er mye mer lærerikt enn å la verktøyet skrive koden for deg.
+
+For å få et godt svar bør du spesifisere hva det er du ikke forstår. Si gjerne at du er nybegynner, og at du foretrekker forklaringer som bruker tidyverse. Her er et eksempel på et prompt du kan prøve:
+
+```{r}
+#| eval: false
+#| warning: false
+#| error: false
+#| message: false
+
+Kan du forklare følgende R-kode linje for linje?
+Jeg er nybegynner og bruker tidyverse.
+
+  dinedata %>%
+  group_by(gruppe) %>%
+  mutate(antall = n(), gjennomsnitt = mean(varA),
+         avvik = varA - gjennomsnitt) %>%
+  arrange(gruppe, desc(avvik)) %>%
+  filter(row_number() == 1)
+
+```
+
+::: {.callout-note}
+## Eksempel på svar fra KI-verktøy
+
+Denne koden bruker tidyverse og gjør følgende steg for steg:
+
+1. `dinedata %>%` — tar datasettet `dinedata` og sender det videre med pipe-operatoren (`%>%`).
+2. `group_by(gruppe)` — grupperer dataene etter variabelen `gruppe`. Alle påfølgende operasjoner gjøres innenfor hver gruppe.
+3. `mutate(...)` — legger til tre nye kolonner *uten* å fjerne eksisterende rader:
+    - `antall = n()` — antall observasjoner i hver gruppe.
+    - `gjennomsnitt = mean(varA)` — gjennomsnittet av `varA` innenfor gruppen.
+    - `avvik = varA - gjennomsnitt` — hvor mye hver observasjon avviker fra gruppegjennomsnittet.
+4. `arrange(gruppe, desc(avvik))` — sorterer radene etter gruppe, og innenfor hver gruppe etter avvik i synkende rekkefølge (størst avvik først).
+5. `filter(row_number() == 1)` — beholder bare den første raden i hver gruppe, altså observasjonen med størst avvik fra gjennomsnittet.
+
+Resultatet er et datasett med én rad per gruppe: den observasjonen som avviker mest fra gruppens gjennomsnitt.
+:::
+
+Du vil typisk få en forklaring av hva hver linje gjør. Men husk: du må selv vurdere om forklaringen gir mening i din kontekst. Prøv å kjøre koden selv og se om resultatet stemmer med det verktøyet forklarte.
+
+
+## Bruk KI til feilsøking (debugging)
+
+KI-verktøy er også nyttige for å finne feil i kode som ikke fungerer som forventet. For å få et godt svar er det viktig å gi verktøyet god *kontekst*. Beskriv:
+
+- Hva du forsøkte å gjøre
+- Hva du forventet skulle skje
+- Hva som faktisk skjedde (inkluder gjerne feilmeldingen)
+
+Her er et eksempel:
+
+```{r}
+#| eval: false
+#| warning: false
+#| error: false
+#| message: false
+Jeg ønsker å få aggregerte statistikker for et datasett
+med en linje per gruppe, men resultatet gir en linje
+per observasjon i stedet. Kan du finne feilen?
+
+  dinedata %>%
+  group_by(gruppe) %>%
+  mutate(antall = n(), gjennomsnitt = mean(varA),
+         avvik = varA - gjennomsnitt) %>%
+  arrange(gruppe, desc(avvik)) %>%
+  filter(row_number() == 1)
+
+```
+
+::: {.callout-note}
+## Eksempel på svar fra KI-verktøy
+
+Problemet er at du bruker `mutate()`, som legger til nye kolonner men beholder alle radene. For å få én rad per gruppe med aggregerte verdier, bør du bruke `summarise()` i stedet.
+
+Her er den korrigerte koden:
+
+```r
+dinedata %>%
+  group_by(gruppe) %>%
+  summarise(antall = n(),
+            gjennomsnitt = mean(varA))
+```
+
+`summarise()` kollapser hver gruppe til én rad og beregner de ønskede statistikkene. `mutate()` derimot legger til kolonner mens alle opprinnelige rader beholdes, og det er derfor du fikk én linje per observasjon.
+:::
+
+Et nyttig tips er å lime inn feilmeldinger direkte. KI-verktøy er gode til å tolke R-feilmeldinger og kan ofte forklare hva som gikk galt.
+
+Merk at verktøyet vil foreslå en løsning, men det er ikke gitt at det forstår problemet ditt korrekt. Løsningen er heller ikke nødvendigvis riktig. Du må alltid teste den foreslåtte løsningen selv og sjekke at den faktisk gir de resultatene du forventer.
+
+
+## Bruk KI til å generere kode
+
+Du kan også be KI-verktøy om å skrive helt ny kode for deg. For at dette skal fungere godt, må du ha en klar idé om hva du ønsker. Vær spesifikk om:
+
+- Hvilke pakker du vil bruke (f.eks. tidyverse, ggplot2)
+- Hva slags data du har (variabler, typer)
+- Hva resultatet skal se ut som
+
+Her er et eksempel på et prompt:
+
+```{r}
+#| eval: false
+#| warning: false
+#| error: false
+#| message: false
+Lag en ggplot-figur som viser sammenhengen mellom
+variablene alder og lønn med et scatterplot.
+Bruk ulike farger for variabelen kjønn.
+Bruk tidyverse og ggplot2. Datasettet heter abu89.
+
+```
+
+::: {.callout-note}
+## Eksempel på svar fra KI-verktøy
+
+Her er koden for et scatterplot med ulike farger for kjønn:
+
+```r
+library(tidyverse)
+
+ggplot(abu89, aes(x = alder, y = lonn, color = kjonn)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Alder", y = "Lønn", color = "Kjønn") +
+  theme_minimal()
+```
+
+Koden bruker `aes()` til å knytte variabler til visuelle egenskaper: `x` og `y` for aksene, og `color` for å gi ulike farger per kjønn. `alpha = 0.5` gjør punktene halvt gjennomsiktige, slik at overlappende punkter blir synlige.
+:::
+
+Første forsøk er sjelden perfekt. Bruk oppfølgingsspørsmål for å justere: "Kan du legge til en regresjonslinje?", "Kan du endre til theme_minimal()?", osv. Det er slik man jobber effektivt med KI-verktøy -- som en samtale der du gradvis presiserer hva du vil ha.
+
+Det viktigste prinsippet: **les og forstå hver linje i den genererte koden før du bruker den**. Hvis det er noe du ikke forstår, be verktøyet forklare akkurat den delen. Kopier aldri kode blindt inn i analysene dine.
+
+
+## Gi KI-verktøy grunnleggende instruksjoner
+
+De fleste KI-verktøy lar deg sette opp faste instruksjoner som gjelder for alle samtaler. I ChatGPT heter dette "Custom Instructions", i Claude kan du opprette "Projects" med egne instruksjoner, og andre verktøy har tilsvarende løsninger. Konseptet er det samme: du forteller verktøyet hvem du er og hva du foretrekker, slik at du slipper å gjenta deg.
+
+Her er et eksempel på slike instruksjoner som er tilpasset dette kurset:
+
+> Jeg er nybegynner i dataanalyse i R innen samfunnsvitenskap. Jeg har bare grunnleggende forståelse av R. Jeg foretrekker kode basert på tidyverse fremfor base-R og data.table. Kode som er lettlest er viktigere enn effektivitet. For deskriptive tabeller, bruk pakken gtsummary. For regresjonstabeller, bruk pakken modelsummary. Forklar koden trinn for trinn.
+
+De viktigste tingene å spesifisere er:
+
+- Ditt nivå (nybegynner)
+- Foretrukne pakker (tidyverse, gtsummary, modelsummary)
+- Kodestil (lettlest fremfor effektivt)
+
+
+## Vibe coding og agentiske verktøy
+
+Det har i det siste dukket opp to begreper som er verdt å kjenne til: *vibe coding* og *agentiske verktøy*.
+
+**Vibe coding** er et begrep som ble populært i 2025 og beskriver en arbeidsform der du beskriver hva du vil i naturlig språk og lar KI generere all koden -- uten at du leser eller forstår koden selv. Du styrer etter "vibben": ser resultatet riktig ut? Fungerer det? Hvis ja, gå videre. Noen erfarne programmerere bruker dette for å lage prototyper raskt, men da kan de også vurdere og feilsøke resultatet når noe går galt.
+
+For studenter er vibe coding **ikke en god strategi**. Poenget med et metodekurs er å lære å forstå dataanalyse, og det innebærer å forstå koden. Hvis du lar KI skrive alt uten å lese det, lærer du ingenting -- og du kan ikke oppdage feil i analysen. Det er som å bruke maskinoversettelse til å skrive en stil i et språk du holder på å lære: resultatet kan se greit ut, men du har ikke lært noe, og du kan ikke fange opp feil.
+
+**Agentiske verktøy** er en nyere kategori KI-verktøy som går et steg videre. Verktøy som Claude Code, OpenAI Codex og Cursor kan ikke bare skrive kode, men også kjøre den, lese resultatene, og justere koden automatisk -- alt uten at du gjør noe. Dette er kraftige verktøy for erfarne brukere, men for nybegynnere innebærer det enda mindre kontakt med selve koden.
+
+Vær oppmerksom på at disse verktøyene finnes. Når du har bygget opp grunnleggende ferdigheter -- for eksempel i forbindelse med en masteroppgave eller i arbeidslivet -- kan de bli svært nyttige. Men først må du ha kompetansen til å vurdere det de produserer. Det finnes ingen snarvei forbi det å lære seg å kode.
+
+
+## Datasikkerhet og personvern
+
+Når du bruker et KI-verktøy, sendes alt du skriver i promptet til en ekstern server for prosessering. Det samme gjelder konteksten som verktøyet bruker: hvis du limer inn kode, data eller feilmeldinger, havner dette hos KI-leverandøren. For agentiske verktøy som Claude Code eller Cursor gjelder dette i enda større grad -- de kan lese hele filer og prosjektmapper automatisk for å bygge kontekst, uten at du eksplisitt velger hva som sendes.
+
+Dette har viktige implikasjoner for personvern og datasikkerhet.
+
+### Hva er persondata?
+
+Etter personvernforordningen (GDPR) er persondata all informasjon som kan knyttes til en identifiserbar person. Det inkluderer opplagte ting som navn, fødselsnummer og e-postadresser, men også kombinasjoner av variabler som sammen kan identifisere enkeltpersoner -- for eksempel alder, bosted og yrke. Helseopplysninger, etnisitet og politisk tilhørighet er i tillegg regnet som *særlige kategorier* med ekstra strengt vern.
+
+I samfunnsvitenskapelig forskning er dette svært relevant. Datasettene du jobber med kan inneholde slike opplysninger, og å lime inn rader fra et datasett i en KI-chat kan i praksis utgjøre en overføring av persondata til en tredjepart.
+
+### Trening og datalagring
+
+De fleste KI-tjenester bruker samtaledata til å trene og forbedre modellene sine -- med mindre du aktivt reserverer deg. ChatGPT og Claude (i gratisversjonene) gjør dette som standard, men tilbyr mulighet for å skru det av i innstillingene. Data kan også lagres i en periode, typisk fra noen dager til flere uker, avhengig av tjeneste og abonnementstype.
+
+API-tilgang og bedriftsavtaler har vanligvis strengere regler: data brukes normalt ikke til trening, og lagringstiden er kortere. Men detaljene varierer mellom leverandører og endres jevnlig. Les alltid gjeldende vilkår, og anta som hovedregel at det du skriver kan bli lagret.
+
+### Agentiske verktøy -- ekstra utfordringer
+
+Mens du i et chatvindu selv velger hva du limer inn, kan agentiske verktøy lese og sende filinnhold automatisk. Et verktøy som Claude Code eller Cursor kan indeksere hele prosjektmappen din for å gi bedre svar. Dersom prosjektet inneholder datasett med personopplysninger, konfigurasjonsfiler med passord, eller andre sensitive data, kan disse bli sendt til leverandørens servere uten at du er klar over det.
+
+Hvis du jobber med sensitive data, er det avgjørende å forstå hvilke filer verktøyet har tilgang til, og hva som faktisk sendes. Noen verktøy tilbyr en «Privacy Mode» som begrenser hva som deles, men dette må aktiveres eksplisitt.
+
+### Hva bør du gjøre?
+
+- **Aldri lim inn reelle persondata** i et KI-verktøy. Bruk anonymiserte eller syntetiske eksempeldata når du trenger hjelp med kode.
+- **Sjekk institusjonens retningslinjer.** De fleste universiteter har egne regler for bruk av KI-verktøy -- følg disse.
+- **Vurder abonnementstype.** For prosjekter med sensitive data kan API-tilgang eller bedriftsavtaler med strengere personvernvilkår være nødvendig.
+- **Vær ekstra varsom med agentiske verktøy** som har tilgang til hele prosjektmappen. Sørg for at sensitive datafiler ikke ligger i samme mappe som kodeprosjektet, eller bruk verktøyets innstillinger for å ekskludere dem.
+- **Vurder om du trenger KI-hjelp i det hele tatt** for den konkrete oppgaven. Noen ganger er det tryggere å løse problemet selv.
+
+### Lokale modeller
+
+For situasjoner der data ikke kan forlate maskinen, finnes det modeller som kan kjøres helt lokalt. Verktøy som [Ollama](https://ollama.com/) gjør det mulig å kjøre åpne modeller som Llama og DeepSeek på egen maskin, og [OpenClaw](https://github.com/openclaw/openclaw) lar deg koble lokale modeller til agentiske arbeidsflyter. Da sendes ingen data til eksterne servere. Per i dag krever dette en viss teknisk kompetanse og en maskin med tilstrekkelig kapasitet, men terskelen er i ferd med å synke raskt.
+
+### Regulering og veien videre
+
+Norge innfører en ny lov om kunstig intelligens, basert på EUs AI Act, med planlagt ikrafttredelse sommeren 2026. Loven stiller krav til transparens, dokumentasjon og risikovurdering for KI-systemer. Datatilsynet følger utviklingen tett og har blant annet en egen sandkasse for KI-prosjekter som ønsker veiledning om personvern.
+
+Forvent at det kommer tydeligere regler for bruk av KI-verktøy i forskning og utdanning i årene fremover. Grunnprinsippet vil uansett bestå: du er selv ansvarlig for at persondata behandles i tråd med regelverket, uansett hvilket verktøy du bruker.
+
+
+## Tips for effektiv bruk
+
+1. **Start med å forstå**, deretter feilsøk, og til slutt generer ny kode. Denne rekkefølgen gir best læring.
+2. **Les alltid koden** du får fra KI-verktøy før du bruker den. Hvis du ikke forstår en linje, be verktøyet forklare den.
+3. **Test på egne data**. Kode som ser riktig ut kan likevel gi feil resultater med dine data.
+4. **Vær spesifikk i promptene**. Nevn pakker, variabelnavn, og hva slags output du forventer.
+5. **Bruk oppfølgingsspørsmål**. Første svar er sjelden perfekt -- juster med nye instruksjoner.
+6. **Sett opp faste instruksjoner** med dine preferanser, slik at du får konsistente svar.
+7. **Husk at KI kan ta feil**. Verktøyene høres alltid selvsikre ut, også når svaret er galt. Dobbeltsjekk alltid.
+
+
+## En note om læring 
+
+Dette er et godt sted for en liten bemerkning om læring og studier, selv om denne boken ellers er svært praktisk orientert. Det er åpenbart slik at KI kan lage ferdige produkter for deg, uten at du selv behøver å skjønne så mye av hva som skjer. Hvorfor skal du derfor lære disse tingene selv? Noen svar har blitt antydet ovenfor knyttet til de-bugging etc. 
+
+En viktigere grunn er at utdanning handler om å trene opp analytiske evner og ferdigheter. For å kunne analysere data må du skjønne en del om data og databehandling, analysemuligheter og -teknikker. Å jobbe med kode kan være krevende og tidvis svært frustrerende når man ikke skjønner hvorfor noe ikke fungerer. Men det er her læringen ligger: du lærer bare når hjernen anstrenger seg. Du lærer mer når du finner ut av ting selv enn når du får løsningen servert. Du må selv vurdere hvor mye du skal jobbe selv før du bruker f.eks. KI til å hjelpe deg. 
+
+For de som er glad i fysisk trening (sport etc), så er en parallell at du blir ikke sterkere av å henge rundt på trengingssenteret. Du blir sterkere av å løfte tungt (eller hva du nå driver med), så det faktum at det finnes kraner og vinsjer som kan løfte for deg er ikke relevant. For læring gjelder det samme: det er din egen anstrengelse som er hele poenget. Hvis du ikke gjør det, vil du neppe lære noe særlig og du kaster egentlig bort tiden. 
+

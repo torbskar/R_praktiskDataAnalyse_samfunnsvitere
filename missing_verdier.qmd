@@ -1,0 +1,254 @@
+# Haandtering av missing-verdier
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(haven)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+abu89 <- read_stata("data/abu89.dta") %>%
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+```
+
+I nesten alle datasett fra sporreskjemaundersokelser vil det vaere observasjoner der vi mangler informasjon paa noen variable. Noen har ikke svart paa alle sporsmaal, noen har hoppet over deler av skjemaet, og noen ganger er det feil i registreringen. Slike manglende verdier -- eller *missing values* -- er noe du maa forholde deg til i praksis. R representerer manglende verdier med den spesielle verdien `NA` (Not Available), og det er viktig aa forstaa hvordan dette fungerer for aa unngaa feil i analysene.
+
+
+## Hva er NA?
+
+`NA` er Rs maate aa si "vi vet ikke". Det er ikke det samme som null eller en tom tekststreng. Det betyr rett og slett at verdien mangler. Du kan tenke paa det som et tomt felt i et regneark -- det er ikke fylt ut, og vi vet ikke hva svaret ville vaert.
+
+```{r}
+#| warning: false
+#| message: false
+x <- c(3, 7, NA, 12, NA, 5)
+x
+```
+
+Legg merke til at `NA` ikke har anforsselstegn rundt seg. Det er fordi `NA` er en spesiell verdi i R, ikke en tekststreng.
+
+
+## Sjekke for missing-verdier
+
+For aa finne ut hvilke verdier som er `NA` bruker vi funksjonen `is.na()`. Den returnerer `TRUE` for hver verdi som er `NA` og `FALSE` for resten.
+
+```{r}
+#| warning: false
+#| message: false
+is.na(x)
+```
+
+Merk at du *ikke* kan bruke vanlig likhetstegn for aa sjekke om noe er `NA`. Uttrykket `x == NA` gir nemlig `NA` tilbake -- ikke `TRUE` eller `FALSE` som du kanskje forventer. Det er fordi R tenker at "vi vet ikke om en ukjent verdi er lik en annen ukjent verdi". Bruk alltid `is.na()`.
+
+For et helt datasett kan vi bruke `complete.cases()` for aa finne radene som ikke har noen manglende verdier overhodet:
+
+```{r}
+#| warning: false
+#| message: false
+sum(complete.cases(abu89))
+```
+
+Dette forteller oss hvor mange rader i datasettet som har gyldige verdier paa *alle* variable.
+
+
+## Oppsummere missing i datasettet
+
+Det er lurt aa skaffe seg en oversikt over hvor mye missing det er i datasettet for man begynner aa analysere. En rask maate er aa kombinere `colSums()` og `is.na()`:
+
+```{r}
+#| warning: false
+#| message: false
+colSums(is.na(abu89))
+```
+
+Dette gir antall `NA` per variabel. Hvis det er mange variable kan det vaere nyttig aa sortere resultatet:
+
+```{r}
+#| warning: false
+#| message: false
+sort(colSums(is.na(abu89)), decreasing = TRUE)
+```
+
+For en visuell oversikt kan du bruke pakken `naniar`:
+
+```{r}
+#| warning: false
+#| message: false
+#| eval: false
+library(naniar)
+vis_miss(abu89)
+```
+
+Denne lager et plott der du ser monstre i missing-verdiene. Det kan for eksempel avslore om det er bestemte variable som har mye missing, eller om det er grupper av observasjoner som mangler paa mange variable samtidig.
+
+
+## Funksjoner og NA: argumentet na.rm
+
+Mange funksjoner i R gir `NA` som resultat hvis det er missing-verdier i dataene. Det er egentlig fornuftig: R sier at "resultatet er ukjent fordi noen av verdiene er ukjente". Men i praksis vil man som oftest beregne resultatet basert paa de verdiene man faktisk har.
+
+```{r}
+#| warning: false
+#| message: false
+x <- c(3, 7, NA, 12, 5)
+mean(x)
+```
+
+For aa faa gjennomsnittet av de verdiene som finnes, bruker vi argumentet `na.rm = TRUE` (som staar for "NA remove"):
+
+```{r}
+#| warning: false
+#| message: false
+mean(x, na.rm = TRUE)
+```
+
+Dette gjelder for en rekke funksjoner som `sum()`, `sd()`, `median()`, `min()`, `max()` og andre. Det er et veldig vanlig argument som du kommer til aa bruke ofte.
+
+
+## Filtrere ut missing
+
+Naar du jobber med datasett i tidyverse kan du filtrere bort rader med missing paa bestemte variable. Det gjor du med `filter()` og `is.na()`:
+
+```{r}
+#| warning: false
+#| message: false
+abu89 %>%
+  filter(!is.na(time89)) %>%
+  nrow()
+```
+
+Her beholder vi bare radene der `time89` *ikke* er `NA`. Utropstegnet `!` betyr "ikke".
+
+Hvis du vil fjerne alle rader som har `NA` paa en eller flere bestemte variable kan du bruke `drop_na()` fra tidyr:
+
+```{r}
+#| warning: false
+#| message: false
+abu89 %>%
+  drop_na(time89, ed) %>%
+  nrow()
+```
+
+Uten argumenter fjerner `drop_na()` alle rader med missing paa *noen som helst* variabel. Det kan vaere ganske drastisk, saa det er som regel lurt aa spesifisere hvilke variable du vil fjerne missing paa.
+
+
+## Omkode verdier til NA
+
+I en del datasett er missing-verdier kodet som bestemte tall i stedet for ekte `NA`. For eksempel kan -9, 99 eller 999 bety "ikke svart" eller "vet ikke". Slike verdier maa du kode om til `NA` selv.
+
+Med `mutate()` og `na_if()` er dette enkelt:
+
+```{r}
+#| warning: false
+#| message: false
+#| eval: false
+datasett <- datasett %>%
+  mutate(variabel = na_if(variabel, -9))
+```
+
+Dette gjor at alle verdier som er lik -9 paa variabelen blir til `NA`. Du kan ogsaa bruke `case_when()` for mer avansert omkoding der flere verdier skal bli `NA`:
+
+```{r}
+#| warning: false
+#| message: false
+#| eval: false
+datasett <- datasett %>%
+  mutate(variabel = case_when(
+    variabel %in% c(-9, -8, 999) ~ NA_real_,
+    TRUE ~ variabel
+  ))
+```
+
+
+## Erstatte NA med verdier
+
+Noen ganger vil du erstatte `NA` med en bestemt verdi. For eksempel kan det vaere fornuftig aa anta at manglende verdier paa en variabel for antall barn betyr at personen ikke har barn, altsa null.
+
+```{r}
+#| warning: false
+#| message: false
+y <- c(2, NA, 1, NA, 3)
+replace_na(y, 0)
+```
+
+I en pipe med `mutate()`:
+
+```{r}
+#| warning: false
+#| message: false
+#| eval: false
+datasett <- datasett %>%
+  mutate(ant_barn = replace_na(ant_barn, 0))
+```
+
+Funksjonen `coalesce()` er nyttig hvis du har flere variable og vil bruke den forste som ikke er `NA`:
+
+```{r}
+#| warning: false
+#| message: false
+a <- c(NA, 2, NA, 4)
+b <- c(10, NA, 30, NA)
+coalesce(a, b)
+```
+
+Denne funksjonen velger den forste ikke-manglende verdien fra venstre til hoyre. Det kan vaere nyttig naar du har informasjon fra flere kilder og vil fylle inn der det mangler.
+
+
+## Missing i regresjonsanalyser
+
+Naar du kjorer en regresjonsmodell med `lm()` i R, saa haandterer funksjonen missing automatisk ved aa fjerne alle observasjoner som har `NA` paa noen av variablene i modellen. Dette kalles *listwise deletion* (eller *complete case analysis*).
+
+```{r}
+#| warning: false
+#| message: false
+mod <- lm(time89 ~ ed + age, data = abu89)
+nobs(mod)
+nrow(abu89)
+```
+
+Legg merke til at antall observasjoner i modellen (`nobs()`) kan vaere lavere enn antall rader i datasettet. Det er fordi rader med `NA` paa noen av variablene i modellen er fjernet. Det er viktig aa vaere oppmerksom paa dette, spesielt naar du sammenligner modeller med ulike variable. Hvis en variabel har mye missing, kan det endre utvalget betraktelig fra en modell til en annen.
+
+Et godt tips er aa lage et analysedatasett der du fjerner missing paa de relevante variablene forst, slik at alle modeller estimeres paa det samme utvalget:
+
+```{r}
+#| warning: false
+#| message: false
+abu89_analyse <- abu89 %>%
+  drop_na(time89, ed, age)
+
+mod1 <- lm(time89 ~ ed, data = abu89_analyse)
+mod2 <- lm(time89 ~ ed + age, data = abu89_analyse)
+
+nobs(mod1)
+nobs(mod2)
+```
+
+Naa bruker begge modellene noyaktig samme utvalg, og eventuelle forskjeller skyldes modellspesifikasjonen og ikke at ulike observasjoner er med.
+
+
+## Multippel imputering
+
+Listwise deletion er den enkleste tilnaermingen, men den har en ulempe: du mister data. Hvis mange observasjoner har missing paa minst en variabel, kan utvalget bli vesentlig mindre. I tillegg kan resultatene bli skjeve hvis dataene ikke mangler helt tilfeldig.
+
+En mer avansert tilnaerming er *multippel imputering*, der man estimerer hva de manglende verdiene sannsynligvis ville vaert basert paa den informasjonen man faktisk har. Pakken `mice` i R er det mest brukte verktoeyet for dette. Vi gaar ikke naermere inn paa dette her, men det er greit aa vite at det finnes. Hvis du har mye missing i dataene dine og det er viktig for resultatene, bor du sette deg inn i dette temaet.
+
+
+## Vanlige fallgruver og tips
+
+Her er noen praktiske rad for aa haandtere missing:
+
+- **Sjekk alltid for missing for du begynner aa analysere.** Bruk `summary()` eller `colSums(is.na())` for aa faa en oversikt. Missing-verdier som du ikke er klar over kan gi misvisende resultater.
+- **Bruk `na.rm = TRUE` bevisst.** Det er lett aa bare legge til `na.rm = TRUE` overalt, men tenk igjennom *hvorfor* det er missing. Hvis mange verdier mangler, bor du undersoke dette naermere for du fjerner dem.
+- **Ikke bruk `x == NA`.** Bruk alltid `is.na(x)`. Dette er en av de vanligste nybegynnerfeilene i R.
+- **Pass paa at missing betyr det du tror.** I noen datasett er missing-verdier kodet som -9, 999 eller lignende. Sjekk dokumentasjonen for datasettet og kod om til `NA` der det trengs.
+- **Vaer forsiktig med `drop_na()` uten argumenter.** Uten argumenter fjerner den alle rader med missing paa *hvilken som helst* variabel, noe som kan gi et veldig lite datasett.
+- **Lag et analysedatasett.** Naar du kjorer regresjoner, lag et eget datasett der du har fjernet missing paa de relevante variablene, slik at alle modeller bruker samme utvalg.

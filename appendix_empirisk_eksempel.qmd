@@ -1,0 +1,109 @@
+# Empirisk eksempel
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+Artikkelen ["Human Values and Retirement Experiences: a Longitudinal Analysis of Norwegian Data"](https://link.springer.com/article/10.1007/s11205-021-02687-7) bruker data fra NorLAG, runde 2 og 3. I det som følger vil hovedresultatene fra denne studien replikeres. Stor takk til Morten Blekesaune som var meget velvillig til å dele script slik at reprodusering er praktisk mulig. 
+
+
+
+## Utvalg av variable 
+Alle variable er dokumentert på NorLAG sine sider, og i egen fil som følger med utdelt datasett "kodebok.html". 
+
+
+
+```{r}
+library(tidyverse)
+library(haven)
+
+
+infilbane <- "C:/Users/torbskar/OneDrive - Universitetet i Oslo/Dokumenter/Undervisning/SOS4020_forkurs/data2023/rOBH3y10/"
+
+# Leser inn dta-fil, velger aktuelle variable og koder om missing-verdier til NA. 
+# drop_na() sletter observasjoner med NA-verdier. Merk at dette gjøres for de variablene som er valgt ut i steget før. 
+register <- read_stata( paste0(infilbane, "NorLAG-lengde-register.dta"), encoding = "utf-8") %>% 
+  select(ref_nr, year, 
+         inpgivinnt, inwoverfor, inftryg, inwyrkinnt, inwoverfor,    # pensj_ft overf_ft penal_ft penuf_ft penin_ft 
+         inkode217, inkode218 ) %>% 
+  mutate(inpgivinnt = ifelse(inpgivinnt == 999999999, NA, inpgivinnt),
+         inwoverfor = ifelse(inwoverfor == 999999999, NA, inwoverfor),
+         inftryg = ifelse(inftryg == 999999999, NA, inftryg)) %>% 
+  drop_na()
+```
+
+
+# Leser inn data. Bruker labelled for enklere oversettelse av stata-kode
+norlag <- readRDS("data/norlag_labelled.rds") %>% 
+  select(ref_nr, round, iodeltakelse, iointervjuaar,  # ref_nr round  io_intervjuyr  
+         iofodselsaar, ioalder, iokjonn,              # io_ioalder  
+         wb007, wr004,                                # wb007 wr004
+         hcPCS12, starts_with("vahv")                 # hcPCS12 va_bhv*
+         #vahvssen, vahvsstr, vahvsotc, vahvscon
+         ) %>% 
+  filter(round > 1, iodeltakelse %in% c(1,3)) %>% 
+  mutate(alder = as.numeric(ioalder), 
+         satis = as.numeric(wb007)) %>% 
+  mutate(ald10 = alder/10, 
+         ald2 = ald10^2,
+         ald3 = ald10^3,
+         year = iointervjuaar) %>% 
+  filter(alder < 86, satis < 15, wr004 <= 5, !is.na(wr004), !is.na(satis))  %>% 
+  arrange(ref_nr, round, year) %>% 
+  filter(complete.cases(.))  
+
+
+# Kobler på register, beholder bare treff på begge.
+norlagreg <- merge(norlag, register, by = c("ref_nr", "year") ) %>% 
+  mutate(hcPCS12 = hcPCS12/10,
+         fyshel1 = hcPCS12) %>% 
+  group_by(ref_nr) %>% 
+  mutate(antobs = n()) %>%      # Filtrerer på de som har akkurat to observasjoner. Altså: deltar i begge runder. 
+  filter(antobs == 2) %>% 
+  select(-antobs) %>% 
+  group_by(ref_nr) %>% 
+  mutate(pensj_ft = mean(inftryg),    #"Pensjoner folketrygden"
+         overf_ft = mean(inwoverfor), #"Overføringer i alt"
+         penal_ft = mean(inkode217),  # "Alderspensjon"
+         penuf_ft = mean(inkode218),  # "Uførepensjon"
+         penin_ft = mean(inpgivinnt)  #"Pensjonsgivende inntekt"
+  )
+  
+
+dim(norlagreg)
+
+summary(norlagreg$alder)
+
+# Utvalgsstørrelse og personer ####
+norlagreg %>% 
+  group_by(round) %>% 
+  ungroup() %>% 
+  summarise(personer = n_distinct(ref_nr), observasjoner = n())
+
+table(is.na(norlagreg$satis))
+
+
+## Etablering av utvalg for analyse 
+
+
+
+
+## Deskriptiv statistikk 
+
+
+
+
+## En kommentar om reproduserbarhet 
+Det er svært viktig at forskning lar seg reprodusere. I denne sammenhengen gjelder det å kunne reprodusere nøyaktig samme resultat på samme data, som er viktig for uavhengig ettergåelse og kvalitetskontroll. At reproduserbart script kan gjøres tilgjengelig er helt avgjørende, men også at data er tilgjengelig. I dette tilfellet har Morten Blekesaune vært meget velvillig delt script etter forespørsel. Han svarte på epost samme dag, noe som er et tydelig tegn på at han også hadde orden i sakene og visst godt hvor scriptet var. Sånn skal det være! 
+
+Data var vanskeligere. NorLAG er ikke åpne data og er ikke opp til forskeren å dele. Vi er derfor avhengig av at også Sikt har orden i sakene. NorLAG er publisert i flere versjoner der det har vært noen endringer underveis. Det ble derfor praktisk vanskelig å få etablert nøyaktig samme utvalg uten å også få nøyaktig samme datauttrekk utlevert. Hvis ikke dataleverandør kan gi nøyaktig samme data, så blir heller ikke scriptet nøyaktig reproduserbart. 
+
+En viktig side ved å dele scriptet er at det gjøres en del små valg i den faktiske analysen som typisk ikke fremgår med tilstrekkelig detaljgrad i forskningsartikkelen. 
+
+
+### Replikering på uavhengige data
+Mer generelt er det også viktig å kunne replikere *tilsvarende resultater* på andre data, men det har et litt annet formål. For slik replisering er det imidlertid også viktig å ha nøyaktig informasjon om hva som ble gjort i den opprinnelige studien og data er godt dokumentert. 
+
+
+

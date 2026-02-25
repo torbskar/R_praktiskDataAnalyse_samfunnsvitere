@@ -1,0 +1,141 @@
+# Lage dictionary-fil 
+
+Dokumentasjonen som følger med NorLAG og andre datasett fra Sikt er en html-fil (dvs. web-side) med en oversikt over alle variable og hvordan de er kodet. Dette er fint for manuelt oppslag, men er ikke ideelt til bruk for maskinell behandling. 
+
+Det vi ideelt skulle hatt er et samlet datasett der kodeskjemaet er knyttet til variabelnavnene. Dette kalles noen ganger en "dictionary" fil. All informasjonen vi trenger for å lage en slik ligger i html-filen man får sammen med datasettet fra Sikt, bare på en knotete form. Det skal vi fikse. 
+
+Nedenfor skal vi vise hvordan vi gjør følgende:
+
+* Leser inn en fullstendig html-fil, inkludert alle html-kodene
+* Identifiserer den delen av html-filen som inneholder kodeskjema og begrenser filen til disse
+* Plukker ut alle tabeller og gjør dem om til data.frame-struktur i R
+* Rensker opp i filen til å bare beholde de relevante radene
+
+Dette er egentlig en svært enkel introduksjon til webscraping for et spesfikt formål. Vi skal bruke pakken `rvest` som er laget nettopp for webscraping. 
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| message: false
+#| error: false
+library(rvest)       # scrape html-sider
+library(tidyverse)   # generell databehandling
+```
+
+
+## Lese inn html-dokumentasjonen
+Første sted er å lese inn html-filen. Funksjonen `read_html()` gjør dette. For å skjønne litt mer av hvordan dette ser ut kan du åpne den opprinnelige html-filen i ren tekst, f.eks. med bruk av Notepad. Det er dette som leses inn. Jeg legger det i et nytt objekt som jeg har kalt `cb` (forkortelse for codebook). 
+
+```{r}
+#| echo: false
+#| message: false
+#| error: false
+# read html file
+u <- "C:/Users/torbskar/OneDrive - Universitetet i Oslo/Dokumenter/Undervisning/SOS4020_forkurs/data2024/data_tilDeling/Kodebok.html"
+
+cb <- read_html(u)
+```
+```{r}
+#| eval: false
+#| message: false
+#| error: false
+# read html file
+
+cb <- read_html("data/Kodebok.html")
+```
+
+For NorLAG er dokumentasjonsdokumentet inndelt i flere deler, og det er bare den siste delen som inneholder kodeskjemaene. Det er denne siste delen vi trenger, så første utfordring er å plukke ut denne delen. 
+
+En html-fil er strukturert innenfor "noder" som har en start og en slutt. Et avsnitt starter med en kode `<a>` og avsluttes med `</a>`. Tilsvarende koder finnes for tabeller og andre elementer. Disse delene har er oftest gitt et navn som man kan identififiseres og brukes til lage lenker til spesifikke deler av siden (jf. innholdsfortegnelsen). Vi bruker denne til å filtrere filen. 
+
+I akkurat denne filen trenger vi informasjonen som ligger etter overskriften "Variables Description". For å finne navnet på dette avsnittet kan man undersøke lenken i innholdsfortegnelsen der det fremkommer som `#variables`. Eller man kan åpne html-filen i et tekstdokument og søke opp tittelen, så finner man koden `name='variables` innenfor det avsnittet. 
+
+Vi bruker `html_nodes` til å trekke ut bare dette avsnittet som følger. 
+
+```{r}
+# Find the specific heading
+variables <- cb %>% 
+  html_nodes("a[name='variables']")
+```
+
+I denne dokumentasjonen er hver variabel lagret i en egen tabell. I html-kode angis begynnelsen av en tabell med `<table>` og denne brukes til å trekke ut bare tabellene. 
+
+```{r}
+tables <- variables %>% 
+    #html_node(xpath = "//a[@name='variables']") %>% 
+    html_nodes(xpath = "./following::table")
+
+```
+
+Så kan vi bruke funksjonen `html_table` til å trekke ut hver enkelt tabell i en struktur som er lettere å jobbe med, nemlig en "data.frame", altså en rektangulær struktur med rader og kolonner slik datasett vanligvis ser ut. Hver tabell blir et eget data.frame-objekt, og når man legger dette i et nytt objekt blir det av typen "list". En "list" er en samling objekter som har hver sin plass i det samme objektet. (Du kan tenke på det som en eske med flere mindre ekster oppi). Vi kommer tilbake til hvordan de slås sammen. 
+
+```{r}
+table_data <- html_table(tables)
+```
+
+
+
+### Legge det hele i en funksjon 
+
+
+```{r}
+# Check if the heading exists
+if (length(variables) > 0) {
+  # Find the tables after the heading
+  tables <- variables %>% 
+    html_node(xpath = "//a[@name='variables']") %>% 
+    html_nodes(xpath = "./following::table")
+  
+  # Extract the table data
+  table_data <- html_table(tables)
+  } else {
+  cat("The specified heading was not found.")
+}
+
+
+tbslist <- list()
+for(i in 1:length(table_data)){ 
+  if("X2" %in% names(table_data[[i]]) & 
+     "X3" %in% names(table_data[[i]]) & 
+     !("X4" %in% names(table_data[[i]])) ){
+    
+    tbslist[[i]] <- table_data[[i]] %>% 
+      mutate(col_nm = strsplit(as.character(.[1,1]), split = ":")[[1]][1],
+             spm = strsplit(as.character(.[1,1]), split = ":")[[1]][2]) %>% 
+      rename( value = X2, 
+              label = X3) %>%
+      filter( str_detect(X1, "Values and categories")) %>% 
+      filter( !is.na(value)) %>% 
+      select(-X1)
+  }
+  else{
+    if(i==1){
+      teller <- 0
+      }
+    teller <- teller + 1 
+  }
+  if(i == length(table_data)){
+    print(paste("Antall variable som ikke har omkodinger: ", teller)) 
+  }
+}
+
+
+dat_dict <- bind_rows(tbslist) %>% 
+  select(col_nm, value, label, spm)
+
+
+```
+
+```{r}
+#| eval: false
+saveRDS(dat_dict, "data/dat_dict.rds")
+```
+
+
+
+
+
+

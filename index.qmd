@@ -1,37 +1,43 @@
 # Forord {.unnumbered}
 
-Denne boken er beregnet som en veldig praktisk innføring i dataanalyse med R. Med det som gjennomgås i denne boken skal du være i stand til å skrive en enkel rapport, med deskriptive tabeller og figur, og grunnleggende regresjonsanalyse. 
+Denne boken er ment som en praktisk innføring i bruk av R til dataanalyse for studenter i samfunnsvitenskap. Fokuset er på *hvordan* man gjør dataanalyse i R -- fra innlesning av data, via datahåndtering og deskriptiv analyse, til statistisk modellering og visualisering.
 
-Dette er imidlertid ikke en lærebok i statistikk og metode, så det vil ikke vektlegges dypere forklaringer av statistiske begreper, fordelinger, designvalg osv. Du bør konsultere en annen standard lærebok for slike ting. Men all statistikk gjøres i praksis med datamaskiner og programmering. Denne boken vektlegger denne praktiske siden. 
+Boken er ment å *komplettere* lærebøker i statistikk og metode, ikke erstatte dem. Statistiske begreper forklares når det er nødvendig for å forstå koden, men den grundige teoretiske behandlingen av statistikk overlates til andre lærebøker. Unntaket er kapittelet om design, tolkning og teori (Del IX), som tar opp noen viktige perspektiver på dataanalyse som sjelden presenteres samlet i andre lærebøker.
 
-R er et programmeringsspråk spesielt godt egnet for statistisk analyse og databehandling, og det er viktig å lære å skrive kode både for databehandling og analyse. Men boken er *ikke* ment som en innføring i programmering, og målsettingen er ikke at du skal beherske R-programmering som sådan. Det overordnede fokuset er å få gjort analyser raskt og effektivt. 
+Teksten er ment som en ganske grunnleggende innføring for praktikere. Fokuset er å vise løsninger som fungerer uten for mye mikk-makk. Det er alltid flere måter å gjøre ting på, men hovedteksten dekker anbefalte løsninger basert på hensyn som effektivitet, konsistens og funksjonalitet. Boken kan også brukes som oppslagsverk.
 
-Dette er en bok som lærer deg hvordan få ting gjort med R. Fra import av data til output av publiserbar kvalitet. Det vektlegges arbeidsflyt, mappestruktur og stilistiske elementer. Dette er for å lette arbeidet ditt, gjøre koden lettere å lese og generelt holde orden. 
-
-Boken vektlegger også det estetiske. Alle tabeller og figurer skal være *pene* i den forstand at de skal være informative, lette å lese, og bruke en layout som er tiltalende. Dessuten skal alt kunne eksporteres til vanlige tekstbehandlingsprogram. Klipp-og-lim skal være unødvendig.  
-
-Et moment ved det estetiske er fargebruk. I tillegg til at R støtter avansert fargebruk er det også enkle fargepaletter tilgjengelig. Men det er viktig at fargebruken er funksjonell så alle kan lese det. Derfor må fargevalg ta hensyn til slike ting som fargeblindhet. Slikt dekkes også. 
+Gjennom boken brukes varierte datasett fra ulike R-pakker, med vekt på data som er relevante for samfunnsvitenskap.
 
 
-## Hvordan bli god? 
-Analyse av data er praktiske ferdigheter og for å bli god må du øve. Hvert kapittel inneholder derfor en rekke oppgaver som du må jobbe med. Teksten har mange eksempler med bruk av ett eller flere datasett, og så skal du gjøre tilsvarende med andre datasett. Bruk gjerne helt andre datasett også, og jobb praktisk med oppgaver. 
+## Hvorfor R?
+
+R er et programmeringsspråk laget spesielt for statistikk og dataanalyse. Det er gratis, åpen kildekode, og har et enormt økosystem av pakker for alt fra enkel deskriptiv statistikk til avansert maskinlæring og kartproduksjon.
+
+En av de store forskjellene fra SPSS og Stata er at R *ikke* har muligheten for menybaserte analyser. Du kan altså ikke gjøre analyser med "pek-og-klikk". R er et programmeringsspråk, og det er viktig å lære å skrive kode for både databehandling og analyse. Dette kan virke krevende i starten, men gir betydelige fordeler: koden dokumenterer nøyaktig hva som er gjort, analyser kan reproduseres, og komplekse operasjoner kan automatiseres.
 
 
-## Datasett
-De aller fleste datasettene som brukes i denne boken finnes tilgjengelig i diverse R-pakker, og det er referanser til disse gjennomgående slik at du lett kan finne dem. I tillegg er datasettene gjort tilgjengelig på bokens ressursside. Noen datasett som brukes er hentet fra andre kilder, som for eksempel offisiell statistikk fra SSB, eller utdrag fra andre datasett som ikke nødvendigvis er åpent tilgjengelig ellers. 
+## Pakker som brukes
 
-For en oversikt over andre datasett lett tilgjengelig i R, se [hjemmesiden til Vincent Arel-Bundock](https://vincentarelbundock.github.io/Rdatasets/articles/data.html) som inneholder en oversikt.   
+Boken bruker en rekke R-pakker konsekvent:
 
-## Til studenter 
-For all kvantitativ analyse er det svært viktig at man jobber med kode. Når du har gjort alt arbeidet med kode kan du enkelt gjøre analysen på nytt med samme data eller nye data. Koden er langt på vei dokumentasjon på den jobben du gjør, og gjør analysene dine reproduserbare. Å lære seg dataanalyse med meny-baserte verktøy er derfor ikke et alternativ for seriøse analyser. Vitenskapen skal være reproduserbar, og da må det skrives kode. 
+- **tidyverse** for generell datahåndtering og grafikk (inkluderer dplyr, ggplot2, tidyr, readr, forcats, stringr, purrr)
+- **gtsummary** og **gt** for deskriptive tabeller
+- **modelsummary** og **gt** for regresjonstabeller
+- **haven** og **labelled** for import av data fra Stata og SPSS
+- **sf** og **tmap** for kart
+- **marginaleffects** for marginaleffekter
 
-Dette betyr ikke at du behøver være spesielt interessert i datamaskiner eller informatikk. Å kunne kode har visse nerde-assosisasjoner, men ikke la deg affisere av det. Her er det det praktiske som vektlegges og du skal lære så lite programmering som mulig - men nok til å gå gjort det du skal. Du trenger forsåvidt en god del, så det blir mye kode som skal skrives. 
 
-Hvis du er av den typen som gjerne skulle vært litt mer nerdete så er du kanskje mer bekymret for at det blir for lite kode? Dette er uansett et godt sted å starte. Denne boken er lagt opp som en innføring på relativt lavt nivå, men utøver konsekvent prinsipper du trenger på et høyere nivå. Alt i denne boken kan påbygges til avansert programmering.  
+## Bokens oppbygning
 
+Boken er organisert i ni deler:
 
-## Til undervisere 
-Denne boken har gjort en del strategiske valg av pakker og funksjoner som brukes gjennomgående. Først og fremst brukes *tidyverse* gjennomgående, og andre funksjoner som brukes vil være kompatible med tidyverse. Dette gir en konsistent og effektiv kode gjennomgående.    
-
-Det vektlegges gjennomgående at alle resultater skal bli pene, i publiserbar kvalitet, og i en form som lar seg eksportere til tekstbehandlingsprogram i MS Office, fordi det i praksis er dette de fleste bruker. Men det er også vektlagt å bruke eksportfunksjoner som *også* kan eksportere til andre formater som pdf, html or rft, og er kompatible med Markdown/Quarto. Selv om de fleste nybegynnere i R ikke jobber i disse formatene skal de ikke behøve å bytte funksjoner hvis de skulle ha behov for det senere. 
-
+- **Del I** hjelper deg med å komme igang med R og RStudio.
+- **Del II** dekker innlesning av data fra ulike formater og kilder, inkludert Stata, SPSS, Excel og SSBs statistikkbank.
+- **Del III** handler om datahåndtering: tidyverse-verb, omkoding, manglende verdier, kobling av datasett og håndtering av store data.
+- **Del IV** dekker deskriptiv analyse med grafikk og tabeller.
+- **Del V** er den mest omfattende delen og dekker statistisk modellering: lineær regresjon med utvidelser (interaksjoner, splines, DiD, RD), diagnostikk, logistisk regresjon, marginaleffekter, og en introduksjon til prediksjon og maskinlæring.
+- **Del VI** handler om statistisk tolkning: standardfeil, konfidensintervaller og p-verdier.
+- **Del VII** viser hvordan man plasserer data på kart.
+- **Del VIII** gir en enkel introduksjon til nettverksanalyse.
+- **Del IX** tar opp viktige perspektiver på design, tolkning, teori og reproduserbarhet.

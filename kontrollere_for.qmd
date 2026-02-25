@@ -1,0 +1,176 @@
+# Kontrollere for bakenforliggende variable
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(haven)
+library(modelsummary)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+abu89 <- read_stata("data/abu89.dta") %>%
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+```
+
+I forrige kapittel så vi hvordan vi kan estimere regresjonsmodeller med en eller flere forklaringsvariable. Men *hvorfor* vil vi ha flere variable i modellen? Det handler om noe av det mest sentrale i kvantitativ samfunnsvitenskap: å kontrollere for bakenforliggende variable. I dette kapittelet skal vi se på hva det betyr, hvorfor det er viktig, og hvordan vi gjør det i praksis.
+
+
+## Simpsons paradoks: Når helheten lyver
+La oss starte med et tankeksperiment. Tenk deg at du sammenligner to sykehus for å finne ut hvilket som er best. Sykehus A har høyere dødelighet enn sykehus B totalt sett. Men når du ser på lette og alvorlige tilfeller *hver for seg*, er sykehus A faktisk bedre i *begge* gruppene. Hvordan er det mulig?
+
+Forklaringen er at sykehus A er et spesialistsykehus som tar imot de mest alvorlige pasientene. Alvorlige tilfeller har naturligvis høyere dødelighet uansett sykehus. Når vi *kontrollerer for* alvorlighetsgrad -- altså sammenligner likt med likt -- snur bildet seg.
+
+Dette fenomenet kalles *Simpsons paradoks*: en sammenheng som går i en retning totalt sett kan snu når man deler opp etter en tredje variabel. Det er ikke bare et teoretisk kuriosum. Det skjer hele tiden i samfunnsvitenskapelige data, og det er en av hovedgrunnene til at vi bruker multippel regresjon.
+
+
+## Hva betyr det å "kontrollere for" en variabel?
+Uttrykket "kontrollere for" er noe man hører hele tiden i metodeundervisning. Men hva betyr det egentlig?
+
+Kort sagt betyr det at vi sammenligner grupper som er *like* på den variabelen vi kontrollerer for, men *forskjellige* på den variabelen vi er interessert i. Hvis vi kontrollerer for sosial klasse i en analyse av kjønnsforskjeller i lønn, betyr det at vi sammenligner menn og kvinner *innenfor samme klasse*. Vi sammenligner altså likt med likt, så godt det lar seg gjøre.
+
+I praksis gjør multippel regresjon dette for oss matematisk: når vi legger til en variabel i modellen, "renser" vi sammenhengen mellom de andre variablene og utfallet for den variabelen vi la til. Det er dette vi mener med å kontrollere for.
+
+
+## Praktisk eksempel: Kjønnsgapet i lønn
+La oss se på et konkret eksempel med abu89-datasettet. Vi starter med den enkle sammenhengen mellom kjønn og timelønn.
+
+```{r}
+#| warning: false
+#| message: false
+mod1 <- lm(time89 ~ female, data = abu89)
+coef(mod1)
+```
+
+Koeffisienten for `female` viser forskjellen i gjennomsnittlig timelønn mellom kvinner og menn. Kvinner tjente altså betydelig mindre enn menn. Men er hele denne forskjellen fordi arbeidsgivere betaler kvinner mindre? Eller kan noe av forskjellen skyldes at menn og kvinner i gjennomsnitt har forskjellige yrker, utdanninger og klasseposisjoner?
+
+La oss legge til sosial klasse i modellen:
+
+```{r}
+#| warning: false
+#| message: false
+mod2 <- lm(time89 ~ female + klasse89, data = abu89)
+coef(mod2)
+```
+
+Legg merke til hva som skjedde med koeffisienten for `female`. Den ble mindre (i absoluttverdi). Det betyr at *noe* av lønnsforskjellen mellom menn og kvinner kan tilskrives at de befinner seg i ulike klasseposisjoner. Når vi sammenligner menn og kvinner *i samme klasse*, er forskjellen mindre.
+
+Vi kan utvide enda mer og legge til utdanning:
+
+```{r}
+#| warning: false
+#| message: false
+mod3 <- lm(time89 ~ female + klasse89 + ed, data = abu89)
+coef(mod3)
+```
+
+Også her kan vi se at koeffisienten for `female` endrer seg noe når vi legger til flere kontrollvariable.
+
+
+## Bivariat vs. multippel regresjon
+I en *bivariat* regresjon (kun en forklaringsvariabel) beskriver koeffisienten den *totale* sammenhengen mellom variabelen og utfallet. Denne sammenhengen kan inneholde både en direkte effekt og indirekte effekter via andre variable.
+
+I en *multippel* regresjon (flere forklaringsvariable) beskriver koeffisienten sammenhengen mellom variabelen og utfallet *gitt at de andre variablene holdes konstant*. Det er dette "kontrollere for" betyr i praksis.
+
+Forskjellen kan oppsummeres slik:
+
+- **Bivariat**: Hva er den gjennomsnittlige lønnsforskjellen mellom menn og kvinner?
+- **Multippel**: Hva er den gjennomsnittlige lønnsforskjellen mellom menn og kvinner *som er i samme sosiale klasse og har samme utdanningsnivå*?
+
+Det er viktig å forstå at begge spørsmålene kan være relevante. Det avhenger av hva du er interessert i.
+
+
+## Sammenligne modeller med `modelsummary()`
+For å virkelig se hva som skjer når vi legger til kontrollvariable er det nyttig å sette modellene ved siden av hverandre i en tabell. Da kan vi direkte se hvordan koeffisienten for `female` endres.
+
+```{r}
+#| warning: false
+#| message: false
+modelsummary(list("Bivariat" = mod1,
+                  "Med klasse" = mod2,
+                  "Med klasse og utd." = mod3),
+             fmt = 1,
+             estimate = "{estimate} ({std.error})",
+             statistic = NULL,
+             gof_omit = 'DF|Deviance|R2 Adj.|AIC|BIC|Log.Lik.|RMSE',
+             coef_rename = c("female" = "Kvinne",
+                             "educ" = "Utdanning (år)",
+                             "(Intercept)" = "Konstant"))
+```
+
+I den bivariate modellen (modell 1) ser vi den totale lønnsforskjellen mellom menn og kvinner. I modell 2 har vi kontrollert for klasse, og forskjellen er noe redusert. I modell 3 har vi i tillegg kontrollert for utdanning.
+
+Legg merke til to ting: For det første, koeffisienten for `female` endres mellom modellene. For det andre, $R^2$ (forklart varians) øker når vi legger til flere variable. Det betyr at modellen passer bedre til dataene. Men det betyr *ikke* nødvendigvis at modellen er bedre for det vi er interessert i.
+
+
+## Når skal vi kontrollere -- og når skal vi la være?
+Det er fristende å tenke at man bør kontrollere for *alt* man har tilgang til. Men det er ikke riktig. Hvorvidt du bør kontrollere for en variabel avhenger av hva rollen til variabelen er i den sammenhengen du studerer.
+
+En nyttig tommelfingerregel er at du bør kontrollere for variable som:
+
+1. Påvirker *både* forklaringsvariabelen og utfallsvariabelen (konfunderende variable)
+2. Ikke selv er et *resultat* av forklaringsvariabelen
+
+Punkt 2 er viktig og leder oss til det som kalles *bad controls*.
+
+
+## "Bad controls": Ikke kontroller for konsekvenser
+En vanlig feil er å kontrollere for variable som er *konsekvenser* av den forklaringsvariabelen du er interessert i. Tenk deg at du studerer effekten av utdanning på inntekt. Hvis du kontrollerer for *yrke*, kan du faktisk fjerne en viktig del av effekten -- fordi utdanning påvirker inntekt delvis *gjennom* hvilket yrke man får. Ved å kontrollere for yrke fjerner du denne mekanismen fra estimatet.
+
+Tilsvarende: Hvis du er interessert i effekten av kjønn på lønn, bør du tenke nøye gjennom om du skal kontrollere for variabler som arbeidstid eller stillingsnivå. Hvis kvinner systematisk styres mot lavere stillinger *på grunn av* kjønn, er stillingsnivå en *konsekvens* av kjønn -- og da fjerner du en del av den faktiske kjønnseffekten ved å kontrollere for det.
+
+Det finnes ingen enkel mekanisk regel for dette. Du må tenke gjennom *rekkefølgen* av variablene: Hva kommer først? Hva påvirker hva? Et nyttig verktøy for å tenke gjennom dette er såkalte DAGs (Directed Acyclic Graphs), men det går vi ikke inn på her.^[DAGs er et tema som dekkes grundigere i videregående metodekurs.]
+
+
+## Steg-for-steg: Bygge modeller i R
+I praksis vil du ofte bygge opp modeller steg for steg. Her er en oppsummering av fremgangsmåten:
+
+**Steg 1:** Start med den bivariate sammenhengen du er interessert i.
+```{r}
+#| eval: false
+mod1 <- lm(time89 ~ female, data = abu89)
+```
+
+**Steg 2:** Legg til variable du mener er konfunderende (bakenforliggende).
+```{r}
+#| eval: false
+mod2 <- lm(time89 ~ female + klasse89, data = abu89)
+```
+
+**Steg 3:** Legg eventuelt til ytterligere kontrollvariable.
+```{r}
+#| eval: false
+mod3 <- lm(time89 ~ female + klasse89 + ed, data = abu89)
+```
+
+**Steg 4:** Sammenlign modellene i en tabell.
+```{r}
+#| eval: false
+modelsummary(list("Modell 1" = mod1,
+                  "Modell 2" = mod2,
+                  "Modell 3" = mod3),
+             fmt = 1,
+             estimate = "{estimate} ({std.error})",
+             statistic = NULL,
+             gof_omit = 'DF|Deviance|R2 Adj.|AIC|BIC|Log.Lik.|RMSE')
+```
+
+Det viktige er ikke bare *tallene*, men *hvordan* koeffisienten du er interessert i endrer seg fra modell til modell. Hvis den endres mye, tyder det på at de variablene du la til er viktige konfunderende variable. Hvis den knapt endrer seg, betyr det at disse variablene ikke forklarer mye av den opprinnelige sammenhengen.
+
+
+## Oppsummering
+- Simpsons paradoks viser at sammenhenger kan snu når man kontrollerer for en tredje variabel.
+- Å "kontrollere for" betyr å sammenligne grupper som er like på kontrollvariabelen.
+- Multippel regresjon gjør dette for oss: koeffisienten uttrykker sammenhengen *gitt at de andre variablene holdes konstant*.
+- Du bør kontrollere for variable som påvirker både forklaringsvariabel og utfall (konfunderende variable).
+- Du bør *ikke* kontrollere for variable som er konsekvenser av forklaringsvariabelen ("bad controls").
+- Bygg modeller steg for steg og sammenlign med `modelsummary()` for å se hva kontrollvariablene gjør med estimatene.

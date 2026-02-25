@@ -1,0 +1,250 @@
+# Deskriptive tabeller 
+
+
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+library(tidyverse)
+library(gtsummary)
+```
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| error: false
+#| message: false
+library(haven)
+abu89 <- read_stata("data/abu89.dta") %>% 
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+
+
+```
+
+
+Det kan være ulike grunner til å lage deskriptiv statistikk, og hva du skal bruke tabellene til kan ha betydning for hvordan du lager dem. Noen ganger skal du bare sjekke noen tall, og da er det ingen grunn til å bruke tid på å gjøre tabellen spesiell pen. Andre ganger skal tabellen publiseres i en rapport, på en nettside eller i en vitenskapelig artikkel - eller mest aktuelt på kort sikt: i en masteroppgave. Da må tabellene se ordentlige ut. Nedenfor skal vi se på begge mulighetene. 
+
+
+## Quick-and-dirty oppsummeringer 
+
+Først og fremst har vi funksjonen `summary()`. Når denne brukes på et objekt vil hva slags output du får avhenge av objekttypen. Derfor vil `summary()` gi forskjellig output om det er en vektor, et datasett eller et regresjonsobjekt etc. Vi avgrenser oss til datasett her. 
+
+Her er output for hele datasettet. 
+
+```{r}
+summary(abu89)
+```
+Merk at `summary()` rapporterer forskjellig basert på om variabelen er kontinuerlig eller kategorisk. For kontinuerlige variable gis min/max, kvartiler, median og gjennomsnitt. For kategoriske variable gis det antall i hver kategori. Hvis det er manglende verdier på en variabel står det oppført nederst som antall `NA's`. 
+
+Merk her at variabelen female er definert som kontinuerlig selv om det bare er to verdier. Det ville være mer hensiktsmessig å gjøre om denne variabelen til kategorisk. 
+
+
+Man kan også bruke `summary()` på enkeltvariable med bruk av `$` som følger: 
+
+```{r}
+summary(abu89$time89)
+```
+Da får man altså bare tallene for den variabelen man har angitt etter dollartegnet. 
+
+
+### Enkeltfunksjoner
+Man kan hente ut hvert av disse tallene spesifikt fremfor å bruke `summary()`. Det er egne funksjoner for dette, og de kan også brukes når man gjør databearbeiding for litt andre formål. Vi ser her på de viktigste. 
+
+
+Hva om man vil ha en kvartil som ikke er oppgitt i forvalget? Da kan man bruke funksjonen `quantile()`. Argumentene i denne funksjonen er hvilken variabel og hvilket prosentil. Som vi ovenfor inneholder time89 noen NA. Vi må i tillegg bestemme hva vi ønsker å gjøre med NA i beregningen, og vi vil her se bort fra disse ved å angi `na.rm = TRUE`. Ellers får man feilmelding. 
+
+Her er eksempel med første kvartil som skal gi samme svar som ovenfor: 
+
+```{r}
+quantile(abu89$time89, .25, na.rm = TRUE)
+```
+Her er en variant der man ber om 95-prosentilen: 
+
+```{r}
+quantile(abu89$time89, .95, na.rm = TRUE)
+```
+
+Man kan også be om flere prosentiler. Da listes disse opp innenfor en `c()` som følger. Her gis prosentilene for 5, 10, 90 og 95 prosent. 
+
+```{r}
+quantile(abu89$time89, c(.05, .10, .90, .95), na.rm = TRUE)
+```
+Gjennomsnittet av en variabel gis ved funksjonen `mean()`: 
+
+```{r}
+mean(abu89$time89, na.rm = TRUE)
+```
+Standardavviket gis ved `sd()`:
+
+```{r}
+sd(abu89$time89, na.rm = TRUE)
+```
+
+Medianen kan angis med `quantile()`, men enklere med `median()`:
+
+```{r}
+median(abu89$time89, na.rm = TRUE)
+```
+
+
+Vi trenger også ofte antall. `nrow()` gir antall rader, dvs. antall observasjoner i datasettet
+
+```{r}
+nrow(abu89)
+```
+
+Tilsvarende gir `ncol()` antall kolonner, mens `dim()` gir begge deler:
+
+```{r}
+ncol(abu89)
+dim(abu89)
+```
+
+
+## Professjonelle tabeller med gtsummary 
+For å lage ordentlig professjonelle tabeller kreves det mer. For det første skal de se ordentlige ut, men de skal også kunne eksporteres til andre formater på en hensiktsmessig måte. 
+
+I R finnes det en hel rekke slike funksjoner. Her har vi vektlagt pakken `gtsummary` fordi den gir gode tabeller fra helt enkle til ganske avanserte relativt lett. Det er også mange muligheter for å justere tabellene slik du vil. Dessuten kan resultatene eksporteres lett til de fleste aktuelle formater (Word, html, pdf, Excel, latex). 
+
+Avanserte brukere vil muligens se begrensningene i denne pakken og foretrekke noe annet. De fleste vil kunne lage det aller meste med denne pakken. 
+
+Vi starter med en enkel oversiktstabell med alle variablene i datasettet. Men vi fjerner løpenummeret for person, nemlig variabelen *io_nr* fordi den ikke inneholder noe analyserbar informasjon.  
+
+```{r}
+abu89 %>% 
+  select(-io_nr) %>% 
+  tbl_summary()
+```
+
+Legg merke til at `tbl_summary` gjør en del ting automatisk. Først og fremst er bruker den *variabel label* og *factor levels* i sidespalten. Ofte vil ikke variable ha slike labler, og da vil det vises variabelnavnene. Variabelen *kjønn* har ikke angitt factor levels, og variabelen har bare verdiene 0 og 1, og da rapporteres kun den ene kategorien (dvs. verdien 1). Vi kan legge til annen tekst hvis vi ønsker. 
+
+Dernest er det en forhåndsinnstilling som angir at det for kontinuerlige variable skal rapporteres median og interquartile range (IQR), dvs. nedre og øvre kvartil i parentes. Det gir en god beskrivelse av variablene, men vi skal endre dette nedenfor. For kategoriske variable rapporteres det antall observasjoner og andelen i prosent i parentes. 
+
+Men merk at for antall år utdanning og kjønn, så er det rapportert som kategoriske variable selv om variabeltypen er kontinuerlig. `tbl_summary` gjør dette fordi det er relativt få kategorier slik at median og IQR ikke er så interessant uansett. 
+
+
+
+
+La oss først endre slik at det rapporteres gjennomsnitt og standardavvik i stedet. Det er mer vanlig å gjøre selv om det ikke er noen regel for dette. Funksjonen `theme_gtsummary_mean_sd()` endrer standardvalget for `tbl_summary` i *alle etterfølgende tabeller*. Dermed slipper du endre neste gang. Flere themes finner du på [pakkens hjemmeside](https://www.danieldsjoberg.com/gtsummary/articles/themes.html). For å gå tilbake til opprinnelig theme brukes funksjonen `reset_gtsummary_theme()`. 
+
+Vi kan endre andre ting ved tabellen med noen enkle grep. Alle variable kan endre navn i forspalten med å legge til argumentet `label = `. Nedenfor er to variable endret for å vise hvordan man endrer flere variable. Når det er flere variable må de spesifiseres innenfor argumentet `list()` som nedenfor. Her endrer vi også label for variabelen female og klasse89. 
+
+Noen ganger kan man også ønske å endre hvordan en variabel presenteres. Et vanlig behov er å presisere hvilken type en variabel er. I dette tilfellet er utdanning antall år etter obligatorisk skolenivå, så det er egentlig en kontinuerlig variabel selv om antall verdier er få. Vi kan velge å presisere at denne er av typen *continuous*. Nedenfor presiserer vi også at female er kategorisk, *dichotomous*, selv om denne ble presentert riktig uansett. Vi bruker argumentet `type = ` og flere variable må oppgis innenfor `list()`. 
+
+En siste ting vi kan endre er å ikke rapportere NA. Det er ikke oppgitt timelønn for alle, så antall NA er rapportert for seg. Det kan være fint, men kan også hende vi ikke ønsker det. Nedenfor er det derfor også lagt til `missing = "no"`. 
+
+```{r}
+theme_gtsummary_mean_sd()
+abu89 %>% 
+  select(-io_nr) %>% 
+  tbl_summary(label = list(female ~ "Kjønn", klasse89 = "Klasse"), 
+              type = list(ed ~ "continuous", female ~ "dichotomous"), 
+              missing = "no")
+```
+
+Ofte vil vi ha en tabell som ikke bare viser univariat fordeling, men bi-variate, altså fordelt på to eller flere grupper. Det er f.eks. ganske vanlig å vise tabeller fordelt på kjønn. Det kan vi også gjøre her ved å legge til argumentet `by = female`. Nedenfor er det også forenklet argumentene for `label = ` og `type = `. I slike tilfeller vil vi ofte ha totalen i tillegg til per gruppe, og det gjør vi ved å legge til funksjonen `add_overall()`. 
+
+For de kontinuerlige variablene får vi ikke antallet som inngår i beregningene. Vi vil gjerne vise antall ikke-missing verdier - særlig fordi vi tok vekk NA som egen rad ovenfor. Dette gjør vi ved å legge til funksjonen `add_n()`.  
+
+```{r}
+abu89 %>% 
+  select(-io_nr) %>% 
+  mutate(female = ifelse(female == 0, "Menn", "Kvinner")) %>% 
+    tbl_summary(by = female, 
+                label = list(klasse89 = "Klasse"), 
+              type = list(ed ~ "continuous"), 
+              missing = "no") %>% 
+  add_overall() %>% 
+  add_n()
+```
+
+
+Men vi kan lage mer kompliserte tabeller også. La oss si at vi ønsker å lage den samme tabellen som over, men fordelt på to grupper. Det kan være relevant å sammenligne offentlig og privat sektor. En mulighet er å lage en ny grupperingsvariabel ved å slå sammen kjønn og sektor slik at vi får fire kategorier. Men vi får et bedre resultat ved å lage en stratifisert tabell med funksjonen `tbl_strata()`. Det er litt kryptisk syntaks, men det viktige er å angi hvilken variabel det skal stratifiseres etter med argumentet `strata = ` etterfulgt av `.tbl_fun = ~ .x %>%`, så kommer `tble_summary` etter dette.  Her er det også lagt til en ekstra header med antall observasjoner. 
+
+
+```{r}
+abu89 %>% 
+  select(-io_nr) %>% 
+  mutate(female = ifelse(female == 0, "Menn", "Kvinner")) %>% 
+  tbl_strata(strata = private, 
+             .tbl_fun = 
+               ~ .x %>%
+               tbl_summary(by = female, 
+              label = list(klasse89 = "Klasse"), 
+              type = list(ed ~ "continuous"), 
+              missing = "no") %>%
+               add_n(),
+    .header = "**{strata}**, N = {n}"
+    )
+```
+
+
+Det går også an å lage langt mer avanserte tabeller enn dette, og alle deler kan modifiseres. Men vi går ikke inn på dette her. Ved behov finner du instruksjoner på [pakkens hjemmeside](https://www.danieldsjoberg.com/gtsummary/index.html).
+
+### Eksport av tabeller
+Du skal aldri bruke "klipp og lim" for å få en tabell over i et tekstbehandlingsprogram. Trikset er å konvertere tabellen til gt-format som har en eksportfunksjon til MS Word. 
+
+Først lagres tabellen i et eget objekt. 
+
+```{r}
+
+fintabell <- abu89 %>% 
+  select(-io_nr) %>% 
+  mutate(female = ifelse(female == 0, "Menn", "Kvinner")) %>% 
+  tbl_strata(strata = private, 
+             .tbl_fun = 
+               ~ .x %>%
+               tbl_summary(by = female, 
+              label = list(klasse89 = "Klasse"), 
+              type = list(ed ~ "continuous"), 
+              missing = "no") %>%
+               add_n(),
+    .header = "**{strata}**, N = {n}"
+    )
+```
+
+Så kan tabellen eksporteres til Word, og evt. redigeres videre der hvis det trengs. På dette nivået kan det være mer tidsbesparende å gjøre siste justeringer i Word fremfor å lære alle triks for å lage tabellen fiks ferdig i R. (Skal du lage mange tabeller kan det likevel lønne seg å gjøre mest mulig i R). 
+
+```{r}
+#| eval: false
+fintabell %>% 
+  as_gt() %>% 
+  gt::gtsave(filename = "output/fintabell.docx")
+```
+
+Merk at eksport til docx-formatet krever at du har en relativt ny installasjon av pakkene {gt} og {gtsummary}. Filhalen ".docx" innebærer at filen lagres i dette formatet. Tilsvarende kan du lagre i .html, .pdf, .rtf, .png, .tex eller .ltex bare ved å endre filhalen. 
+
+En tilsvarende variant som noen av dere har lært på sosgeo1120 er å bruke `as_flextable` og en tilsvarende eksportfunksjon. Det er selvsagt også helt ok. En tidligere versjon av {gt} kunne som sagt ikke eksportere til Word, så da var {flextable} beste løsning. Men pakken {flextable} har vist seg å være litt trøblete å installere på noen pc'er, så da er det bedre å bruke {gt}. 
+
+
+
+
+## Manuelle tabeller
+Noen ganger trenger man å lage ganske spesifikke ting. 
+
+### For datasettet totalt 
+
+
+### Grupperte statistikker 
+
+
+
+
+## Oppgaver
+
+Slå opp i boken [R for data science](https://r4ds.had.co.nz/data-visualisation.html) hvis du står fast eller ikke skjønner hva koden betyr. 
+
+::: {#exr-}
+Bruk datasettet abu89 og lag de samme tabellene som vist her, gjør noen endringer på kodene for å endre utseendet på tabellene. Det er et mål at du skal forstå hva hver enkelt kommando gjør. 
+:::
+
+
+::: {#exr-}
+Last inn datasettet `wagepan` fra pakken `wooldridge` i R. Velg noen variable som du selv tenker kan være informative å se nærmere på. Bruk de samme teknikkene på disse variablene.
+:::
+
+
+

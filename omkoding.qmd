@@ -1,0 +1,266 @@
+# Omkoding av variable
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(haven)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+abu89 <- read_stata("data/abu89.dta") %>%
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+```
+
+Å omkode variable er noe du vil gjøre veldig ofte. Noen ganger trenger du å slå sammen kategorier, andre ganger trenger du å lage helt nye variable basert på eksisterende. Det kan handle om å lage aldersgrupper fra en kontinuerlig aldersvariabel, slå sammen utdanningskategorier, eller gjøre om en variabel til en annen type. I dette kapittelet går vi gjennom de viktigste teknikkene.
+
+## Factor-variable
+
+Factor-variable er Rs måte å håndtere kategoriske data på. En factor har definerte *nivåer* (levels) som angir de mulige verdiene. La oss se på et eksempel:
+
+```{r}
+class(abu89$klasse89)
+levels(abu89$klasse89)
+```
+
+Vi kan se at variabelen `klasse89` er en factor med fem nivåer. Rekkefølgen på nivåene har betydning, blant annet for hvilken kategori som blir referansekategori i regresjonsanalyser.
+
+### Lage factor fra tall
+
+Hvis du har en numerisk variabel som egentlig er kategorisk, kan du gjøre den om til factor:
+
+```{r}
+abu89 <- abu89 %>%
+  mutate(kjonn = factor(ifelse(female == 1, "Kvinne", "Mann"),
+                        levels = c("Mann", "Kvinne")))
+
+table(abu89$kjonn)
+```
+
+Med `levels =` bestemmer du rekkefølgen. Den første kategorien blir referansekategori i regresjon.
+
+## Omkoding med `ifelse()`
+
+Den enkleste formen for omkoding er `ifelse()`. Den tester en betingelse og gir én verdi hvis betingelsen er sann og en annen hvis den er usann:
+
+```{r}
+abu89 <- abu89 %>%
+  mutate(hoylonn = ifelse(time89 > 100, "Høy lønn", "Lav lønn"))
+
+table(abu89$hoylonn)
+```
+
+Her er `time89 > 100` betingelsen. Alle som har timelønn over 100 får verdien "Høy lønn", resten får "Lav lønn".
+
+## Omkoding med `case_when()`
+
+Når du har mer enn to kategorier, er `case_when()` mye mer oversiktlig enn nestede `ifelse()`-kall:
+
+```{r}
+abu89 <- abu89 %>%
+  mutate(aldersgruppe = case_when(
+    age < 25 ~ "Under 25",
+    age < 35 ~ "25-34",
+    age < 45 ~ "35-44",
+    age < 55 ~ "45-54",
+    age >= 55 ~ "55 og over"
+  ))
+
+table(abu89$aldersgruppe)
+```
+
+Merk at `case_when()` evaluerer betingelsene *ovenfra og ned*. Den stopper ved den første betingelsen som er sann. Derfor trenger vi ikke skrive `age >= 25 & age < 35` for den andre linjen - alle under 25 er allerede fanget opp av første linje.
+
+::: {.callout-tip}
+Hvis ingen av betingelsene er sanne, får verdien `NA`. Du kan legge til `.default = "Annet"` som siste argument for å fange opp alt som ikke matcher.
+:::
+
+Resultatet av `case_when()` er en tekstvariabel. Hvis du vil ha den som factor med bestemt rekkefølge, kan du pakke det inn i `factor()`:
+
+```{r}
+abu89 <- abu89 %>%
+  mutate(aldersgruppe = factor(
+    case_when(
+      age < 25 ~ "Under 25",
+      age < 35 ~ "25-34",
+      age < 45 ~ "35-44",
+      age < 55 ~ "45-54",
+      age >= 55 ~ "55 og over"
+    ),
+    levels = c("Under 25", "25-34", "35-44", "45-54", "55 og over")
+  ))
+
+levels(abu89$aldersgruppe)
+```
+
+## Lage grupper med `cut()`
+
+For å dele en kontinuerlig variabel inn i grupper er `cut()` et hendig alternativ:
+
+```{r}
+abu89 <- abu89 %>%
+  mutate(aldersgruppe2 = cut(age,
+                             breaks = c(0, 25, 35, 45, 55, 100),
+                             labels = c("Under 25", "25-34", "35-44",
+                                       "45-54", "55+")))
+
+table(abu89$aldersgruppe2)
+```
+
+`breaks` angir grensene og `labels` angir navnene på gruppene. Merk at det alltid er én label mindre enn antall grenseverdier.
+
+## Endre factor-nivåer med forcats
+
+Pakken `forcats` (en del av tidyverse) har en rekke nyttige funksjoner for å jobbe med factor-variable.
+
+### Slå sammen kategorier med `fct_collapse()`
+
+Hvis du har for mange kategorier og vil slå noen sammen:
+
+```{r}
+abu89 <- abu89 %>%
+  mutate(klasse_enkel = fct_collapse(klasse89,
+    "Service" = c("I: Øvre serviceklasse", "II: Nedre serviceklasse"),
+    "Rutine" = c("III: Rutinefunksjonærer"),
+    "Arbeider" = c("V-VI: Faglærte arbeidere", "VII: Ufaglærte arbeidere")
+  ))
+
+table(abu89$klasse_enkel)
+```
+
+### Gi nye navn med `fct_recode()`
+
+Noen ganger vil du bare endre navnene uten å slå sammen:
+
+```{r}
+abu89 <- abu89 %>%
+  mutate(klasse_kort = fct_recode(klasse89,
+    "I" = "I: Øvre serviceklasse",
+    "II" = "II: Nedre serviceklasse",
+    "III" = "III: Rutinefunksjonærer",
+    "V-VI" = "V-VI: Faglærte arbeidere",
+    "VII" = "VII: Ufaglærte arbeidere"
+  ))
+
+table(abu89$klasse_kort)
+```
+
+Merk syntaksen: `"nytt navn" = "gammelt navn"`.
+
+### Endre rekkefølge med `fct_relevel()`
+
+For å endre hvilken kategori som er først (og dermed referansekategori i regresjon):
+
+```{r}
+abu89 <- abu89 %>%
+  mutate(klasse_omvendt = fct_relevel(klasse89, "VII: Ufaglærte arbeidere"))
+
+levels(abu89$klasse_omvendt)
+```
+
+Nå er "VII: Ufaglærte arbeidere" flyttet til første posisjon og vil bli referansekategori.
+
+### Sortere etter en annen variabel med `fct_reorder()`
+
+Noen ganger vil du sortere kategoriene etter en annen variabel, for eksempel for å lage pene grafer:
+
+```{r}
+#| warning: false
+#| message: false
+abu89 %>%
+  filter(!is.na(klasse89), !is.na(time89)) %>%
+  mutate(klasse89 = fct_reorder(klasse89, time89, .fun = mean)) %>%
+  ggplot(aes(x = klasse89, y = time89)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+Her sorteres klassekategoriene etter gjennomsnittlig timelønn, slik at den klassen med lavest lønn kommer først.
+
+### Fjerne ubrukte nivåer med `fct_drop()`
+
+Etter filtrering kan du sitte igjen med factor-nivåer som ikke lenger har observasjoner:
+
+```{r}
+abu89_lite <- abu89 %>%
+  filter(klasse89 %in% c("I: Øvre serviceklasse", "II: Nedre serviceklasse"))
+
+# Ubrukte nivåer er fortsatt der
+levels(abu89_lite$klasse89)
+
+# Fjern dem
+abu89_lite <- abu89_lite %>%
+  mutate(klasse89 = fct_drop(klasse89))
+
+levels(abu89_lite$klasse89)
+```
+
+## Jobbe med tekst
+
+Noen ganger trenger du å jobbe med tekstverdier. Pakken `stringr` (en del av tidyverse) har nyttige funksjoner:
+
+```{r}
+# Finne tekst i en variabel
+abu89 %>%
+  filter(str_detect(as.character(klasse89), "service")) %>%
+  head(3) %>%
+  select(klasse89, time89)
+```
+
+```{r}
+#| eval: false
+# Erstatte tekst
+abu89 %>%
+  mutate(klasse_ny = str_replace(as.character(klasse89), "klasse", "kl."))
+```
+
+## Praktisk eksempel: komplett omkoding
+
+Her er et eksempel som viser en typisk omkodingsprosess der vi forbereder data til analyse:
+
+```{r}
+#| warning: false
+#| message: false
+abu89_analyse <- abu89 %>%
+  mutate(
+    # Lage kjønnsvariabel som factor
+    kjonn = factor(ifelse(female == 1, "Kvinne", "Mann"),
+                   levels = c("Mann", "Kvinne")),
+    # Lage aldersgrupper
+    alder_gr = cut(age, breaks = c(0, 30, 40, 50, 100),
+                   labels = c("Under 30", "30-39", "40-49", "50+")),
+    # Forenkle klassevariabel
+    klasse = fct_collapse(klasse89,
+      "Serviceklasse" = c("I: Øvre serviceklasse", "II: Nedre serviceklasse"),
+      "Rutine" = "III: Rutinefunksjonærer",
+      "Arbeiderklasse" = c("V-VI: Faglærte arbeidere", "VII: Ufaglærte arbeidere")
+    ),
+    # Lage dummy for høy lønn
+    hoylonn = ifelse(time89 > median(time89, na.rm = TRUE), 1, 0)
+  ) %>%
+  select(time89, hoylonn, kjonn, age, alder_gr, klasse)
+
+glimpse(abu89_analyse)
+```
+
+## Oppsummering
+
+| Oppgave | Funksjon | Eksempel |
+|---------|----------|----------|
+| To kategorier | `ifelse()` | `ifelse(x > 10, "Høy", "Lav")` |
+| Flere kategorier | `case_when()` | `case_when(x < 10 ~ "Lav", ...)` |
+| Kutte kontinuerlig | `cut()` | `cut(x, breaks = c(0,10,20))` |
+| Slå sammen nivåer | `fct_collapse()` | `fct_collapse(x, A = c("a","b"))` |
+| Endre navn | `fct_recode()` | `fct_recode(x, "Ny" = "Gml")` |
+| Endre rekkefølge | `fct_relevel()` | `fct_relevel(x, "Sist")` |
+| Sortere etter verdi | `fct_reorder()` | `fct_reorder(x, y, mean)` |
+| Fjerne tomme nivåer | `fct_drop()` | `fct_drop(x)` |

@@ -1,0 +1,403 @@
+# Kart og romlige data
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(sf)
+```
+
+I samfunnsvitenskapen er vi ofte interessert i geografisk variasjon. Hvordan varierer kriminaliteten mellom kommuner? Hvor er det flest barnefamilier? Er det regionale forskjeller i valgdeltakelse? Slike sporsmal er mye lettere a forstaa med et kart enn med en tabell. Et kart gir deg umiddelbar oversikt over romlige monstre som kan vaere vanskelig a fange opp ellers.
+
+I R kan vi lage kart med de samme verktoyene vi allerede kjenner fra ggplot. Det er pakken `sf` (som star for *simple features*) som gjor det mulig a jobbe med geografiske data, og den fungerer smutt sammen med tidyverse.
+
+
+## Geografiske data og sf-pakken
+
+Geografiske data er i bunn og grunn vanlige datasett med en ekstra kolonne som inneholder geometri -- alts de geografiske formene. Det kan vaere polygoner (som kommunegrenser), linjer (som veier) eller punkter (som adresser). Pakken `sf` handterer alt dette og lar deg bruke vanlige tidyverse-funksjoner som `filter()`, `mutate()` og `left_join()` pa geografiske data.
+
+Hvis du ikke har installert `sf` fra for, gjor du det slik:
+
+```{r}
+#| eval: false
+install.packages("sf")
+```
+
+
+## Lese inn kartdata
+
+Kartdata kommer typisk i formater som *shapefile* (.shp) eller *GeoJSON* (.geojson). Funksjonen `st_read()` leser begge deler. Her henter vi kommunegrenser fra Geonorge, som er den nasjonale portalen for geografiske data i Norge.
+
+```{r}
+#| eval: false
+kommuner <- st_read("https://nedlasting.geonorge.no/geonorge/Basisdata/Kommuner/GeoJSON/Basisdata_0000_Norge_25833_Kommuner_GeoJSON.geojson")
+```
+
+Denne filen er ganske stor, sa det kan ta litt tid a laste ned. Hvis du har lastet ned filen til din egen maskin, leser du den inn slik:
+
+```{r}
+#| eval: false
+kommuner <- st_read("sti/til/kommuner.geojson")
+```
+
+La oss se hva vi har fatt:
+
+```{r}
+#| eval: false
+glimpse(kommuner)
+```
+
+Du vil se at dette ser ut som en vanlig data.frame, men med en ekstra kolonne som heter `geometry`. Det er der de geografiske formene ligger. Ellers har du kolonner med kommunenummer, kommunenavn og annen informasjon.
+
+
+## Grunnleggende kart med ggplot
+
+Nar du har et sf-objekt, kan du plotte det direkte med `geom_sf()`. Det er like enkelt som annen ggplot-grafikk:
+
+```{r}
+#| eval: false
+ggplot(kommuner) +
+  geom_sf() +
+  theme_minimal()
+```
+
+Dette gir deg et enkelt kart over alle kommuner i Norge. Merk at du ikke trenger a spesifisere x- og y-akser -- det ordner `geom_sf()` selv basert pa geometrien.
+
+
+## Koropletkart: fargelegge regioner etter en variabel
+
+Et koropletkart er et kart der omradene er fargelagt etter en variabel. For a lage dette trenger vi forst noen data a koble pa kartet. La oss lage et lite eksempeldatasett med fiktive verdier:
+
+```{r}
+#| eval: false
+# Anta at kommuner-datasettet har en kolonne "kommunenummer"
+# Vi lager noen eksempeldata
+eksempel <- kommuner %>%
+  mutate(tilfeldig_verdi = rnorm(n()))
+```
+
+Na kan vi fargelegge kartet etter denne variabelen:
+
+```{r}
+#| eval: false
+ggplot(eksempel) +
+  geom_sf(aes(fill = tilfeldig_verdi)) +
+  scale_fill_viridis_c() +
+  theme_minimal() +
+  labs(fill = "Verdi")
+```
+
+Funksjonen `scale_fill_viridis_c()` gir en fargeskala som er lesbar ogsa for fargeblinde. Du kan ogsa bruke andre fargeskalaer, f.eks. `scale_fill_gradient(low = "white", high = "red")`.
+
+
+## Koble data til kartgeometrier
+
+I praksis har du som regel dataene dine i et eget datasett og kartgeometriene i et annet. Da ma du koble dem sammen med `left_join()`. Nokkelfeltet er typisk kommunenummer.
+
+La oss si at du har et datasett med befolkningstall per kommune:
+
+```{r}
+#| eval: false
+# Eksempel: les inn dine data
+mine_data <- data.frame(
+  kommunenummer = c("0301", "1103", "4601", "5001"),
+  innbyggere = c(709037, 144704, 291189, 212660),
+  kommune = c("Oslo", "Stavanger", "Bergen", "Trondheim")
+)
+
+# Koble til kartdata
+kart_med_data <- kommuner %>%
+  left_join(mine_data, by = "kommunenummer")
+
+# Plott
+ggplot(kart_med_data) +
+  geom_sf(aes(fill = innbyggere)) +
+  scale_fill_viridis_c(labels = scales::comma) +
+  theme_minimal() +
+  labs(fill = "Innbyggere")
+```
+
+Merk at kolonnenavnet for kommunenummer ma vaere likt i begge datasettene. Sjekk ogsa at formatet er det samme (f.eks. at begge er tekststrenger med ledende nuller).
+
+
+## Legge til punkter pa kartet
+
+Noen ganger onsker du a plotte enkeltlokasjoner pa kartet, for eksempel hendelser eller institusjoner. Da trenger du koordinater (lengde- og breddegrad) som du gjor om til et sf-objekt med `st_as_sf()`.
+
+```{r}
+#| eval: false
+steder <- data.frame(
+  navn = c("Oslo", "Bergen", "Trondheim", "Tromso"),
+  lon = c(10.75, 5.33, 10.40, 18.96),
+  lat = c(59.91, 60.39, 63.43, 69.65)
+)
+
+# Gjor om til sf-objekt med koordinatreferansesystem WGS84 (EPSG:4326)
+steder_sf <- st_as_sf(steder, coords = c("lon", "lat"), crs = 4326)
+
+# Transformer til samme CRS som kartdataene
+steder_sf <- st_transform(steder_sf, st_crs(kommuner))
+```
+
+Na kan du legge punktene opppa kartet som et eget lag:
+
+```{r}
+#| eval: false
+ggplot() +
+  geom_sf(data = kommuner, fill = "grey90", color = "grey70") +
+  geom_sf(data = steder_sf, color = "red", size = 3) +
+  theme_minimal()
+```
+
+Legg merke til at vi her bruker `ggplot()` uten a spesifisere data forst, og i stedet angir `data =` i hvert `geom_sf()`-lag. Det gir oss full kontroll over hvilke datasett som brukes i hvert lag.
+
+
+## Koordinatreferansesystemer (CRS)
+
+Alle geografiske data har et koordinatreferansesystem (CRS) som sier noe om hvordan posisjoner pa jordkloden er representert. De to viktigste a vite om er:
+
+- **EPSG:4326** (WGS84): Lengde- og breddegrad i grader. Dette er det GPS bruker og det du finner pa Google Maps.
+- **EPSG:25833** (UTM sone 33N): Et projisert system i meter som er vanlig for norske kartdata. Geonorge bruker typisk dette.
+
+Hvis du skal kombinere data med ulike CRS, ma du transformere til samme system:
+
+```{r}
+#| eval: false
+# Sjekk CRS
+st_crs(kommuner)
+
+# Transformer til en annen CRS
+kommuner_wgs84 <- st_transform(kommuner, 4326)
+```
+
+I praksis trenger du sjelden a tenke sa mye pa dette sa lenge du transformer til samme system for du kombinerer datasett.
+
+
+## Interaktive kart med leaflet
+
+Noen ganger er det nyttig med et interaktivt kart der man kan zoome og klikke. Pakken `leaflet` gjor dette enkelt:
+
+```{r}
+#| eval: false
+install.packages("leaflet")
+```
+
+```{r}
+#| eval: false
+library(leaflet)
+
+# Leaflet bruker WGS84, sa vi transformer forst
+kommuner_ll <- st_transform(kommuner, 4326)
+
+leaflet(kommuner_ll) %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = "steelblue",
+    weight = 1,
+    color = "white",
+    fillOpacity = 0.5
+  )
+```
+
+Leaflet-kart fungerer best i HTML-dokumenter og er saerlig nyttige nar du utforsker dataene selv. De er ikke egnet for trykte rapporter.
+
+
+## Kilder til norske geodata
+
+For norske kartdata finnes det flere gode kilder:
+
+- **Geonorge** ([geonorge.no](https://www.geonorge.no/)): Norges nasjonale portal for geografiske data. Her finner du kommunegrenser, fylkesgrenser, kystlinjer og mye mer. Data er gratis og tilgjengelig i flere formater.
+- **SSB** ([ssb.no](https://www.ssb.no/kart/statistikkart)): Statistisk sentralbyra tilbyr kartdata tilpasset deres statistikk, inkludert grunnkretser og delomrader.
+- **Kartverket** ([kartverket.no](https://www.kartverket.no/)): Forvalter de offisielle kartdataene i Norge og tilbyr bl.a. topografiske data, stedsnavn og eiendomsdata.
+
+Til vanlig bruk i samfunnsvitenskapelige analyser er kommunegrensene fra Geonorge det du oftest trenger. Husk at kommuneinndelingen endrer seg over tid (kommunesammenslaainger), sa pass pa at kartdataene matcher tidsperioden i dine analysedata.
+
+
+## Praktisk eksempel: kriminalitetskart over Oslo
+
+La oss na bruke det vi har laert til a lage et kriminalitetskart. Vi bruker en shapefil med Oslos 16 bydeler og et datasett med syntetiske kriminalitetshendelser som har x/y-koordinater. Dataene er generert for undervisningsformel, men illustrerer en realistisk arbeidsflyt for romlig analyse.
+
+
+### Lese inn shapefil
+
+Shapefiler er et vanlig format for geografiske data. De bestar egentlig av flere filer (.shp, .dbf, .prj, .shx), men `st_read()` handterer dette automatisk -- du peker bare pa .shp-filen:
+
+```{r}
+#| warning: false
+#| message: false
+oslo <- st_read("data/shapefiles/oslo.shp", quiet = TRUE)
+```
+
+```{r}
+glimpse(oslo)
+```
+
+Vi ser at datasettet har 16 rader (en per bydel) med bydelskode, bydelsnavn og geometri. Geometrikolonnen inneholder polygonene som tegner bydelsgrensene.
+
+
+### Grunnkart over Oslo
+
+La oss bygge opp et kart steg for steg, akkurat som med vanlig ggplot.
+
+Det enkleste mulige kartet:
+
+```{r}
+#| warning: false
+#| message: false
+ggplot(oslo) +
+  geom_sf()
+```
+
+`geom_sf()` forstar geometrien automatisk -- du trenger ikke spesifisere x- og y-akser. La oss forbedre utseendet:
+
+```{r}
+#| warning: false
+#| message: false
+ggplot(oslo) +
+  geom_sf(fill = "gray95") +
+  theme_void()
+```
+
+`theme_void()` fjerner akser og bakgrunn, som passer bedre for kart enn `theme_minimal()`. Na lagrer vi grunnkartet i et objekt slik at vi kan legge nye lag oppa:
+
+```{r}
+#| warning: false
+#| message: false
+kart <- ggplot(oslo) +
+  geom_sf(fill = "gray95") +
+  coord_sf(datum = st_crs(oslo)) +
+  theme_void()
+kart
+```
+
+`coord_sf(datum = st_crs(oslo))` sorger for at projeksjonen matcher kartdataene.
+
+
+### Lese inn og utforske kriminalitetsdata
+
+Na leser vi inn kriminalitetsdataene. Disse er lagret som en RDS-fil, som er et R-format vi har sett tidligere:
+
+```{r}
+#| warning: false
+#| message: false
+krim <- readRDS("data/shapefiles/syntetisk_krim.rds")
+```
+
+```{r}
+head(krim)
+```
+
+```{r}
+glimpse(krim)
+```
+
+```{r}
+table(krim$krimtypekodenavn)
+```
+
+Datasettet har omtrent 198 000 hendelser. Hver rad er en kriminell hendelse med koordinater (`x` og `y` i UTM-meter), kriminalitetstype, ar, maned, ukedag og klokkeslett. Koordinatene er avrundet til 100-meters ruter.
+
+
+## Punktkart
+
+Den enkleste maten a vise hendelsene pa kartet er a plotte hvert punkt:
+
+```{r}
+#| warning: false
+#| message: false
+kart +
+  geom_point(data = krim, aes(x = x, y = y),
+             color = "red", alpha = 0.01, size = 0.01)
+```
+
+Med `alpha = 0.01` (nesten gjennomsiktig) og `size = 0.01` (sma punkter) kan vi vise alle hendelsene uten at kartet blir helt rodt. Tettere omrader far sterkere farge fordi mange halvgjennomsiktige punkter legges oppa hverandre.
+
+
+## Rasterkart (heatmap)
+
+Punktkartet over er nyttig for a se det overordnede monsteret, men for a sammenligne omrader mer presist trenger vi a *aggregere* dataene. Siden koordinatene allerede er avrundet til 100-meters ruter, kan vi telle antall hendelser per rute:
+
+```{r}
+#| warning: false
+#| message: false
+krimplot <- krim %>%
+  group_by(x, y) %>%
+  summarise(antall = n()) %>%
+  mutate(antall = ifelse(antall >= 200, 200, antall))
+```
+
+Vi begrenser verdiene til maksimalt 200 for a unnga at noen ekstremt tette ruter (typisk sentrum) dominerer hele fargeskalaen.
+
+Na kan vi lage et rasterkart der hver rute er fargelagt etter antall hendelser:
+
+```{r}
+#| warning: false
+#| message: false
+ggplot(krimplot, aes(x = x, y = y, fill = antall)) +
+  geom_tile() +
+  coord_sf(datum = st_crs(oslo)) +
+  theme_void() +
+  scale_fill_distiller(palette = "Spectral")
+```
+
+`geom_tile()` tegner en firkant per rute, fargelagt etter antall hendelser. `scale_fill_distiller(palette = "Spectral")` gir en fargeskala som gar fra blatt (fa hendelser) til rodt (mange hendelser).
+
+For bedre kontekst legger vi til Oslos omriss oppa heatmapen:
+
+```{r}
+#| warning: false
+#| message: false
+oslo_omkr <- st_union(oslo)
+
+kart +
+  geom_tile(data = krimplot, aes(x = x, y = y, fill = antall), alpha = 0.75) +
+  scale_fill_distiller(palette = "Spectral") +
+  geom_sf(data = oslo_omkr, color = "black", fill = NA) +
+  labs(fill = "Hendelser")
+```
+
+`st_union()` slar sammen alle bydelspolygonene til en ytre grense. `fill = NA` gjor at bare grenselinjen tegnes, slik at heatmapen synes gjennom. Merk at vi bruker grunnkartet (`kart`) som utgangspunkt og legger nye lag oppa -- akkurat samme prinsipp som med vanlige ggplot-figurer.
+
+
+## Oppdelt etter kriminalitetstype
+
+Med `facet_wrap()` kan vi lage ett delkart per kriminalitetstype. Vi aggregerer pa nytt, men na ogsa gruppert etter type:
+
+```{r}
+#| warning: false
+#| message: false
+krimplot_type <- krim %>%
+  group_by(x, y, krimtypekodenavn) %>%
+  summarise(antall = n()) %>%
+  mutate(antall = ifelse(antall >= 150, 150, antall))
+
+kart +
+  geom_tile(data = krimplot_type, aes(x = x, y = y, fill = antall), alpha = 0.75) +
+  scale_fill_distiller(palette = "Spectral") +
+  geom_sf(data = oslo_omkr, color = "black", fill = NA) +
+  facet_wrap(~krimtypekodenavn) +
+  labs(fill = "Hendelser")
+```
+
+Na ser vi at de ulike kriminalitetstypene har svart forskjellig geografisk fordeling. Vinningskriminalitet er spredt over hele byen, mens narkotika er mer konsentrert. `facet_wrap()` fungerer pa kart akkurat som pa vanlige ggplot-figurer.
+
+
+## Oppsummering
+
+Kart i R folger samme logikk som annen ggplot-grafikk: du har data, du velger en geometrisk form (`geom_sf()`), og du tilpasser utseendet. Med `sf`-pakken kan du lese inn kartfiler, koble pa dine egne data, og lage bade statiske og interaktive kart. De viktigste funksjonene a huske er:
+
+| Funksjon           | Hva den gjor                               |
+|--------------------|---------------------------------------------|
+| `st_read()`        | Leser inn geografiske data                  |
+| `geom_sf()`        | Plotter sf-objekter i ggplot                |
+| `st_as_sf()`       | Gjor vanlig data.frame om til sf-objekt     |
+| `st_transform()`   | Endrer koordinatreferansesystem             |
+| `st_crs()`         | Sjekker koordinatreferansesystemet          |
+| `st_union()`       | Slar sammen geometrier til en               |
+| `geom_tile()`      | Tegner rasterkart (heatmap)                 |
+| `facet_wrap()`     | Deler kartet opp etter en variabel          |

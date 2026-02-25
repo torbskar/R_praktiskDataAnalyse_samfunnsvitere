@@ -1,0 +1,172 @@
+# Få oversikt over datasettet
+
+```{r}
+#| warning: false
+#| message: false
+#| error: false
+#| echo: false
+library(tidyverse)
+library(haven)
+library(labelled)
+
+wagepan <- read_stata("data/wagepan_eksempel.dta")
+```
+
+Når man jobber med datasett kan det være mange variable, og det er viktig å ha en oversikt over datasettet. Bare det å finne riktig variabel kan være en utfordring i større datasett. Det vil normalt følge med et dokumentasjonsnotat eller -rapport med oversikt over alle variable. Ofte vil det være mest hensiktsmessig å slå opp i denne, men vi kan også ha behov for å se nærmere på dataene i R. En første ting man bør sjekke er om dataene er lest inn riktig og at det rett og slett ser greit ut.
+
+I det følgende bruker vi datasettet `wagepan` som er paneldata om lønn fra pakken `wooldridge`. Datasettet inneholder informasjon om arbeidstakere over flere år.
+
+## Sjekk om innlesning ble riktig
+Det første man bør sjekke er jo om innlesning av datasettet ble riktig. Skjer det noe feil her, så blir selvsagt alt annet feil. Men det er lite som kan gå galt når man leser inn fra datasett. Et unntak er csv-filer som ikke har metadata inkludert.
+
+Funksjonen `class()` gir informasjon om hva slags objekt man har. Altså: etter at man har lest inn dataene og lagt det i et objekt. Her sjekkes objektet *wagepan*:
+
+```{r}
+class(wagepan)
+```
+I dette tilfellet får vi tre beskjeder. Det er en kombinert objekttype av *tibble* og *data.frame*. Mens *data.frame* er standard datasett tilsvarende som et regneark, så er *tibble* en utvidelse med noen ekstra funksjoner som er nyttige for avanserte brukere, men er å regne som en utvidelse av *data.frame*. For vårt formål vil det i praksis være det samme. Et datasett som leses inn i R bør altså være av typen tbl eller data.frame. Data kan også ha andre typer strukturer og da vil `class()` rapportere noe annet.
+
+Når man bruker funksjoner i R, så vil noen ganger resultatet avhenge av hva slags type objekt det er.
+
+For å vite hvor mange rader og kolonner det er i datasettet kan man bruke funksjonen `dim()` slik:
+
+```{r}
+dim(wagepan)
+```
+
+Her får vi vite at det er `r dim(wagepan)[1]` rader (dvs. observasjoner) og `r dim(wagepan)[2]` kollonner (dvs. variable).
+
+
+### Bruke `View()`
+Særlig når man er uvant med å jobbe i R vil man kunne ha behov for å *se på dataene* slik man er vant til fra regneark eller software som SPSS eller Stata. En mulighet er å bruke funksjonen `View()` så vil hele datafilen åpnes i eget vindu. Dette er kun egnet for å se på dataene og du kan lukke vinduet uten at det påvirker dataene. Dataene ligger fremdeles i det samme objektet på samme måte som før.
+
+```{r}
+#| eval: false
+View(wagepan)
+```
+
+Hvis variablene ser ut til å ha forventede variabelnavn og verdier, så er det antakeligvis ok.
+
+Et slikt datasett tar imidlertid stor plass og det er vanligvis mer hensiktsmessige måter å se på dataene på som også gir mer informasjon. I R er det ikke meningen at du skal "sitte og se på dataene" på den måten mens man jobber. Men ta gjerne en titt for å få et bedre inntrykk av hvordan dataene ser ut.
+
+Du kan lukke det vinduet med dataene uten at det har noe å si for dataene, som fremdeles er tilgjengelig i minnet på datamaskinen på samme måte som før.
+
+
+### Bruke `head()`
+
+Funksjonen `head()` skriver de første 6 observasjonenen til konsollen i Rstudio. Det gir et første inntrykk av datasettet med variabelnavn og de første verdiene uten å åpne hele datasettet. Hva som faktisk vises vil avhenge av hvor stor skjerm du har, men R vil bare vise de første variablene etter hva som er plass til på skjermen din. For datasett med mange variable er ikke dette veldig nyttig, men for datasett med noen få variable fungerer det greit.
+
+```{r}
+#| eval: false
+head(wagepan)
+```
+
+Legg merke til at under hvert variabelnavn er det en indikasjon på hva slags variabeltype det er. For eksempel betyr `<dbl>` at det er en numerisk variabel mens `<dbl+lbl>` indikerer at variabelen inneholder *labels*.
+
+Det er lite hensiktsmessig å vise alt i konsollen fordi det rett og slett ikke er plass. Nerst står det derfor angitt at det er flere variable som ikke vises og navnet på de første av disse.
+
+### Subset med klammeparenteser
+
+En enkel løsning er å bare se på noen få variable om gangen. Med klammeparentes kan vi angi hvilke radnummer og kolonnenummer vi ønsker se på med følgende syntax: `datasett[rader, kolonner]` der altså komma skiller mellom rader og kolonner. Følgende eksempel viser hvordan man kan bruke `head()` for å vise de første observasjonene i datasettet med bare de første 5 variablene (altså: kollonne nr 1-5).
+
+```{r}
+#| message: false
+#| warning: false
+head(wagepan[, 1:5])
+
+```
+Vi kan altså også angi både rader og kollonner på denne måten. Her er eksempel som viser første 3 rader og variabelnummer 5 til 8.
+
+```{r}
+#| message: false
+#| warning: false
+head(wagepan[1:3, 5:8])
+
+```
+
+
+Legg merke til at under hvert variabelnavn står det en liten tekst, f.eks. <dbl> eller <S3: haven_labelled>. Det kan også stå andre ting. dbl betyr at det er en kontinuerlig variabel, mens haven_labelled betyr at det er labler til alle eller noe verdier i variabelen.
+
+Vi skal primært jobbe med data som ikke er "labelled", men du vil noen ganger komme borti dette, spesielt hvis du importerer data fra andre statistikksoftware.
+
+### Bruke 'glimpse()'
+
+I tidligere kurs skal dere ha lært å bruke funksjonen `glimpse()`. Her er et eksempel:
+
+```{r}
+#| message: false
+#| warning: false
+glimpse(wagepan)
+
+```
+
+I denne output'en er den første kollonnen altså variabelnavnene, deretter er det en kollonne som viser hva slags type variabel det er, og deretter de første observasjonene på hver variabel slik at man får et inntrykk av hvordan det ser ut. `glimpse()` gir altså omtrent samme informasjon som `head()`, men er nok mer hensiktsmessig hvis mange variable.
+
+
+### Undersøke enkeltvariable med `codebook()` fra pakken {memisc}
+Noen ganger vil man ha litt mer informasjon om enkeltvariablene. Noen datasett vil komme med labler (omtalt annet sted) eller faktorvariable, som gjør at variablene inneholder både tallverdier og tekst.
+
+
+Å få ut noe deskriptiv statistikk og se på fordelinger er da gjerne neste steg som vil bli behandlet i de etterfølgende kapitlene.
+
+Man vil klare seg greit med det vi har vist ovenfor. Men det finnes flere måter å gjøre det på. Pakken {memisc} inneholder en rekke funksjoner for å håndtere surveydata, som vi ikke skal gå nærmere inn på her. Men akkurat funksjonen `codebook()` gir litt mer informativt output enn `look_for()`.
+
+For å bruke denne må du installere pakken først. I eksempelet nedenfor er pakken ikke lastet med library(), men angitt pakken direkte med `memisc::` først. Dette kan være nyttig hvis man ikke skal bruke noen andre funksjoner fra denne pakken.
+
+```{r}
+#| message: false
+#| warning: false
+memisc::codebook(wagepan$married)
+
+```
+
+Poenget her er altså bare å få en penere output og litt deskriptiv statistikk samtidig.
+
+## Søke i datasettet etter variable
+For å se nærmere på en variabel går an å bruke funksjonen `look_for()`, som primært er en søke-funksjon, men det gir også informasjon om variabelen.
+
+```{r}
+#| message: false
+#| warning: false
+look_for(wagepan, "married")
+
+```
+
+I output fremgår det at variabelen `married` finnes i datasettet, hva slags type den er, og eventuelle labler.
+
+Det går også an å bare få ut variabel-label med funksjonen `var_label()` slik:
+
+```{r}
+#| message: false
+#| warning: false
+var_label(wagepan$married)
+
+```
+
+For å se labels på *verdiene* bruk **val_labels()**.
+
+```{r}
+#| message: false
+#| warning: false
+val_labels(wagepan$married)
+
+```
+
+
+Alle datasett skal komme med en dokumentasjon som sier hva hver variabel inneholder og hvilke verdier som finnes i hver variable, og hva de betyr. For datasett fra R-pakker finnes dokumentasjonen i hjelpesiden, som du finner med `?wagepan` eller `help(wagepan)`.
+
+Du kan søke i dokumentasjonen på samme måte som i andre filer, men det kan være litt knotete. Et godt alternativ er å søke direkte i datasettet. Funksjonen `look_for()` søker både i variabelnavn, verdier og labler. Her er et eksempel for hvordan finne variabler som inneholder ordet "wage". Du kan også søke på kortere eller lengre tekststrenger.
+
+```{r}
+#| message: false
+#| warning: false
+look_for(wagepan, "wage")
+```
+
+Her finner vi variabelen `lwage` som inneholder logaritmen av timelønn. Vi kan se nærmere på variabellabelen slik:
+
+```{r}
+#| message: false
+#| warning: false
+var_label(wagepan$lwage)
+```

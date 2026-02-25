@@ -1,0 +1,185 @@
+# Import fra Stata og SPSS
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(haven)
+library(labelled)
+```
+
+I forrige kapittel så vi kort hvordan man leser inn data fra Stata og SPSS. Det fungerer greit nok for de fleste formål, men det er noen utfordringer knyttet til *labelled* data som krever litt mer arbeid. Dette kapittelet går dypere inn i dette.
+
+Hvis du jobber med data som opprinnelig er laget i Stata eller SPSS, vil du nesten garantert støte på det som kalles *labler*. Det er en spesiell måte å lagre informasjon om variablene på. R kan håndtere dette, men det er viktig å forstå hva som skjer og hvordan du bør rydde opp.
+
+## Hva er labelled data?
+
+I Stata og SPSS er det vanlig å bruke to typer labler:
+
+- **Value labels** (verdilabel): Knytter en tekst til en tallverdi. For eksempel kan verdien 0 ha labelen "Not married" og 1 ha labelen "Married".
+- **Variable labels** (variabellabel): En kort beskrivelse av hva variabelen inneholder. For eksempel kan variabelen `married` ha variabellabelen "Sivilstatus".
+
+Når du leser inn en Stata- eller SPSS-fil med `haven`, beholdes denne informasjonen. Men R behandler den annerledes enn det Stata og SPSS gjør. I R er disse verdiene fortsatt tall, men med labler vedlagt som metadata.
+
+## Lese inn data
+
+La oss starte med å lese inn en Stata-fil:
+
+```{r}
+wagepan <- read_stata("data/wagepan_eksempel.dta")
+glimpse(wagepan)
+```
+
+Legg merke til variabeltypene. Der det står `<dbl+lbl>` betyr det at variabelen er numerisk (`dbl` = double), men at det finnes labler knyttet til verdiene. Dette er altså *labelled* variable.
+
+## Inspisere labler
+
+Vi kan se på lablene til en enkelt variabel med `val_labels()`:
+
+```{r}
+val_labels(wagepan$married)
+```
+
+Vi kan også se variabellabelen (beskrivelsen av variabelen) med `var_label()`:
+
+```{r}
+var_label(wagepan$married)
+```
+
+For å få oversikt over alle variable med labler kan vi bruke `look_for()` fra `labelled`-pakken:
+
+```{r}
+look_for(wagepan)
+```
+
+Denne funksjonen gir en ryddig oversikt over variabelnavn, variabellabler, verdier og verdilabel. Det er veldig nyttig for å utforske datasett fra Stata og SPSS.
+
+## Problemet med labelled data i R
+
+Labelled data fungerer fint for å inspisere dataene, men de kan skape problemer når du skal gjøre analyser. Mange R-funksjoner forventer enten numeriske variable eller factor-variable, ikke labelled-variable. Du kan for eksempel oppleve at:
+
+- `ggplot` viser tallverdier i stedet for meningsfulle kategorinavn
+- Tabeller viser koder i stedet for tekst
+- Noen funksjoner gir uventede resultater eller feilmeldinger
+
+Derfor er det lurt å konvertere labelled variable til factor-variable tidlig i arbeidsprosessen.
+
+## Konvertere til factor
+
+Den enkleste måten å konvertere en labelled variabel til factor er med `as_factor()` fra `haven`:
+
+```{r}
+wagepan <- wagepan %>%
+  mutate(married_factor = as_factor(married))
+
+table(wagepan$married_factor)
+```
+
+Men hvis du har mange labelled variable, er det mye mer effektivt å konvertere alle på en gang med `across()`:
+
+```{r}
+wagepan_clean <- wagepan %>%
+  mutate(across(where(is.labelled), ~as_factor(.)))
+
+glimpse(wagepan_clean)
+```
+
+Denne ene linjen konverterer *alle* labelled variable i datasettet til factor-variable. Det er den anbefalte metoden.
+
+Noen ganger vil du også fjerne ubrukte factor-nivåer som kan oppstå etter filtrering:
+
+```{r}
+wagepan_clean <- wagepan %>%
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+```
+
+## Brukerdefinertemissing-verdier
+
+I Stata og SPSS er det vanlig å bruke spesielle verdier for å markere ulike typer missing. For eksempel kan -9 bety "ikke besvart" og -8 bety "ikke relevant". Disse verdiene er ofte dokumentert med labler.
+
+Pakken `haven` håndterer dette med *tagged NA*-verdier. Du kan sjekke om det finnes slike verdier:
+
+```{r}
+#| eval: false
+# Se brukerefinerte missing-verdier
+na_values(wagepan$hours)
+```
+
+I praksis er det ofte enklest å bare konvertere til factor (som gjort ovenfor) og deretter filtrere ut de kategoriene du ikke trenger. Alternativt kan du bruke `zap_labels()` for å fjerne alle labler og beholde bare tallverdiene:
+
+```{r}
+#| eval: false
+wagepan_tall <- wagepan %>%
+  mutate(across(where(is.labelled), ~zap_labels(.)))
+```
+
+Men vær forsiktig med dette - da mister du all informasjon om hva verdiene betyr!
+
+## Lese inn SPSS-filer
+
+Innlesning av SPSS-filer fungerer på tilsvarende måte:
+
+```{r}
+#| eval: false
+wagepan_spss <- read_spss("data/wagepan_eksempel.sav")
+glimpse(wagepan_spss)
+```
+
+Konvertering til factor gjøres på nøyaktig samme måte:
+
+```{r}
+#| eval: false
+wagepan_spss_clean <- wagepan_spss %>%
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+```
+
+## Tegnsett og encoding
+
+Et vanlig problem med nordiske data er tegnsettproblemer. Norske bokstaver (æ, ø, å) kan vises feil hvis filen er lagret med et annet tegnsett enn det R forventer. Hvis du ser rare tegn i stedet for æøå, kan du prøve å spesifisere tegnsett ved innlesning:
+
+```{r}
+#| eval: false
+# Prøv med ulike tegnsett
+wagepan <- read_stata("data/wagepan_eksempel.dta", encoding = "latin1")
+```
+
+De vanligste tegnsettene er `"UTF-8"` og `"latin1"` (også kalt ISO-8859-1). Prøv begge hvis du har problemer.
+
+## Anbefalt arbeidsflyt
+
+Her er en anbefalt arbeidsflyt for å jobbe med data fra Stata eller SPSS:
+
+1. **Les inn** datafilen med `read_stata()` eller `read_spss()`
+2. **Inspiser** dataene med `glimpse()` og `look_for()`
+3. **Konverter** labelled variable til factor med `across(where(is.labelled), ~as_factor(.))`
+4. **Velg** de variablene du trenger med `select()`
+5. **Lagre** den ryddede versjonen som .rds for videre bruk
+
+```{r}
+#| eval: false
+# Komplett arbeidsflyt
+wagepan_ferdig <- read_stata("data/wagepan_eksempel.dta") %>%
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.))) %>%
+  select(nr, year, hours, lwage, educ, married, union)
+
+# Lagre til .rds for videre bruk
+saveRDS(wagepan_ferdig, "data/wagepan_ferdig.rds")
+```
+
+Fordelen med å lagre som `.rds` er at du slipper å gjøre denne konverteringen hver gang. Neste gang du trenger dataene kan du bare laste inn .rds-filen direkte.
+
+## Oppsummering
+
+- Data fra Stata og SPSS har labler som R behandler som *labelled* data
+- Konverter til factor med `mutate(across(where(is.labelled), ~as_factor(.)))`
+- Bruk `look_for()` for å utforske variabelnavn og labler
+- Lagre ryddede data som `.rds` for effektiv videre bruk
+- Pass på tegnsettproblemer med nordiske bokstaver

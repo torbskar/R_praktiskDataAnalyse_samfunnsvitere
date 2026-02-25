@@ -1,36 +1,29 @@
 # Grafikk med ggplot
 
-I dette kapittelet skal vi bruke følgende pakker:     
+Resten av dette heftet belager seg på å bruke datasettet abu89 som er benyttet i en annen lærebok. Dataene kan lastes ned fra [den bokens hjemmeside](https://stata.fagbokforlaget.no/).
+
+Først må dataene leses inn. Siden dette er data i stata-formatet dta, så brukes importfunksjonen `read_stata()`. Som nevnt tidligere bør variabler av typen labelled gjøres om til factor. Vi sletter også labler som ikke er i faktisk bruk. Disse to tingene gjørs med `as_factor()` og `fct_drop()`, men de er lagt inn i en funksjon som går gjennom alle variable i datasettet, `across()` og sjekker om de er av labelled-typen `where(is.labelled)`. Detaljene her er ikke sentrale for dette kurset: bare se å få lest inn dataene i R. 
+
 ```{r}
+#| warning: false
 #| error: false
 #| message: false
-#| warning: false
-
+library(haven)
 library(tidyverse)
-library(ggforce)
-library(ggthemes)
-library(datasets)
-```
 
+abu89 <- read_stata("data/abu89.dta") %>% 
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
 
-```{r}
-#| echo: false
-#| error: false
-#| message: false
-#| warning: false
-
-invisible(Sys.setlocale(locale='no_NB.utf8'))
-ungdata_alko <- readRDS("data/ungdata_alko.rds")
+glimpse(abu89)
 
 ```
 
-
-I R er det flere systemer for grafikk. Noen er spesialiserte og knyttet til spesielle analysemetoder og gir deg et spesifikt output slik at funksjonen `plot()` gir deg akkurat det du skal ha. Det er forsåvidt veldig praktisk, men er ikke gode nok til å bli med i en rapport. 
-
-Vi skal her vektlegge et *generelt system* for grafikk som finnes i pakken {ggplot2} som er en del av tidyverse. Funksjonen `ggplot` kan brukes til all slags grafikk, fra helt grunnleggende til avansert, professjonell grafikk. Funksjonen `ggplot` er bygget opp som en *gramatikk* for grafisk fremstilling. Det ligger altså en teori til grunn som er utledet i boken ved omtrent samme navn: [The grammar of graphics](https://link.springer.com/book/10.1007/0-387-28695-0). Det er mye som kan sies om dette, men det viktige er at grafikken er bygget opp rundt noen bestanddeler. Når du behersker disse kan du fremstille nær sagt hva som helst av kvantitativ informasjon grafisk. Dette er altså et system for grafikk, ikke bare kommandoer for spesifikke typer plot. Vi skal likevel bare dekke de mest grunnleggende typer plot her. 
 
 
 ## Lagvis grafikk
+I R er det mange funksjoner for å lage grafikk. Noen er spesialiserte og knyttet til spesielle analysemetoder og gir deg akkurat det du trenger. Vi skal her bruke et *generelt system* for grafikk som heter `ggplot` som kan brukes til all slags grafikk. Funksjonen *ggplot* er bygget opp som en *gramatikk* for grafisk fremstilling. Det ligger en teori til grunn som er utledet i boken ved omtrent samme navn: [The grammar of graphics](https://link.springer.com/book/10.1007/0-387-28695-0). Det er mye som kan sies om dette, men det viktige er at grafikken er bygget opp rundt noen bestanddeler. Når du behersker disse kan du fremstille nær sagt hva som helst av kvantitativ informasjon grafisk. Dette er altså et system for grafikk, ikke bare kommandoer for spesifikke typer plot. Vi skal likevel bare se på grunnleggende typer plot her. 
+
 Systemet er bygd opp *lagvis*. Det gjelder selve koden, men også hvordan det ser ut visuelt. Man kan utvide plottet med flere lag i samme plot og det legges da oppå hverandre i den rekkefølgen som angis i koden. 
 
 For enkle plot som vi skal bruke her angir man i denne rekkefølgen og med en `+` mellom hver del (vanligvis per linje, men linjeskift spiller ingen rolle). Hver del av koden spesifiserer enten *hva* som skal plottes eller *hvordan* det plottes, mens andre deler kan kontrollere utseende på akser, fargeskalaer, støttelinjer eller andre ting som har med layout å gjøre. 
@@ -49,204 +42,97 @@ Dette blir tydeligere i eksemplene og forklares underveis.
 
 
 
-## Stolpediagram  
-Eksempeldataene her er fra Ungdata 2010-20202, og vi skal se på selvrapportert bruk av alkohol. Variabelen *alko1* er for spørsmålet om hvor ofte intervjupersonenene drikker alkohol, og det er en kategorisk variabel med 5 kategorier: Aldri, sjelden, av og til, ofte og veldig ofte. 
+## Kategoriske variabel  
 
-Vi lager et plot med funksjonen `ggplot` med koden nednefor. Første linje spesifiserer hva som skal plottes. Her er det første argumentet datasettet som skal brukes, og det andre er `aes()` som står for *aestethics* og er en funksjon som spesifiserer hvilke variable som skal brukes. Her er det bare en variabel som skal plottes, og det er *alko1* som plasseres langs x-aksen. Det andre argumentet er `geom_bar` som spesifiserer at det skal være stolpediagram. Når man skriver kun `geom_bar` er en forkortelse for `geom_bar(stat = "count")` som betyr at det skal være en stolpe for hver kategori og høyden på stolpen skal være antall observasjoner i hver kategori. 
-
- 
-```{r}
-ggplot(ungdata_alko, aes(x = alko1)) +
-  geom_bar()
-```
-
-
-
-Merk at y-aksen har fått antallene notert i scientific notation. Det er ikke så pent. Det kan vi fikse på med `scale_y_continuous()` som gir oss mulighet til å spesifisere hvordan akseverdiene skal se ut. Pakken {scales} inneholder en rekke funksjoner for å formatere tallverdier. Her bruker vi `number_format` som spesifiserer nøyaktighet til 1, dvs. heltall. 
+### Stolpediagram 
 
 ```{r}
-ggplot(ungdata_alko, aes(x = alko1)) +
+library(ggforce)
+ggplot(abu89, aes(x = klasse89)) +
   geom_bar() +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1))
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
-Det er også mulig å spesifisere at det skal være andeler i stedet for antall. I ggplot finnes det noen spesielle funksjoner som starter med `..` deriblant `..prop..` som gir andeler.  Men for at det skal regnes ut riktig må vi også spesifisere at det ikke er andelen i hver kategori, men andelen totalt. Det gjøres med `group = 1` som betyr at alle observasjonene skal grupperes sammen. For å få prosent i stedet for desimaltall ganger vi med 100. 
+Noen ganger ønsker man å vise fordelingen for to ulike grupper, la oss si for kjønn. En mulighet er da å rett og slett lage to stolpediagram ved siden av hverandre. Til dette kan man spesifisere at dataene er gruppert etter variabelen *female* og at fyllfargen skal settes etter denne variablen med `fill = factor(female)`. Merk bruken av `factor(female)` fordi variabelen er *numerisk* og det vil da ellers brukes en kontinuerlig fargeskale, mens å gjøre om variabelen til kategorisk brukes en annen fargeskala. 
+
+I tillegg gjør vi her to ting til: setter et annet grafisk tema med `theme_minimal()` og snur plotvinduet slik at kategoriene er litt lettere å lese. Dette er smak og behag. 
 
 ```{r}
-ggplot(ungdata_alko, aes(x = alko1, y = ..prop..*100, group = 1)) +
-  geom_bar()
-
-# ggplot(ungdata_alko, aes(x = alko1, y = after_stat(prop)*100, group = 1)) +
-#   geom_bar()
-
-```
-
-Nå gjenstår det litt ryddejobb og vi gjør disse tingene samtidig. Merk at x-aksen har noen lange tekststrenger som blir uleselige. Det kan vi fikse på med `scale_x_discrete` der vi kan spesifisere label og bruke funksjonen `str_wrap` fra pakken {stringr} som bryter opp tekststrengen etter en gitt bredde. Her har vi satt bredde til 20. Koden er litt komplisert for nybegynnere i R, så det er ikke så farlig om du ikke skjønner alt. Den linjen kan brukes i andre sammenhenger og bare endre `width = ` etter behov.   
-
-Det neste som trengs er å endre aksetekstene. Det gjøres med `labs()` der vi kan spesifisere x- og y-akse og også tittel og kilde. 
-
-
-
-
-```{r}
-ggplot(ungdata_alko, aes(x = alko1, y = ..prop..*100, group = 1)) +
-  geom_bar() +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 20)) +
-  labs(x = "", 
-       y = "Prosent", 
-       title = "Antall som drikker alkohol", 
-       caption = "Kilde: Ungdata 2010-2020")
-```
-
-## Stolpediagram med flere variable
-Noen ganger ønsker man å vise fordelingen for to ulike grupper, la oss si for kjønn. En mulighet er da å rett og slett lage to stolpediagram ved siden av hverandre. Til dette kan man spesifisere at dataene er gruppert etter variabelen *kjonn* og at fyllfargen skal settes etter denne variablen med `fill = kjonn`. 
-
-Det er også mulig å spesifisere at stolpene skal plasseres ved siden av hverandre i stedet for oppå hverandre. Det gjøres med `position = "dodge"`. ^[Alternativet, som er det automatisk forvalget, er `position = "stack"` hvor stolpene ville blitt plassert oppå hverandre.] 
-
-Tegnforklaringen plasseres automatisk til høyre for plottet. Vi kan imidlertid flytte den til bunnen med `theme(legend.position = "bottom")` og fjerne tittelen på tegnforklaringen med `legend.title = element_blank()`. 
-
-```{r}
-ggplot(ungdata_alko, aes(x = alko1, y = ..prop..*100, group = kjonn, fill = kjonn)) +
-  geom_bar(position = "dodge") +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 20)) +
-  labs(x = "", 
-       y = "Prosent", 
-       title = "Antall som drikker alkohol", 
-       caption = "Kilde: Ungdata 2010-2020") +
-  theme(legend.position = "bottom", legend.title = element_blank())
-
-```
-
-
-
-Et alternativ er å plassere grafikken for menn og kvinner ved siden av hverandre. Å legge til `facet_wrap` gjør dette. Da blir det trangere på x-aksen til teksten, så en mulighet er da å snu plottet med `coord_flip`. 
-
-
-
-```{r}
-ggplot(ungdata_alko, aes(x = alko1, y = ..prop..*100, group = 1)) +
-  geom_bar() +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 20)) +
-  labs(x = "", 
-       y = "Prosent", 
-       title = "Antall som drikker alkohol", 
-       caption = "Kilde: Ungdata 2010-2020") +
-  facet_wrap(~kjonn) +
+ggplot(abu89, aes(x = klasse89, group = female, fill = factor(female))) +
+  geom_bar(position="dodge") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90))+
   coord_flip()
+
+```
+
+Et alternativ er å plassere grafikken for menn og kvinner ved siden av hverandre. Å legge til `facet_wrap()` gjør dette. 
+
+```{r}
+ggplot(abu89, aes(x = klasse89)) +
+  geom_bar() +
+  facet_wrap(~factor(female)) +
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
 Et automatisk forvalg for `geom_bar()` er hvordan gruppene plasseres som er `position="stack"`. Det betyr at gruppene stables oppå hverandre. Dette er godt egnet hvis poenget er å vise hvor mange av hvert kjønn som er i hver gruppe. Det er mindre egnet hvis du ønsker å sammenligne menn og kvinner. Da er alternativet å velge `position="dodge"` som følger:  
 
 
 ### Kakediagram  
-Generelt er ikke kakediagram å anbefale da korrekt tolkning involverer å tolke et areal som inneholder vinkel. Det er intuitivt vanskelig å se hvor store hvert kakestykke er med det blotte øyet - med mindre man skriver tallene på,da. Men da kunne man jo også bare laget en tabell?
 
-Med få kategorier som er rimelig forskjellig kan det gi et ok inntrykk, men ofte ender man opp med å måtte skrive på tallene likevel. Vi tar det med her egentlig bare fordi mange insisterer på å bruke det. Så vet du at det er mulig. 
+Generelt er ikke kakediagram å anbefale da korrekt tolkning involverer å tolke et areal som inneholder vinkel. Med få kategorier som er rimelig forskjellig kan det gi et ok inntrykk, men ofte ender man opp med å måtte skrive på tallene likevel. Vi tar det med her egentlig bare fordi mange insisterer på å bruke det. Så vet du at det er mulig. 
 
-Første steg er å lage et aggregert datasett med antall observasjoner og prosent i hver kategori, som vist nedenfor. Dette dekker vi i et senere kapittel og fokuserer på selve plottet her. 
+Det enkleste er å bruke funksjonen `pie()` som gir følgende resultat. 
 
 ```{r}
-#| echo: false
-alko1_sum <- ungdata_alko %>% 
-  group_by(alko1) %>% 
+tab <- table(abu89$klasse89) 
+tab
+
+pie(tab)
+```
+
+Men hvis man skal bruke ggplot er det litt mer jobb. Fordelen med ggplot er at du har bedre kontroll for å lage publiserbar kvalitet. (Akkurat for kakediagram er det kanskje ikke så farlige, for du bør ikke bruke det i publikasjoner hvis du kan la være).
+
+
+```{r}
+pc <- abu89 %>% 
+  group_by(klasse89) %>% 
   summarise(n = n()) %>% 
-  arrange((n)) %>%
-  mutate(pct = n/sum(n)*100, 
-         lab.pos = cumsum(pct) - 0.5*pct) %>% 
+  mutate(pct = n/sum(n)*100) %>% 
   ungroup()
 
-alko1_sum
-```
-Utgangspunktet er et stolpediagram som vi har laget ovenfor. Det er bare å bytte ut `geom_bar` med `geom_col` som er en forkortelse for `geom_col(stat = "identity")`. Det betyr at høyden på stolpene er gitt i datasettet. For å lage et kakediagram må vi også legge til `coord_polar` som gjør at det blir sirkulært. 
-
-```{r}
-ggplot(alko1_sum, aes(x = "", y = pct, fill = alko1)) +
-  geom_col() +
-  coord_polar("y", start=0)
-```
-
-For å gjøre plottet penere fjerner vi hjelpelinjene, legger til prosenttallene innenfor kakestykkene og endrer fargepaletten.
-
-
-```{r}
-ggplot(alko1_sum, aes(x = "", y = pct, fill = alko1)) +
-  geom_col() +
+ggplot(pc, aes(x = "", y = pct, fill = (klasse89))) +
+  geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0) +
   theme_void()+
-  geom_text(aes(y = lab.pos, x=1.6, label = paste(round(pct), "%" )))+
+  geom_text( aes(label = paste0( round(pct,1), "%"), x = 1.4), 
+            position = position_stack(vjust=.5), check_overlap = F) +
+  labs(x = NULL, y = NULL, fill = NULL)+
+  theme(axis.line = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank()) +
   scale_fill_brewer(palette="Blues", direction = -1)
 
 
 ```
 
-Det er også mulig å lage et kakediagram for hver gruppe. Da må vi legge til `facet_wrap` som vi har brukt tidligere. Det forutsetter at dataene er tilsvarende laget for hver gruppe. Objektet *alko1_sum2* har aggregert data for kjønn.
-
-```{r}
-#| echo: false
-#| error: false
-#| message: false
-#| warning: false
-alko1_sum2 <- ungdata_alko %>% 
-  group_by(alko1, kjonn) %>% 
-  summarise(n = n()) %>% 
-  arrange((n)) %>%
-  group_by(kjonn) %>% 
-  mutate(pct = n/sum(n)*100, 
-         lab.pos = cumsum(pct) - 0.5*pct) %>% 
-  ungroup()
-
-alko1_sum2
-```
 
 
 
-```{r}
-ggplot(alko1_sum2, aes(x = "", y = pct, fill = alko1)) +
-  geom_col() +
-  coord_polar("y", start=0) +
-  theme_void()+
-  geom_text(aes(y = lab.pos, x=1.6, label = paste(round(pct), "%" )))+
-  scale_fill_brewer(palette="Blues", direction = -1) +
-  facet_wrap(~kjonn)
+## Kontinuerlige variable 
 
 
-```
-
-
-
-## Grafikk for kontinuerlige data 
-Vi skal nå se på hvordan vi kan fremstille kontinuerlige data. Vi bruker et annet uttrekk fra Ungdata der en rekke spørsmål er aggregert til en indeks for livskvalitet og en indeks for atferdsproblemer. Indeksene er laget ved å ta gjennomsnittet av de enkelte spørsmålene, og konstruert slik at høyere verdier betyr bedre livskvalitet og færre atferdsproblemer.
-
-
-```{r}
-#| echo: false
-ungdata_kont <- readRDS( "data/ungdata_kont.rds")
-```
 
 
 ### Histogram 
-Histogram er en vanlig måte å fremstille kontinuerlige data på. Det er en måte å gruppere dataene i intervaller og høyden på stolpene representerer antall observasjoner i hvert intervall. Alternativt kan stolpene representere *andelen* i hvert intervall eller *tettheten*. 
-
-Vi starter med å lage et histogram for livskvalitet. Det gjøres med `geom_histogram`. 
 
 ```{r}
 #| warning: false
 #| error: false
 #| message: false
-ggplot(ungdata_kont, aes(x = livskval)) +
+ggplot(abu89, aes(x = time89)) +
   geom_histogram()
 ```
-Antall og bredden på intervallene bestemmes automatisk av R. Det er ikke alltid optimale valg, og det kan være greit å justere dette selv. Det gjøres med `binwidth` som angir bredden på intervallene. I eksempelet over ser fordelingen litt pussig ut med et tomt intervall, men det kan skyldes hvordan intervallene tilfeldigvis ble plassert. Hvis plottet ser pussig ut bør man sjekke om det er fordi intervallene er for brede eller smale. Følgende kode gjør en liten endring, og du kan selv sjekke med ulike verdier for `binwidth` og se hvordand et påvirker resultatet. 
-
-
-```{r}
-#| warning: false
-#| error: false
-#| message: false
-ggplot(ungdata_kont, aes(x = livskval)) +
-  geom_histogram(binwidth = .15)
-```
-
 
 Det er også vanlig å fremstille det samme på en "tetthetsskala", der arealet summeres til 1. Det betyr at arealet for hvert intervall tilsvarer en andel. Visuelt sett er det vel så mye arealet vi oppfatter som høyden på stolpene. Men det er bare skalaen på y-aksen som har endret seg. Visuelt sett, ser histogrammene helt like ut. 
 
@@ -254,71 +140,74 @@ Det er også vanlig å fremstille det samme på en "tetthetsskala", der arealet 
 #| warning: false
 #| error: false
 #| message: false
-ggplot(ungdata_kont, aes(x = livskval, y = ..density..)) +
-  geom_histogram(binwidth = .15)
+ggplot(abu89, aes(x = time89, y = ..density..)) +
+  geom_histogram()
 ```
 
 
 
 ### Density plot 
-Density plot er en måte å fremstille det samme på, men i stedet for å dele inn i intervaller som i histogram lager vi en glattet kurve. Det blir på skalaen "tetthet" som i histogrammet ovenfor. På tilsvarende måte som `binwidth` kan vi justere hvor glatt kurven skal være med `bw` som står for *bandwidth*. Høyere tall gir mer glattet kurve, mens lavere tall gir mer detaljert kurve. Vanligvis vil det automatiske forvalget som R gjør for deg være bra nok, men det kan også være aktuelt å justere dette selv som vist nedenfor. 
+Density plot er en måte å fremstille det samme på, men i stedet for å dele inn i intervaller som i histogram lager vi en glattet kurve. Det blir på skalaen "tetthet" som i histogrammet ovenfor. 
+
 
 ```{r}
 #| warning: false
 #| error: false
 #| message: false
-ggplot(ungdata_kont, aes(x = livskval)) +
-  geom_density(bw = .1)
+ggplot(abu89, aes(x = time89)) +
+  geom_density()
 
 ```
 
-Vi kan legge et histogram og density plot oppå hverandre da y-skalen er lik. Da ser man lettere at det er samme informasjon som fremstilles på ulike måter.
+
+
+
 
 ```{r}
 #| warning: false
 #| error: false
 #| message: false
-ggplot(ungdata_kont, aes(x = livskval)) +
-  geom_histogram(aes(y = ..density..), binwidth = .15,  fill = "lightgrey", col = "grey") +
-  geom_density(col = "red", linewidth = 1, bw = .1) +
+ggplot(abu89, aes(x = time89)) +
+  geom_histogram(aes(y = ..density..), fill = "lightgrey", col = "grey") +
+  geom_density(col = "red", linewidth = 1) +
   theme_minimal()
 ```
 
-En fordel med tetthetsplot er at det er lettere å sammenligne grupper. Her er et eksempel som viser fordelingen av livskvalitet etter kjønn. Vi ser at gutter gjennomgående rapporterer høyere livskvalitet enn jenter. Begge kurvene er skjeve med en lang hale til venstre, men kurven for gutter er skjevere enn for jenter. 
-
-```{r}
-#| warning: false
-#| error: false
-#| message: false
-ggplot(ungdata_kont, aes(x = livskval, group = kjonn, color = kjonn)) +
-  geom_density(linewidth = 1, bw = .1)+
-  guides(fill = guide_legend(override.aes = list(shape = 1 ) ) ) +
-  theme_minimal()
-
-```
-
-Vi har tidligere vist bruken av `facet_wrap` for å lage flere plott ved siden av hverandre. Det kan også brukes her. Da må vi legge til `facet_wrap(~kjonn)` som betyr at vi vil ha to plott, ett for hver verdi av kjønn. Hvilken fremstilling som er best i et gitt tilfelle kommer an på hva man ønsker fremheve og hva som er mest informativt. Generelt sett er det å legge plottene oppå hverandre best når man ønsker gjøre en direkte sammenligning, mens ved siden av hverandre hvis man ønsker å se på hver gruppe for seg.
-
-
-```{r}
-#| warning: false
-#| error: false
-#| message: false
-ggplot(ungdata_kont, aes(x = livskval)) +
-  geom_density(linewidth = 1, bw = .1)+
-  theme_minimal()+
-  facet_wrap(~kjonn)
-
-```
-En variant av samme fremstilling er å bruke fyllfarge i stedet for linjefarge. Da må vi legge til `fill = kjonn` i `aes()`. Det er også mulig å endre tittel på tegnforklaring fra variabelnavnet til noe mer gramatisk korrekt med `guides(fill=guide_legend(title="Kjønn"))`.
+En fordel med denne fremstillingen er at det er lettere å sammenligne grupper. Her er et eksempel med density plot etter hvor mye man drikker. 
 
 ```{r}
 #| warning: false
 #| error: false
 #| message: false
 #| 
-ggplot(ungdata_kont, aes(x = livskval, group = kjonn,  fill = kjonn)) +
-  geom_density(alpha = .3, bw = .1)+
+ggplot(abu89, aes(x = time89, group = klasse89, linetype = klasse89)) +
+  geom_density(linewidth = 1)+
+  guides(fill = guide_legend(override.aes = list(shape = 1 ) ) ) +
+  theme_minimal()
+
+
+```
+
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+ggplot(abu89, aes(x = time89)) +
+  geom_density(linewidth = 1)+
+  theme_minimal()+
+  facet_wrap(~klasse89, scales="free")
+
+```
+
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+#| 
+ggplot(abu89, aes(x = time89, group = female,  fill = factor(female))) +
+  geom_density(alpha = .3)+
   guides(fill=guide_legend(title="Kjønn"))+
   theme_minimal()
 
@@ -336,25 +225,11 @@ ggplot(ungdata_kont, aes(x = livskval, group = kjonn,  fill = kjonn)) +
 #| warning: false
 #| message: false
 #| error : false
-ggplot(ungdata_kont, aes(y = livskval, group = kjonn)) +
+ggplot(abu89, aes(y = time89, group = klasse89)) +
   geom_boxplot()+
   theme_minimal()
 ```
 
-
-#### Ridgeplot 
-
-Ridgeplot er en annen måte å sammenligne en kontinuerlig fordeling betinget på en gruppering. 
-
-
-```{r}
-#| warning: false
-#| message: false
-#| error : false
-library(ggridges)
-ggplot( ungdata_kont, aes(x = livskval, y = klasse)) +
-  geom_density_ridges() 
-```
 
 
 
@@ -366,46 +241,46 @@ ggplot( ungdata_kont, aes(x = livskval, y = klasse)) +
 #| message: false
 #| error : false
 
-ggplot(ungdata_kont, aes(x = livskval, y = samfunnstillit)) +
-  geom_point()+
+ggplot(abu89, aes(x = age, y = time89)) +
+  geom_point(alpha=.3)+
   theme_minimal()
 ```
-Når det er mange observasjoner kan det bli litt rotete med punkter som overlapper hverandre. Det er vanskelig å se noen mønstre i et slikt plot. Det kan bedres med noen teknikker for å fremheve nettopp hvor de fleste datapunktene er. I det følgende gjør vi to ting samtidig: legger til gjennomsiktig farge på punktene med `alpha = ` som angir grad av gjennomsiktighet. Når alpha er 1 er det ingen gjennomsiktighet, og ved 0 er det helt gjennomsiktig. Her må man prøve seg frem. I tillegg bruker vi `geom_jitter` som legger til litt tilfeldig støy på hvert datapunkt slik at de ikke så ofte ligger akkurat oppå hverandre. 
-
-Her har vi valgt en veldig høy grad av gjennomsiktighet slik at relativt vanlige verdier synes tydelig, mens mer sjeldne verdier blir nesten usynlige. 
 
 ```{r}
 #| warning: false
 #| message: false
 #| error : false
-ggplot(ungdata_kont, aes(x = livskval, y = samfunnstillit)) +
-  geom_jitter(alpha=.05)+
+ggplot(abu89, aes(x = age, y = time89)) +
+  geom_jitter(alpha=.1, width = .3)+
   theme_minimal()
 ```
 
 
 
+#### Ridgeplot 
 
+Ridgeplot er en annen måte å sammenligne en kontinuerlig fordeling betinget på en gruppering. 
 ```{r}
 #| warning: false
 #| message: false
 #| error : false
-ggplot(ungdata_kont, aes(x = livskval, y = samfunnstillit)) +
-  geom_hex(bins = 10)+
-  theme_minimal()
-```
-
-Det er også mulig å legge til en glattet kurve som viser tettheten av punktene. Det gjøres med `geom_density_2d_filled` som lager et konturplot der arealet under kurven er fargekodet. Det er også mulig å legge til konturlinjer med `geom_density_2d`. Nedenfor er begge brukt samtidig, men man kan også velge bare en av dem.
-
-```{r}
-#| warning: false
-#| message: false
-#| error : false
-ggplot(ungdata_kont, aes(x = livskval, y = samfunnstillit)) +
-  geom_density_2d_filled()+
-  geom_density_2d(col = "white")+
-  theme_minimal()
+library(ggridges)
+ggplot( abu89,  aes(y = klasse89, x = time89)) +
+  geom_density_ridges() 
 ```
 
 
+
+## Oppgaver
+
+Slå opp i boken [R for data science](https://r4ds.had.co.nz/data-visualisation.html) hvis du står fast eller ikke skjønner hva koden betyr. 
+
+::: {#exr-}
+Last ned datasettet abu89 fra angitt hjemmeside og les inn dataene til R som vist ovenfor. Lag den samme grafikken som vist her, gjør noen endringer på kodene for å endre utseendet på plottene. Det er et mål at du skal forstå hva hver enkelt kommando gjør. 
+:::
+
+
+::: {#exr-}
+Last inn datasettet `wagepan` fra pakken `wooldridge` i R. Velg noen variable som du selv tenker kan være informative å se nærmere på. Bruk de samme teknikkene på disse variablene.
+:::
 

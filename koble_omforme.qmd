@@ -1,0 +1,251 @@
+# Koble sammen og omforme data
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+```
+
+I samfunnsvitenskapelig forskning vil man ofte ha behov for data fra ulike kilder. Kanskje har du et datasett med survey-data om individer og et annet med registerdata om kommunene de bor i. Eller du har data fra to ulike tidspunkter som skal kobles sammen. Da trenger du verktøy for å koble datasett sammen.
+
+I tillegg vil du noen ganger oppleve at dataene er organisert på en måte som ikke passer til det du skal gjøre. Data kan være i "bredt" format der hvert tidspunkt har sin egen kolonne, mens du trenger det i "langt" format der hvert tidspunkt er en egen rad -- eller omvendt. Da trenger du verktøy for å omforme data.
+
+Dette kapittelet handler om begge deler: å koble datasett og å omforme data mellom bredt og langt format.
+
+## Koble datasett med join-funksjoner
+
+For å illustrere hvordan join-funksjoner fungerer lager vi to små eksempeldatasett. Tenk deg at du har et datasett med karakterer fra et kurs og et annet med bakgrunnsinformasjon om studentene.
+
+```{r}
+#| warning: false
+#| message: false
+karakterer <- tibble(
+  id = c(1, 2, 3, 4),
+  navn = c("Anna", "Bjørn", "Cecilie", "David"),
+  karakter = c("A", "B", "C", "B")
+)
+
+bakgrunn <- tibble(
+  id = c(1, 2, 3, 5),
+  studieprogram = c("Sosiologi", "Statsvitenskap", "Økonomi", "Sosiologi"),
+  kjonn = c("K", "M", "K", "M")
+)
+```
+
+Legg merke til at de to datasettene ikke har helt de samme id-verdiene. Student 4 (David) finnes bare i karakterdatasettet, mens student 5 finnes bare i bakgrunnsdatasettet. Dette er helt vanlig i praksis og det er nettopp derfor det er viktig å forstå de ulike typene joins.
+
+La oss se på de to datasettene:
+
+```{r}
+#| warning: false
+#| message: false
+karakterer
+bakgrunn
+```
+
+### left_join: Behold alt fra venstre datasett
+
+Den klart vanligste join-funksjonen er `left_join()`. Den beholder alle radene fra det første (venstre) datasettet og legger til informasjon fra det andre datasettet der det finnes en match.
+
+```{r}
+#| warning: false
+#| message: false
+left_join(karakterer, bakgrunn, by = "id")
+```
+
+Her ser vi at alle fire studentene fra `karakterer` er med. Anna, Bjørn og Cecilie har fått påkoblet informasjon om studieprogram og kjønn. Men David (id = 4) finnes ikke i `bakgrunn`, så han får `NA` på de nye variablene. Student 5 fra `bakgrunn` er ikke med fordi vedkommende ikke fantes i `karakterer`.
+
+Dette er den vanligste situasjonen: du har et hoveddatasett og vil legge til tilleggsinformasjon fra en annen kilde.
+
+### right_join: Behold alt fra høyre datasett
+
+`right_join()` gjør det motsatte: beholder alt fra det andre (høyre) datasettet.
+
+```{r}
+#| warning: false
+#| message: false
+right_join(karakterer, bakgrunn, by = "id")
+```
+
+Nå er student 5 med (fra `bakgrunn`), men David (id = 4) er borte. I praksis brukes `right_join()` sjelden fordi man like gjerne kan bytte rekkefølgen på datasettene og bruke `left_join()`.
+
+### inner_join: Bare rader som finnes i begge
+
+`inner_join()` beholder bare radene som har en match i begge datasettene.
+
+```{r}
+#| warning: false
+#| message: false
+inner_join(karakterer, bakgrunn, by = "id")
+```
+
+Her er bare id 1, 2 og 3 med -- altså de som finnes i begge datasett. Både David (id = 4) og student 5 er borte. Dette kan være nyttig når du bare vil ha komplette observasjoner, men vær oppmerksom på at du kan miste data uten å være klar over det.
+
+### full_join: Behold alt fra begge datasett
+
+`full_join()` beholder alle rader fra begge datasettene.
+
+```{r}
+#| warning: false
+#| message: false
+full_join(karakterer, bakgrunn, by = "id")
+```
+
+Nå er alle med. David får `NA` på studieprogram og kjønn, og student 5 får `NA` på navn og karakter. Dette gir deg all tilgjengelig informasjon, men du må håndtere de manglende verdiene etterpå.
+
+
+### Spesifisere koblingsnøkkel med by-argumentet
+
+I eksemplene ovenfor hadde begge datasettene en variabel som het `id`, og vi koblet på den. Men hva om variablene heter forskjellige ting i de to datasettene? Da må du spesifisere dette eksplisitt.
+
+```{r}
+#| warning: false
+#| message: false
+karakterer2 <- tibble(
+  student_id = c(1, 2, 3, 4),
+  navn = c("Anna", "Bjørn", "Cecilie", "David"),
+  karakter = c("A", "B", "C", "B")
+)
+
+bakgrunn2 <- tibble(
+  id_nr = c(1, 2, 3, 5),
+  studieprogram = c("Sosiologi", "Statsvitenskap", "Økonomi", "Sosiologi")
+)
+
+left_join(karakterer2, bakgrunn2, by = c("student_id" = "id_nr"))
+```
+
+Her forteller vi R at `student_id` i det første datasettet tilsvarer `id_nr` i det andre.
+
+Du kan også koble på flere variable samtidig. For eksempel hvis du har paneldata med både person-id og år:
+
+```{r}
+#| warning: false
+#| message: false
+survey <- tibble(
+  id = c(1, 1, 2, 2),
+  aar = c(2020, 2023, 2020, 2023),
+  tilfredshet = c(7, 8, 5, 6)
+)
+
+register <- tibble(
+  id = c(1, 1, 2, 2),
+  aar = c(2020, 2023, 2020, 2023),
+  inntekt = c(450000, 510000, 380000, 420000)
+)
+
+left_join(survey, register, by = c("id", "aar"))
+```
+
+
+### Hva kan gå galt?
+
+Det vanligste problemet er at koblingen gir flere rader enn forventet. Det skjer når det er duplikater i koblingsnøklene. Hvis en id forekommer flere ganger i det ene datasettet, får du en rad for hver kombinasjon. Sjekk derfor alltid antall rader før og etter en join for å forsikre deg om at resultatet er som forventet:
+
+```{r}
+#| warning: false
+#| message: false
+resultat <- left_join(karakterer, bakgrunn, by = "id")
+nrow(karakterer)
+nrow(resultat)
+```
+
+Hvis `nrow(resultat)` er større enn `nrow(karakterer)` etter en `left_join()`, så har du sannsynligvis duplikater i koblingsnøklene og bør undersøke dette nærmere.
+
+
+## Omforme data: bredt og langt format
+
+I samfunnsvitenskap jobber vi ofte med paneldata -- altså data der vi har målinger på samme enhet over tid. Slike data kan organiseres på to måter.
+
+I **bredt format** har hver enhet en rad, og hvert tidspunkt har sin egen kolonne:
+
+```{r}
+#| warning: false
+#| message: false
+bred <- tibble(
+  kommune = c("Oslo", "Bergen", "Trondheim"),
+  arbeidsledighet_2020 = c(4.2, 3.8, 3.5),
+  arbeidsledighet_2021 = c(5.1, 4.5, 4.0),
+  arbeidsledighet_2022 = c(3.9, 3.6, 3.2)
+)
+bred
+```
+
+I **langt format** har hver måling sin egen rad:
+
+```{r}
+#| warning: false
+#| message: false
+lang <- tibble(
+  kommune = rep(c("Oslo", "Bergen", "Trondheim"), each = 3),
+  aar = rep(c(2020, 2021, 2022), 3),
+  arbeidsledighet = c(4.2, 5.1, 3.9, 3.8, 4.5, 3.6, 3.5, 4.0, 3.2)
+)
+lang
+```
+
+Begge formatene inneholder nøyaktig samme informasjon. Men til analyser og plotting i R vil du som oftest trenge data i langt format. Data fra SSB og andre kilder kommer imidlertid ofte i bredt format. Heldigvis er det enkelt å omforme mellom de to formatene.
+
+
+### Fra bredt til langt med pivot_longer()
+
+`pivot_longer()` gjør data lengre ved å samle flere kolonner til en.
+
+```{r}
+#| warning: false
+#| message: false
+bred %>%
+  pivot_longer(
+    cols = starts_with("arbeidsledighet"),
+    names_to = "aar",
+    values_to = "arbeidsledighet",
+    names_prefix = "arbeidsledighet_"
+  )
+```
+
+Her angir vi:
+
+- `cols`: hvilke kolonner som skal omformes (her: alle som starter med "arbeidsledighet")
+- `names_to`: hva den nye variabelen med kolonnenavnene skal hete
+- `values_to`: hva den nye variabelen med verdiene skal hete
+- `names_prefix`: en tekst som skal fjernes fra kolonnenavnene (slik at vi får "2020" i stedet for "arbeidsledighet_2020")
+
+Merk at `aar` her blir en tekstvariabel. Hvis du trenger den som numerisk kan du legge til `names_transform = list(aar = as.numeric)` eller gjøre det i et eget steg etterpå.
+
+
+### Fra langt til bredt med pivot_wider()
+
+`pivot_wider()` gjør det motsatte: sprer rader utover i kolonner.
+
+```{r}
+#| warning: false
+#| message: false
+lang %>%
+  pivot_wider(
+    names_from = aar,
+    values_from = arbeidsledighet,
+    names_prefix = "arbeidsledighet_"
+  )
+```
+
+Her angir vi:
+
+- `names_from`: hvilken variabel som skal gi de nye kolonnenavnene
+- `values_from`: hvilken variabel verdiene skal hentes fra
+- `names_prefix`: en tekst som legges foran de nye kolonnenavnene
+
+### Når trenger du hva?
+
+Noen tommelfingerregler:
+
+- **Langt format** trengs for de fleste analyser i R, inkludert ggplot, regresjonsmodeller og gruppert deskriptiv statistikk. Hvis du skal lage et plott med `ggplot()` der du vil vise utvikling over tid, må dataene være i langt format.
+- **Bredt format** er nyttig for å presentere data i tabeller, og noen spesifikke analyser krever bredt format. Data fra SSB og en del andre kilder leveres typisk i bredt format.
+
+I praksis er det vanligst at du må gjøre om fra bredt til langt format, altså bruke `pivot_longer()`. Men det er greit å vite om begge deler.
+
+Disse funksjonene kan virke litt forvirrende i starten, men blir raskt naturlige når man har brukt dem noen ganger. Det beste tipset er rett og slett å prøve selv på egne data.

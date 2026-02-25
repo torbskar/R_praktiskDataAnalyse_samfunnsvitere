@@ -1,0 +1,156 @@
+# Innlesning av data
+
+Vi skal bruke følgende pakker i dette kapittelet
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+library(tidyverse)
+library(haven)
+library(labelled)
+library(readxl)
+
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| error: false
+
+library(wooldridge)
+data(wagepan)
+
+wagepan_eksempel <- wagepan %>%
+  select(nr, year, hours, lwage, educ, black, hisp, married, union, exper)
+
+# Add variable labels for Stata/SPSS format exports
+var_label(wagepan_eksempel) <- list(
+  nr      = "Person identifier",
+  year    = "Year",
+  hours   = "Annual hours worked",
+  lwage   = "Log hourly wage",
+  educ    = "Years of education",
+  black   = "Black",
+  hisp    = "Hispanic",
+  married = "Married",
+  union   = "Union member",
+  exper   = "Years of experience"
+)
+
+saveRDS(wagepan_eksempel, "data/wagepan_eksempel.rds")
+
+wagepan_eksempel_rdata <- wagepan_eksempel
+save(wagepan_eksempel_rdata, file = "data/wagepan_eksempel.Rdata")
+
+write_csv(wagepan_eksempel, "data/wagepan_eksempel.csv")
+
+openxlsx::write.xlsx(wagepan_eksempel, file = "data/wagepan_eksempel.xlsx")
+
+write_dta(wagepan_eksempel, path = "data/wagepan_eksempel.dta")
+
+write_sav(wagepan_eksempel, path = "data/wagepan_eksempel.sav")
+
+write_sas(wagepan_eksempel, path = "data/wagepan_eksempel.sas7bdat")
+
+
+```
+
+## Generelt om ulike dataformat
+Data kan være lagret i mange ulike formater, men det er også problemstillinger knyttet til *hvordan* dataene er lagret i et gitt format. Dette handler delvis om hvordan noen har valgt å lagre og distribuere data, ikke bare om dataformatet i seg selv.
+
+Det kan være vanskelig å skille mellom hvorvidt utfordringene du møter skyldes dataformatet, softwaren man bruker eller valg andre har tatt. Det kan være flere av disse, men som hovedregel er problemet at data ofte ikke er distribuert i et universelt format. Permanent lagring og distribusjon av data er krevende, men ikke temaet her.
+
+Uansett: du vil ofte få data i et format som ikke er tilrettelagt verken i eller for R. Å gjøre om data fra et format til et annet kan være en avgjørende oppgave for å få gjort noe som helst.
+
+Dette kan være krøkete og du har virkelig muligheten til å kløne det til skikkelig. For at du skal slippe det gir dette kapittelet en oppskrift for å håndtere slike data slik at du kan jobbe videre med dem i R på en hensiktsmessig måte.
+
+R kan imidlertid håndtere det aller meste av dataformater på en eller annen måte, men vi ser bare på de aller mest vanlige her.
+
+
+### rds
+
+Rds-formatet er et format særlig egnet for R. Her er et eksempel med et utdrag fra datasettet `wagepan` (paneldata om lønn fra pakken `wooldridge`)
+
+```{r}
+wagepan_rds <- readRDS("data/wagepan_eksempel.rds")
+glimpse(wagepan_rds)
+
+```
+
+
+
+### Laste workspace med `load()`
+
+Filer av typen .Rdat eller .Rdata er egentlig ikke et dataformat, men brukes tidvis for å lagre datafiler. Man kan lagre en eller flere datafiler i samme .Rdat fil på disk.
+
+Du kan også lagre et "speilbilde" av hele ditt workspace på denne måten slik at du kan lukke R og så åpne R senere akkurat på det stedet du var i arbeidet. Det kan være kjekt, men forutsetter at du husker hva du drev med forrige gang. Den klare anbefalingen er derfor å ikke bruke dette rutinemessig.
+
+Her bruker man `load` som laster dette speilbildet og objektet med dataene i beholder det navnet de hadde da de ble laget. Se i fanen "Environment" i Rstudio om det har dukket opp noe nytt der, for å finne navnet hvis du ikke vet det fra før. I dette eksempelet er dataene lagret i et objekt som "wagepan_eksempel_rdata" som altså er lagret i en fil som heter "wagepan_eksempel.Rdata". Ved lasting av filen dukker objektet opp under "Enviroment"-fanen, men du får ikke noen melding av noe slag. Men er altså tilgjengelig i minnet i R. Her er koden:
+
+```{r}
+load("data/wagepan_eksempel.Rdata")
+glimpse(wagepan_eksempel_rdata)
+
+```
+
+
+
+### csv-filer
+
+Såkalte csv-format er ren tekstformat der verdiene i kollonnene har skilletegn. Skilletegnet er nesten alltid komma eller semikolon, men kan i prinsippet være hva som helst. Hvis du får feilmeldinger og det ser skikkelig rart ut, så åpen filen i Notepad (eller annet ren-tekst program) og sjekk. I koden nedenfor er det spesifisert komma som skilletegn, men hvis det er semikolon endrer du det til `sep =","`.  I utgangspunket forventer `read.csv` at det er kommaseparert, så koden vil funkere her uten den delen. 
+
+```{r}
+wagepan_eksempel_csv <- read.csv("data/wagepan_eksempel.csv", sep =",")
+glimpse(wagepan_eksempel_csv)
+```
+
+### Excel
+
+Forbløffende mye data foreligger i Excel-format. Det finnes egne funksjoner for å jobbe direkte med excel-filer. Blant annet pakken `readxl` gir funksjoner til å lese inn denne typen filer. Det finnes også andre pakker for å håndtere Excel-filer, men hvis formålet bare er å lese inn data, så gjør denne pakken jobben. Husk å laste pakken først. Her er et eksempel:
+
+```{r}
+library(readxl)
+wagepan_xlsx <- read_excel("data/wagepan_eksempel.xlsx")
+glimpse(wagepan_xlsx)
+
+```
+
+Men Excel-filer kan ha en litt mer komplisert struktur enn dette eksempelet. Data kan ligge i ulike faner i Excel-filen, men det kan da håndteres med å legge til argumentet `sheet = ...`. Hvis excel-arket inneholder mye tekst eller andre ting som gjør at de faktiske dataene kommer litt lengre ned, så kan det spesifiseres hvilket celleområde som det skal leses inn fra ved `range = ...` eller bare hoppe over noen rader med `skip = ...`. 
+
+På dette kurset skal vi ikke bruke Excel-filer, men det er stor sannsynlighet for at du vil få bruk for dette senere en gang. 
+
+
+### Proprietære format: Stata, SPSS og SAS
+
+#### Stata
+
+```{r}
+wagepan_dta <- read_stata("data/wagepan_eksempel.dta")
+glimpse(wagepan_dta)
+```
+Legg merke til at den andre kolonnen her viser hva slags variabeltype det er. `<dbl>` betyr at det er numerisk variabel^(Det finnes flere typer numeriske variable som vi for praktiske analyser sjelden behøver å forholde oss til. `<dbl>` står for *Double* som er et lagringsformat som kan ta svært mange desimaler. Det kan også stå `<num>` som håndterer færre desimaler. Det er også vanlig med `<int>` som står for *Integer*, altså heltall uten desimaler.) På noen variable står det også `<dbl+lbl>` der `lbl` står for *labelled* som betyr at det finnes såkalte labler tilhørende variabelen. *Labler* er vanlig å bruke i programmene Stata og SPSS, men er ikke noe som vanligvis brukes i R. Men R leser det inn og kan håndtere dette helt fint. Men som hovedregel er det bedre å rydde opp slik at dataene blir slik vi vanligvis bruker det i R.
+
+Neste kapittel går nærmere inn på å håndtere data fra Stata og SPSS, inkludert hvordan man effektivt gjør om labler. Hvordan dette gjøres i praksis er dekket i et appendiks. De av dere som senere skal jobbe med data levert ut fra Sikt kan ha behov for dette, og da kan dere ta en nærmere titt på appendikset.
+
+#### SPSS og SAS
+Andre vanlige dataformater er formater fra statistikkpakkene SPSS og SAS, med filhalene henholdsvis *.sav* og *.sas7bdat*. De leses inn på tilsvarende funksjoner tilpasset disse dataformatene. Her er eksempel for innlesning av SPSS-fil: 
+
+```{r}
+#| eval: FALSE
+wagepan_sav <- read_spss("data/wagepan_eksempel.sav")
+glimpse(wagepan_sav)
+```
+Her er eksempel for innlesning av SAS-fil:
+
+```{r}
+wagepan_sas <- read_sas("data/wagepan_eksempel.sas7bdat")
+glimpse(wagepan_sas)
+```
+
+### Dataformater for store data
+Det finnes en hel rekke andre formater for spesielle formål, derav formater for store data. Med store data mener vi her enten at de er så store at det upraktisk lang tid å lese det inn - eller så store at det ikke er plass i minnet på datamaskinen. Formatene `feather` og `parquet` er varianter av det samme og håndteres med pakken *Arrow*. Det finnes også andre pakker for store data, men *Arrow* er nå den anbefalte. En annen grunn til det er at disse datasettene tillater sømløs bytte mellom programmeringsspråkene R og Python. Men det går laaaagt utenfor formålet med dette forkurset. 
+
+For mer spesielle behov går det også an å koble mot databaser som MySQL, Spark, Oracle eller noe helt annet, og en oversikt [finnes her](https://cran.r-project.org/web/views/Databases.html).
+
+Eneste du trenger være klar over akkurat nå er at R kan håndtere svært mange forskjellige dataformater og koble mot andre løsninger. Kanskje vil du trenge det en gang - kanskje ikke. 

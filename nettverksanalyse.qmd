@@ -1,0 +1,265 @@
+# Nettverksanalyse
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(igraph)
+```
+
+Nettverksanalyse handler om relasjoner mellom enheter. Mens vi i regresjonsanalyse fokuserer på egenskaper ved individer (f.eks. alder, inntekt, utdanning), fokuserer nettverksanalyse på *forbindelsene* mellom dem. Hvem kjenner hvem? Hvem samarbeider med hvem? Hvilke organisasjoner har overlappende styremedlemmer? Dette er typiske sporsmal som nettverksanalyse kan belyse.
+
+## Hva er et nettverk?
+
+Et nettverk bestar av to grunnleggende byggeklosser: *noder* og *kanter*. Nodene er enhetene i nettverket (f.eks. personer, organisasjoner, land), mens kantene er forbindelsene mellom dem (f.eks. vennskap, handelsrelasjoner, kommunikasjon).
+
+I samfunnsvitenskap er vi ofte interessert i *sosiale nettverk*, der nodene er personer og kantene representerer en eller annen form for relasjon. Men nettverksanalyse brukes ogsa pa mange andre typer data.
+
+
+## Typer nettverk
+
+Det finnes ulike typer nettverk, og det er viktig a vite hvilken type man jobber med:
+
+- **Urettet nettverk**: Kantene gar begge veier. Vennskap er et typisk eksempel: hvis A er venn med B, sa er B venn med A.
+- **Rettet nettverk**: Kantene har en retning. Twitter-folging er et eksempel: A kan folge B uten at B folger A tilbake.
+- **Vektet nettverk**: Kantene har en styrke. F.eks. kan man vekte etter hvor mange ganger to personer har kommunisert.
+
+
+## Lage nettverksobjekter med igraph
+
+Pakken `igraph` er det mest brukte verktøyet for nettverksanalyse i R. La oss starte med a lage et lite eksempelnettverk. Tenk deg en liten vennegjeng:
+
+```{r}
+#| warning: false
+#| message: false
+venner <- graph_from_literal(Anna -- Bjorn,
+                             Anna -- Cecilie,
+                             Bjorn -- Cecilie,
+                             Bjorn -- David,
+                             Cecilie -- Elin,
+                             David -- Elin,
+                             David -- Fredrik)
+venner
+```
+
+Her har vi laget et urettet nettverk med seks personer og syv relasjoner. Dobbel bindestrek `--` betyr urettet kant. Hadde vi brukt `+-+` ville det blitt rettet.
+
+Vi kan plotte dette med en gang:
+
+```{r}
+#| warning: false
+#| message: false
+plot(venner,
+     vertex.color = "lightblue",
+     vertex.size = 30,
+     vertex.label.cex = 0.9,
+     edge.color = "gray50",
+     main = "Vennenettverket")
+```
+
+
+## Kantlister og nabomatriser
+
+I praksis lager man sjelden nettverk for hand slik som ovenfor. Data kommer ofte som en *kantliste* (edge list), som er en tabell med to kolonner: fra-node og til-node. Hver rad representerer en forbindelse mellom to noder.
+
+La oss lese inn det samme vennenettverket fra en CSV-fil:
+
+```{r}
+#| warning: false
+#| message: false
+kantliste <- read_csv("data/venner_kantliste.csv")
+```
+
+La oss se pa datastrukturen:
+
+```{r}
+kantliste
+```
+
+Kantlisten er en helt vanlig tabell med to kolonner: `fra` og `til`. Hver rad er en kant i nettverket. Dette er den vanligste maten a lagre nettverksdata pa, og formatet er lett a lage i Excel eller eksportere fra andre systemer.
+
+Fra en slik kantliste kan vi lage et nettverksobjekt:
+
+```{r}
+#| warning: false
+#| message: false
+g <- graph_from_data_frame(kantliste, directed = FALSE)
+plot(g,
+     vertex.color = "lightblue",
+     vertex.size = 30,
+     vertex.label.cex = 0.9)
+```
+
+En annen vanlig representasjon er en *nabomatrise* (adjacency matrix), der radene og kolonnene er noder, og cellene angir om det er en kant mellom dem (1) eller ikke (0):
+
+```{r}
+#| warning: false
+#| message: false
+as_adjacency_matrix(g, sparse = FALSE)
+```
+
+Nabomatrisen er symmetrisk fordi nettverket er urettet. For rettede nettverk ville matrisen typisk ikke vaert symmetrisk.
+
+
+## Nettverksmaal
+
+Nettverksanalyse tilbyr en rekke mal for a beskrive bade hele nettverket og enkeltnoders posisjon. Her ser vi pa tre av de mest sentrale:
+
+### Grad (degree)
+Grad er det enkleste malet: hvor mange kanter har en node? I et vennskapsnettverk betyr det rett og slett hvor mange venner en person har.
+
+```{r}
+#| warning: false
+#| message: false
+degree(g)
+```
+
+Bjorn og David har flest forbindelser, mens Fredrik bare har en.
+
+
+### Mellomleddsentralitet (betweenness)
+Mellomleddsentralitet maler hvor ofte en node ligger pa den korteste veien mellom andre noder. En person med hay mellomleddsentralitet fungerer som en *bro* i nettverket.
+
+```{r}
+#| warning: false
+#| message: false
+betweenness(g)
+```
+
+### Naerhetssentralitet (closeness)
+Naerhetssentralitet maler hvor naer en node er alle andre noder i nettverket. En person med hay naerhetssentralitet kan na alle andre raskt.
+
+```{r}
+#| warning: false
+#| message: false
+closeness(g)
+```
+
+La oss samle disse malene i en tabell:
+
+```{r}
+#| warning: false
+#| message: false
+sentralitet <- tibble(
+  navn = V(g)$name,
+  grad = degree(g),
+  mellomled = round(betweenness(g), 1),
+  naerhet = round(closeness(g), 3)
+)
+sentralitet
+```
+
+Vi ser at Bjorn og David skiller seg ut som de mest sentrale personene i dette nettverket, uansett hvilket mal vi bruker.
+
+
+## Visualisering med ggraph
+
+For finere grafisk kontroll kan vi bruke pakken `ggraph`, som bygger pa ggplot-logikken:
+
+```{r}
+#| warning: false
+#| message: false
+library(ggraph)
+
+ggraph(g, layout = "fr") +
+  geom_edge_link(color = "gray60") +
+  geom_node_point(size = 8, color = "steelblue") +
+  geom_node_text(aes(label = name), repel = TRUE, size = 4) +
+  theme_void() +
+  ggtitle("Vennenettverket med ggraph")
+```
+
+Her bruker vi Fruchterman-Reingold-algoritmen (`layout = "fr"`) for a plassere nodene. `geom_edge_link()` tegner kantene, `geom_node_point()` tegner nodene, og `geom_node_text()` legger pa navnene. Merk at dette folger ggplot-logikken med lag oppå lag.
+
+Vi kan ogsa la nodestorrelsen reflektere grad:
+
+```{r}
+#| warning: false
+#| message: false
+ggraph(g, layout = "fr") +
+  geom_edge_link(color = "gray60") +
+  geom_node_point(aes(size = degree(g)), color = "steelblue") +
+  geom_node_text(aes(label = name), repel = TRUE, size = 4) +
+  scale_size_continuous(range = c(4, 12), name = "Grad") +
+  theme_void()
+```
+
+
+## Samfunnsdeteksjon
+
+En vanlig oppgave i nettverksanalyse er a identifisere *grupper* (communities/klynger) av noder som er tettere knyttet til hverandre enn til resten av nettverket. Det finnes flere algoritmer for dette. Her bruker vi en enkel metode:
+
+```{r}
+#| warning: false
+#| message: false
+grupper <- cluster_walktrap(g)
+membership(grupper)
+```
+
+Vi kan fargelegge nettverket etter gruppemedlemskap:
+
+```{r}
+#| warning: false
+#| message: false
+plot(grupper, g,
+     vertex.size = 30,
+     vertex.label.cex = 0.9,
+     main = "Grupper i vennenettverket")
+```
+
+
+## Praktisk eksempel: samarbeidsnettverk
+
+Tenk deg et forskningssamarbeid mellom ansatte pa et institutt. Vi leser inn en kantliste der hver rad er et samarbeid mellom to forskere, og kolonnen `antall_artikler` angir hvor mange felles artikler de har:
+
+```{r}
+#| warning: false
+#| message: false
+samarbeid <- read_csv("data/samarbeid_kantliste.csv")
+```
+
+La oss se pa datastrukturen:
+
+```{r}
+samarbeid
+```
+
+Denne kantlisten har tre kolonner: `forsker1` og `forsker2` angir hvem som samarbeider, mens `antall_artikler` er en vekt som sier noe om styrken pa relasjonen. Slike vektede kantlister er svart vanlige i praksis.
+
+Na kan vi lage et nettverksobjekt og bruke vektene:
+
+```{r}
+#| warning: false
+#| message: false
+g2 <- graph_from_data_frame(samarbeid, directed = FALSE)
+E(g2)$weight <- samarbeid$antall_artikler
+
+ggraph(g2, layout = "fr") +
+  geom_edge_link(aes(width = weight), alpha = 0.6, color = "gray40") +
+  geom_node_point(aes(size = degree(g2)), color = "tomato") +
+  geom_node_text(aes(label = name), repel = TRUE, size = 4) +
+  scale_edge_width_continuous(range = c(0.5, 3), name = "Artikler") +
+  scale_size_continuous(range = c(4, 12), name = "Grad") +
+  theme_void() +
+  ggtitle("Samarbeidsnettverk")
+```
+
+Her ser vi at kanttykkelsen viser antall felles artikler, mens nodestorrelsen viser antall samarbeidspartnere. Liv og Jan ser ut til a vaere sentrale i dette nettverket.
+
+
+## Nar er nettverksanalyse nyttig?
+
+Nettverksanalyse er et godt valg nar:
+
+- Du er interessert i *relasjoner* mellom enheter, ikke bare egenskaper ved enhetene selv.
+- Du vil identifisere sentrale aktorer i et nettverk (f.eks. nøkkelpersoner i en organisasjon).
+- Du vil forstå hvordan informasjon eller innflytelse sprer seg.
+- Du vil finne grupper eller klynger i data.
+- Du vil studere strukturen i et sosialt system.
+
+Nettverksanalyse er mye brukt i sosiologi, statsvitenskap, kriminologi, folkehelse og mange andre fagfelt. Det er et kraftig verktoy for a forstå sosiale strukturer som ikke lar seg fange med tradisjonelle regresjonsmodeller.

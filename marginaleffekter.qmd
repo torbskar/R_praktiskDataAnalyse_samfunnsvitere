@@ -1,0 +1,210 @@
+# Marginaleffekter
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(haven)
+library(marginaleffects)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+abu89 <- read_stata("data/abu89.dta") %>%
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+```
+
+I de foregående kapitlene har vi sett på lineær regresjon og logistisk regresjon. I lineær regresjon er regresjonskoeffisientene greie å tolke direkte: de uttrykker endring i gjennomsnittlig verdi på utfallsvariabelen per enhets endring i forklaringsvariabelen. Men i logistisk regresjon er koeffisientene på log-odds-skalaen, og det er ikke spesielt intuitivt. Vi kan eksponentiere til oddsratioer, men det er heller ikke alltid lett å forklare hva en oddsratio *betyr* i praksis.
+
+Her kommer *marginaleffekter* inn i bildet. Marginaleffekter lar oss uttrykke effekten av en forklaringsvariabel som endring i sannsynlighet, noe som er langt mer intuitivt. Pakken `{marginaleffects}` gir oss et samlet rammeverk for å beregne marginaleffekter, predikerte verdier og sammenligninger mellom grupper. Hvis du ikke har installert pakken fra før:
+
+```{r}
+#| eval: false
+install.packages("marginaleffects")
+```
+
+
+## Eksempelmodeller
+Vi trenger noen modeller å jobbe med. La oss estimere en lineær modell for timelønn og en logistisk modell for sannsynligheten for å ha høy lønn. Først lager vi en dummy for høy lønn, definert som timelønn over medianen.
+
+```{r}
+#| warning: false
+#| message: false
+abu89 <- abu89 %>%
+  filter(!is.na(time89)) %>%
+  mutate(hoy_lonn = ifelse(time89 > median(time89, na.rm = TRUE), 1, 0))
+```
+
+Så estimerer vi to modeller:
+
+```{r}
+#| warning: false
+#| message: false
+lm_mod <- lm(time89 ~ age + female + ed, data = abu89)
+logit_mod <- glm(hoy_lonn ~ age + female + ed,
+                 data = abu89, family = binomial)
+```
+
+I den lineære modellen kan vi lese koeffisientene direkte, men i den logistiske modellen er koeffisientene på log-odds-skalaen:
+
+```{r}
+#| warning: false
+#| message: false
+coef(logit_mod)
+```
+
+Det er her marginaleffekter kommer inn.
+
+
+## Gjennomsnittlige marginaleffekter (AME)
+Den vanligste bruken er å beregne *Average Marginal Effects* (AME). Det betyr at vi beregner den marginale effekten for hver observasjon og tar gjennomsnittet. Funksjonen `avg_slopes()` gjør nettopp dette.
+
+```{r}
+#| warning: false
+#| message: false
+avg_slopes(logit_mod)
+```
+
+Nå er effektene uttrykt som endring i sannsynlighet. For eksempel betyr en effekt av `female` på -0.10 at kvinner i gjennomsnitt har 10 prosentpoeng lavere sannsynlighet for høy lønn sammenlignet med menn, alt annet likt.
+
+For den lineære modellen gir `avg_slopes()` de samme verdiene som de vanlige regresjonskoeffisientene, fordi marginaleffekten er lik overalt i en lineær modell:
+
+```{r}
+#| warning: false
+#| message: false
+avg_slopes(lm_mod)
+```
+
+
+## Marginaleffekter ved bestemte verdier
+Noen ganger vil man vite hva marginaleffekten er ved *bestemte* verdier av forklaringsvariablene. Funksjonen `slopes()` gjør dette. Med `datagrid()` kan vi lage et datasett med bestemte verdier, der variable som ikke spesifiseres holdes på gjennomsnittsverdier.
+
+```{r}
+#| warning: false
+#| message: false
+slopes(logit_mod,
+       variables = "ed",
+       newdata = datagrid(age = c(25, 40, 55)))
+```
+
+Her ser vi at effekten av utdanning varierer med alder. Det er fordi logistisk regresjon er ikke-lineær: den marginale effekten avhenger av *hvor* på fordelingen man befinner seg.
+
+
+## Predikerte verdier
+I kapittelet om lineær regresjon brukte vi `predict()` for å beregne predikerte verdier. Pakken `{marginaleffects}` har tilsvarende funksjoner som gir ryddigere output med konfidensintervaller. Funksjonen `predictions()` gir predikerte verdier, mens `avg_predictions()` gir gjennomsnitt per gruppe.
+
+```{r}
+#| warning: false
+#| message: false
+predictions(logit_mod,
+            newdata = datagrid(age = c(25, 35, 45, 55),
+                               female = c(0, 1)))
+```
+
+Med `avg_predictions()` kan vi beregne gjennomsnittlig predikert sannsynlighet fordelt på grupper:
+
+```{r}
+#| warning: false
+#| message: false
+avg_predictions(logit_mod, by = "female")
+```
+
+
+## Sammenligninger mellom grupper
+Funksjonen `avg_comparisons()` beregner gjennomsnittlige forskjeller mellom grupper eller ved endring i en variabel. For eksempel forskjellen mellom menn og kvinner:
+
+```{r}
+#| warning: false
+#| message: false
+avg_comparisons(logit_mod, variables = "female")
+```
+
+Vi kan også se på effekten av en bestemt endring i en kontinuerlig variabel, for eksempel fra 10 til 15 års utdanning:
+
+```{r}
+#| warning: false
+#| message: false
+avg_comparisons(logit_mod,
+                variables = list(ed = c(10, 15)))
+```
+
+
+## Plotting av marginaleffekter
+En stor styrke med `{marginaleffects}` er enkle og fine plot. Funksjonen `plot_predictions()` viser predikerte verdier, mens `plot_slopes()` viser hvordan marginaleffekten varierer.
+
+Her plotter vi predikert sannsynlighet for høy lønn som funksjon av alder, separat for menn og kvinner:
+
+```{r}
+#| warning: false
+#| message: false
+plot_predictions(logit_mod, condition = c("age", "female"))
+```
+
+Den grå sonen viser konfidensintervallet. Vi ser den karakteristiske S-formen fra logistisk regresjon. For den lineære modellen blir linjene rette:
+
+```{r}
+#| warning: false
+#| message: false
+plot_predictions(lm_mod, condition = c("age", "female"))
+```
+
+Med `plot_slopes()` kan vi visualisere hvordan marginaleffekten av en variabel varierer med en annen:
+
+```{r}
+#| warning: false
+#| message: false
+plot_slopes(logit_mod, variables = "ed", condition = "age")
+```
+
+Siden disse funksjonene returnerer ggplot-objekter, kan de tilpasses med vanlig ggplot-syntaks:
+
+```{r}
+#| warning: false
+#| message: false
+plot_predictions(logit_mod, condition = c("age", "female")) +
+  labs(x = "Alder",
+       y = "Predikert sannsynlighet for høy lønn",
+       color = "Kjønn") +
+  theme_minimal()
+```
+
+
+## Sammenhengen med predict()
+I kapittelet om lineær regresjon brukte vi `predict()` for å beregne predikerte verdier. Her er en kort sammenligning:
+
+```{r}
+#| warning: false
+#| message: false
+nyedata <- data.frame(age = 40, female = 0, ed = 12)
+
+# Med predict():
+predict(logit_mod, newdata = nyedata, type = "response")
+
+# Med predictions():
+predictions(logit_mod, newdata = nyedata)
+```
+
+Begge gir samme predikerte verdi, men `predictions()` gir i tillegg konfidensintervaller og standardfeil. Funksjonen `predict()` er innebygd i R og fungerer alltid, men `{marginaleffects}` gir ryddigere output og er enklere for mer avanserte ting.
+
+
+## Oppsummering
+
+| Funksjon | Hva den gjør |
+|----------|-------------|
+| `avg_slopes()` | Gjennomsnittlige marginaleffekter (AME) |
+| `slopes()` | Marginaleffekter ved bestemte verdier |
+| `predictions()` | Predikerte verdier for angitte observasjoner |
+| `avg_predictions()` | Gjennomsnittlige predikerte verdier per gruppe |
+| `avg_comparisons()` | Gjennomsnittlige sammenligninger mellom grupper |
+| `plot_predictions()` | Plot av predikerte verdier |
+| `plot_slopes()` | Plot av marginale effekter |
+
+Hovedpoenget er at marginaleffekter lar oss tolke resultater fra ikke-lineære modeller (som logistisk regresjon) på en intuitiv skala. I stedet for log-odds eller oddsratioer kan vi snakke om endring i sannsynlighet, noe som er langt lettere å forstå.

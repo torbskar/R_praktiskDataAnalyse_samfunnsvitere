@@ -1,0 +1,60 @@
+# Lineær sannsynlighetsmodell
+
+```{r}
+#| echo: false
+invisible(Sys.setlocale(locale='no_NB.utf8'))
+```
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+library(tidyverse)
+library(gtsummary)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| error: false
+#| message: false
+library(haven)
+abu89 <- read_stata("data/abu89.dta") %>% 
+  mutate(across(where(is.labelled), ~as_factor(.)),
+         across(where(is.factor), ~fct_drop(.)))
+
+
+```
+
+I samfunnsvitenskapen har vi ganske ofte kategoriske variable både som forklaringsvariable og utfallsvariable, eller en kombinasjon. I en regresjon vil vi behandle kategoriske variable dem som om de er tall på kontinuerlig akse, men der det typisk bare finnes to verdier: 0 og 1. Dette kalles en dummyvariabel eller en indikatorvariabel.
+
+Når man bruker kategoriske variable i en lineær regresjon er det derfor ikke egentlig noe nytt. Det som står i læreboken om kontinuerlige variable gjelder også for kategoriske variable (i hvert fall for alle praktiske formål som dekkes for dette kurset). 
+
+
+## Dummy som utfallsvariabel 
+
+I samfunnsvitenskapen er utfallsvariabelen ganske ofte kategorisk. I en regresjon vil vi behandle kategoriske variable dem som om de er tall på kontinuerlig akse, også der det typisk bare finnes to verdier: 0 og 1. Dette kalles en dummyvariabel eller en indikatorvariabel.
+
+Når man bruker kategoriske variable i en lineær regresjon er det derfor ikke egentlig noe nytt. Det som står i boken om kontinuerlige variable gjelder også for kategoriske variable (i hvert fall for alle praktiske formål som dekkes for dette kurset).
+
+Husk at tolkningen av regresjonskoeffisienten, $b$, tolkes på den skalaen $y$-variabelen er på. Altså: hvis utfallsvariabelen er i kroner, så er tolkningen av $b$ i måleenheten kroner. Hvis y-variabelen er i antall timer, så er tolkningen av $b$ i antall timer, osv. Husk også at vi estimerer endring i gjennomsnitt. 
+
+Når utfallsvariabelen er en dummy, så har den verdiene 0 eller 1. Da er gjennomsnittet det samme som en andel. For eksempel: hvis utfallet er om man er i jobb eller ikke, og koder å være i jobb som 1 og 0 ellers. Hvis man har 5 personer, derav 3 er i jobb får man så: $\bar{y} = \frac{(0+0+1+1+1)} {5} = \frac{3}{5}=0.6$ som er det samme som 60%. 
+
+
+I regresjon med slike variable er dermed utfallet en andel og dette kalles derfor ofte en «lineær sannsynlighetsmodell». Men det er egentlig en helt vanlig regresjonsmodell. Vi tolker fremdeles på den skalaen y-variabelen er på, som altså er en andel. (Vi skal forresten senere omtale andeler som estimater på sannsynligheter). En økning i $x$-variabelen tilsvarer altså en endring, b, i andelen med den egenskapen som er kodet 1 på $y$-variabelen. 
+
+
+La oss si at vi er interessert i å beskrive kjønnsforskjell i hvorvidt menn og kvinner jobber i privat vs offentlig sektor. Variabelen "private" er en factor-variabel der første kategori er "public", som da blir referansekategorien. R regner da privat sektor som 1 mens offentlig sektor er 0. Koeffisientene vil da uttrykke forskjell i sannsynlighet for å være i privat sektor.
+
+
+```{r}
+#| warning: false
+#| error: false
+#| message: false
+lm(private ~ female + ed + age, data = abu89)
+```
+
+Vi ser her at sannsynligheten for at kvinner jobber i privat sektor er 0.28 lavere enn for menn, dvs. 28 prosentpoeng lavere. Dette er da kontrollert for utdanning og alder, slik at vi kan se bort fra at utdanningsnivå og forskjell i aldersfordeling i dataene kan være grunnen til forskjellene. 
+
+

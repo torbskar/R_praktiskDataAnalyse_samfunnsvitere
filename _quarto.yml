@@ -1,31 +1,82 @@
-project: 
+project:
   type: book
   output-dir: docs
+
+execute:
+  freeze: auto
 
 book:
   navbar:
     search: true
-  title: "Veldig praktisk dataanalyse"
-  subtitle: "En innføring i bruk av R"
+  title: "Veldig praktisk dataanalyse med R"
+  subtitle: "For studenter i samfunnsvitenskap"
   author: "Torbjørn Skardhamar"
   date: today
   version: 0.1
   page-navigation: true
   chapters:
     - index.qmd
-    - installering.qmd
-    - kort_intro_R.qmd
-    - lese_inn_datasett.qmd
-    - grafikk.qmd
-    
-  downloads: [pdf]
-  
+    - part: "Del I: Kom igang"
+      chapters:
+       - installering.qmd
+       - intro_R.qmd
+       - ki_koding.qmd
+    - part: "Del II: Deskriptiv analyse"
+      chapters:
+       - forste_analyse.qmd
+       - grafikk.qmd
+       - deskriptive_tabeller.qmd
+       - kart.qmd
+       - nettverksanalyse.qmd
+    - part: "Del III: Statistisk modellering"
+      chapters:
+        - lineaer_regresjon.qmd
+        - regresjon_utvidelser.qmd
+        - modelldiagnostikk.qmd
+        - lineaer_sannsynlighetsmodell.qmd
+        - kontrollere_for.qmd
+        - logistisk_regresjon.qmd
+        - marginaleffekter.qmd
+        - prediksjon_ml.qmd
+    - part: "Del IV: Statistisk tolkning"
+      chapters:
+        - statistisk_inferens.qmd
+        - statistikk_i_praksis.qmd
+    - part: "Del V: Tolkning og vitenskapelig praksis"
+      chapters:
+        - design_tolkning_teori.qmd
+        - reproduserbarhet.qmd
+    - part: "Del VI: Importere og utforske data"
+      chapters:
+        - innlesning_data.qmd
+        - innlesning_stata_spss.qmd
+        - innlesning_excel.qmd
+        - innlesning_ssb.qmd
+        - oversikt_datasett.qmd
+    - part: "Del VI: Datahåndtering"
+      chapters:
+        - tidyverse.qmd
+        - omkoding.qmd
+        - missing_verdier.qmd
+        - koble_omforme.qmd
+        - store_data.qmd
+
+    - references.qmd
+  appendices:
+    - appendix_addins.qmd
+    - appendix_import_metadata.qmd
+    - appendix_dictionary.qmd
+    - appendix_empirisk_eksempel.qmd
+  downloads: [pdf, epub]
+
 bibliography: references.bib
 
-
 format:
-  html: 
+  html:
     theme: cosmo
     code-copy: true
-  pdf: default 
-
+    toc: true
+    toc-depth: 2
+  pdf: default
+  epub:
+    toc: true
