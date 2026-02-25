@@ -10,7 +10,16 @@
       "Bash(ls:*)",
       "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" -e:*)",
       "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" test_kart_data.R)",
-      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" test_kart.R)"
+      "Bash(\"C:/Program Files/R/R-4.5.2/bin/Rscript.exe\" test_kart.R)",
+      "Bash(Rscript:*)",
+      "Bash(\"/c/Program Files/R/R-4.5.2/bin/Rscript.exe\" -e \"tinytex::tlmgr_install\\(''tabularray''\\)\")",
+      "Bash(\"/c/Program Files/R/R-4.5.2/bin/Rscript.exe\" -e \"tinytex::tlmgr_install\\(''tabularray'', usermode=TRUE\\)\")",
+      "Bash(\"/c/Program Files/R/R-4.5.2/bin/Rscript.exe\" -e \"tinytex::tlmgr\\(''install tabularray'', extra_args=c\\(''--repository'', ''https://ctan.uib.no/systems/texlive/tlnet''\\)\\)\")",
+      "Bash(\"C:/Users/torbskar/AppData/Roaming/TinyTeX/bin/windows/tlmgr.bat\" install --repository https://mirror.ctan.org/systems/texlive/tlnet tabularray)",
+      "Bash(\"C:/Users/torbskar/AppData/Roaming/TinyTeX/bin/windows/tlmgr.bat\" update --self --repository https://mirror.ctan.org/systems/texlive/tlnet)",
+      "Bash(\"C:/Users/torbskar/AppData/Roaming/TinyTeX/bin/windows/tlmgr.bat\" install tabularray --repository https://ctan.uib.no/systems/texlive/tlnet)",
+      "Bash(git mv:*)",
+      "Bash(\"C:/Users/torbskar/AppData/Roaming/TinyTeX/bin/windows/tlmgr.bat\" option repository https://ctan.uib.no/systems/texlive/tlnet)"
     ]
   }
 }
