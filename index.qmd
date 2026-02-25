@@ -1,3 +1,5 @@
+# Forord {.unnumbered}
+
 ```{r}
 #| label: setup-pakker
 #| include: false
@@ -5,7 +7,6 @@
 source("script/install_packages.R")
 ```
 
-# Forord {.unnumbered}
 
 Denne boken er ment som en praktisk innføring i bruk av R til dataanalyse for studenter i samfunnsvitenskap. Fokuset er på *hvordan* man gjør dataanalyse i R -- fra innlesning av data, via datahåndtering og deskriptiv analyse, til statistisk modellering og visualisering.
 
