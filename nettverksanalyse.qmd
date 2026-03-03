@@ -12,27 +12,27 @@ library(tidyverse)
 library(igraph)
 ```
 
-Nettverksanalyse handler om relasjoner mellom enheter. Mens vi i regresjonsanalyse fokuserer på egenskaper ved individer (f.eks. alder, inntekt, utdanning), fokuserer nettverksanalyse på *forbindelsene* mellom dem. Hvem kjenner hvem? Hvem samarbeider med hvem? Hvilke organisasjoner har overlappende styremedlemmer? Dette er typiske sporsmal som nettverksanalyse kan belyse.
+Nettverksanalyse handler om relasjoner mellom enheter. Mens vi i regresjonsanalyse fokuserer på egenskaper ved individer (f.eks. alder, inntekt, utdanning), fokuserer nettverksanalyse på *forbindelsene* mellom dem. Hvem kjenner hvem? Hvem samarbeider med hvem? Hvilke organisasjoner har overlappende styremedlemmer? Dette er typiske spørsmål som nettverksanalyse kan belyse.
 
 ## Hva er et nettverk?
 
-Et nettverk bestar av to grunnleggende byggeklosser: *noder* og *kanter*. Nodene er enhetene i nettverket (f.eks. personer, organisasjoner, land), mens kantene er forbindelsene mellom dem (f.eks. vennskap, handelsrelasjoner, kommunikasjon).
+Et nettverk består av to grunnleggende byggeklosser: *noder* og *kanter*. Nodene er enhetene i nettverket (f.eks. personer, organisasjoner, land), mens kantene er forbindelsene mellom dem (f.eks. vennskap, handelsrelasjoner, kommunikasjon).
 
-I samfunnsvitenskap er vi ofte interessert i *sosiale nettverk*, der nodene er personer og kantene representerer en eller annen form for relasjon. Men nettverksanalyse brukes ogsa pa mange andre typer data.
+I samfunnsvitenskap er vi ofte interessert i *sosiale nettverk*, der nodene er personer og kantene representerer en eller annen form for relasjon. Men nettverksanalyse brukes også på mange andre typer data.
 
 
 ## Typer nettverk
 
-Det finnes ulike typer nettverk, og det er viktig a vite hvilken type man jobber med:
+Det finnes ulike typer nettverk, og det er viktig å vite hvilken type man jobber med:
 
-- **Urettet nettverk**: Kantene gar begge veier. Vennskap er et typisk eksempel: hvis A er venn med B, sa er B venn med A.
-- **Rettet nettverk**: Kantene har en retning. Twitter-folging er et eksempel: A kan folge B uten at B folger A tilbake.
+- **Urettet nettverk**: Kantene går begge veier. Vennskap er et typisk eksempel: hvis A er venn med B, så er B venn med A.
+- **Rettet nettverk**: Kantene har en retning. Twitter-følging er et eksempel: A kan følge B uten at B følger A tilbake.
 - **Vektet nettverk**: Kantene har en styrke. F.eks. kan man vekte etter hvor mange ganger to personer har kommunisert.
 
 
 ## Lage nettverksobjekter med igraph
 
-Pakken `igraph` er det mest brukte verktøyet for nettverksanalyse i R. La oss starte med a lage et lite eksempelnettverk. Tenk deg en liten vennegjeng:
+Pakken `igraph` er det mest brukte verktøyet for nettverksanalyse i R. La oss starte med å lage et lite eksempelnettverk. Tenk deg en liten vennegjeng:
 
 ```{r}
 #| warning: false
@@ -65,7 +65,7 @@ plot(venner,
 
 ## Kantlister og nabomatriser
 
-I praksis lager man sjelden nettverk for hand slik som ovenfor. Data kommer ofte som en *kantliste* (edge list), som er en tabell med to kolonner: fra-node og til-node. Hver rad representerer en forbindelse mellom to noder.
+I praksis lager man sjelden nettverk for hånd slik som ovenfor. Data kommer ofte som en *kantliste* (edge list), som er en tabell med to kolonner: fra-node og til-node. Hver rad representerer en forbindelse mellom to noder.
 
 La oss lese inn det samme vennenettverket fra en CSV-fil:
 
@@ -75,13 +75,13 @@ La oss lese inn det samme vennenettverket fra en CSV-fil:
 kantliste <- read_csv("data/venner_kantliste.csv")
 ```
 
-La oss se pa datastrukturen:
+La oss se på datastrukturen:
 
 ```{r}
 kantliste
 ```
 
-Kantlisten er en helt vanlig tabell med to kolonner: `fra` og `til`. Hver rad er en kant i nettverket. Dette er den vanligste maten a lagre nettverksdata pa, og formatet er lett a lage i Excel eller eksportere fra andre systemer.
+Kantlisten er en helt vanlig tabell med to kolonner: `fra` og `til`. Hver rad er en kant i nettverket. Dette er den vanligste måten å lagre nettverksdata på, og formatet er lett å lage i Excel eller eksportere fra andre systemer.
 
 Fra en slik kantliste kan vi lage et nettverksobjekt:
 
@@ -103,15 +103,15 @@ En annen vanlig representasjon er en *nabomatrise* (adjacency matrix), der raden
 as_adjacency_matrix(g, sparse = FALSE)
 ```
 
-Nabomatrisen er symmetrisk fordi nettverket er urettet. For rettede nettverk ville matrisen typisk ikke vaert symmetrisk.
+Nabomatrisen er symmetrisk fordi nettverket er urettet. For rettede nettverk ville matrisen typisk ikke vært symmetrisk.
 
 
-## Nettverksmaal
+## Nettverksmål
 
-Nettverksanalyse tilbyr en rekke mal for a beskrive bade hele nettverket og enkeltnoders posisjon. Her ser vi pa tre av de mest sentrale:
+Nettverksanalyse tilbyr en rekke mål for å beskrive både hele nettverket og enkeltnoders posisjon. Her ser vi på tre av de mest sentrale:
 
 ### Grad (degree)
-Grad er det enkleste malet: hvor mange kanter har en node? I et vennskapsnettverk betyr det rett og slett hvor mange venner en person har.
+Grad er det enkleste målet: hvor mange kanter har en node? I et vennskapsnettverk betyr det rett og slett hvor mange venner en person har.
 
 ```{r}
 #| warning: false
@@ -123,7 +123,7 @@ Bjorn og David har flest forbindelser, mens Fredrik bare har en.
 
 
 ### Mellomleddsentralitet (betweenness)
-Mellomleddsentralitet maler hvor ofte en node ligger pa den korteste veien mellom andre noder. En person med hay mellomleddsentralitet fungerer som en *bro* i nettverket.
+Mellomleddsentralitet måler hvor ofte en node ligger på den korteste veien mellom andre noder. En person med høy mellomleddsentralitet fungerer som en *bro* i nettverket.
 
 ```{r}
 #| warning: false
@@ -131,8 +131,8 @@ Mellomleddsentralitet maler hvor ofte en node ligger pa den korteste veien mello
 betweenness(g)
 ```
 
-### Naerhetssentralitet (closeness)
-Naerhetssentralitet maler hvor naer en node er alle andre noder i nettverket. En person med hay naerhetssentralitet kan na alle andre raskt.
+### Nærhetsentralitet (closeness)
+Nærhetsentralitet måler hvor nær en node er alle andre noder i nettverket. En person med høy nærhetsentralitet kan nå alle andre raskt.
 
 ```{r}
 #| warning: false
@@ -140,7 +140,7 @@ Naerhetssentralitet maler hvor naer en node er alle andre noder i nettverket. En
 closeness(g)
 ```
 
-La oss samle disse malene i en tabell:
+La oss samle disse målene i en tabell:
 
 ```{r}
 #| warning: false
@@ -154,7 +154,7 @@ sentralitet <- tibble(
 sentralitet
 ```
 
-Vi ser at Bjorn og David skiller seg ut som de mest sentrale personene i dette nettverket, uansett hvilket mal vi bruker.
+Vi ser at Bjorn og David skiller seg ut som de mest sentrale personene i dette nettverket, uansett hvilket mål vi bruker.
 
 
 ## Visualisering med ggraph
@@ -174,9 +174,9 @@ ggraph(g, layout = "fr") +
   ggtitle("Vennenettverket med ggraph")
 ```
 
-Her bruker vi Fruchterman-Reingold-algoritmen (`layout = "fr"`) for a plassere nodene. `geom_edge_link()` tegner kantene, `geom_node_point()` tegner nodene, og `geom_node_text()` legger pa navnene. Merk at dette folger ggplot-logikken med lag oppå lag.
+Her bruker vi Fruchterman-Reingold-algoritmen (`layout = "fr"`) for å plassere nodene. `geom_edge_link()` tegner kantene, `geom_node_point()` tegner nodene, og `geom_node_text()` legger på navnene. Merk at dette følger ggplot-logikken med lag oppå lag.
 
-Vi kan ogsa la nodestorrelsen reflektere grad:
+Vi kan også la nodestørrelsen reflektere grad:
 
 ```{r}
 #| warning: false
@@ -215,7 +215,7 @@ plot(grupper, g,
 
 ## Praktisk eksempel: samarbeidsnettverk
 
-Tenk deg et forskningssamarbeid mellom ansatte pa et institutt. Vi leser inn en kantliste der hver rad er et samarbeid mellom to forskere, og kolonnen `antall_artikler` angir hvor mange felles artikler de har:
+Tenk deg et forskningssamarbeid mellom ansatte på et institutt. Vi leser inn en kantliste der hver rad er et samarbeid mellom to forskere, og kolonnen `antall_artikler` angir hvor mange felles artikler de har:
 
 ```{r}
 #| warning: false
@@ -223,15 +223,15 @@ Tenk deg et forskningssamarbeid mellom ansatte pa et institutt. Vi leser inn en 
 samarbeid <- read_csv("data/samarbeid_kantliste.csv")
 ```
 
-La oss se pa datastrukturen:
+La oss se på datastrukturen:
 
 ```{r}
 samarbeid
 ```
 
-Denne kantlisten har tre kolonner: `forsker1` og `forsker2` angir hvem som samarbeider, mens `antall_artikler` er en vekt som sier noe om styrken pa relasjonen. Slike vektede kantlister er svart vanlige i praksis.
+Denne kantlisten har tre kolonner: `forsker1` og `forsker2` angir hvem som samarbeider, mens `antall_artikler` er en vekt som sier noe om styrken på relasjonen. Slike vektede kantlister er svært vanlige i praksis.
 
-Na kan vi lage et nettverksobjekt og bruke vektene:
+Nå kan vi lage et nettverksobjekt og bruke vektene:
 
 ```{r}
 #| warning: false
@@ -249,12 +249,12 @@ ggraph(g2, layout = "fr") +
   ggtitle("Samarbeidsnettverk")
 ```
 
-Her ser vi at kanttykkelsen viser antall felles artikler, mens nodestorrelsen viser antall samarbeidspartnere. Liv og Jan ser ut til a vaere sentrale i dette nettverket.
+Her ser vi at kanttykkelsen viser antall felles artikler, mens nodestørrelsen viser antall samarbeidspartnere. Liv og Jan ser ut til å være sentrale i dette nettverket.
 
 
-## Nar er nettverksanalyse nyttig?
+## Når er nettverksanalyse nyttig?
 
-Nettverksanalyse er et godt valg nar:
+Nettverksanalyse er et godt valg når:
 
 - Du er interessert i *relasjoner* mellom enheter, ikke bare egenskaper ved enhetene selv.
 - Du vil identifisere sentrale aktorer i et nettverk (f.eks. nøkkelpersoner i en organisasjon).
@@ -262,4 +262,4 @@ Nettverksanalyse er et godt valg nar:
 - Du vil finne grupper eller klynger i data.
 - Du vil studere strukturen i et sosialt system.
 
-Nettverksanalyse er mye brukt i sosiologi, statsvitenskap, kriminologi, folkehelse og mange andre fagfelt. Det er et kraftig verktoy for a forstå sosiale strukturer som ikke lar seg fange med tradisjonelle regresjonsmodeller.
+Nettverksanalyse er mye brukt i sosiologi, statsvitenskap, kriminologi, folkehelse og mange andre fagfelt. Det er et kraftig verktøy for å forstå sosiale strukturer som ikke lar seg fange med tradisjonelle regresjonsmodeller.

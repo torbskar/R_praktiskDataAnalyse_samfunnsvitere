@@ -54,7 +54,7 @@ abu89 %>%
   add_difference() 
 ```
 
-Legg merke til at kollonnen "Difference" er forskjellen i gjennomsnitt i de to gruppene, og konfidensintervallet gjelder for denne differansen. Den gjennomsnittlige forskjellen i timelønn for menn er altså 21 kroner høyere enn for kvinner, men når vi tar feilmarginen med i beregningen er det rimelig å si at den ligger mellom 19 og 23 kroner høyere for menn enn for kvinner, siden et 95% konfidensintervall tilsier det.
+Legg merke til at kolonnen "Difference" er forskjellen i gjennomsnitt i de to gruppene, og konfidensintervallet gjelder for denne differansen. Den gjennomsnittlige forskjellen i timelønn for menn er altså 21 kroner høyere enn for kvinner, men når vi tar feilmarginen med i beregningen er det rimelig å si at den ligger mellom 19 og 23 kroner høyere for menn enn for kvinner, siden et 95% konfidensintervall tilsier det.
 
 
 

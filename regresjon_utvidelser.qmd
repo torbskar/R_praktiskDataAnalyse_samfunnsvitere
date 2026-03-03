@@ -106,7 +106,7 @@ Man kan også ta logaritmen av forklaringsvariabelen. Da endres tolkningen til �
 | $y = \alpha + \beta \log(x)$ | $x$ opp 1% $\rightarrow$ $y$ endres med ca. $\beta / 100$ enheter |
 | $\log(y) = \alpha + \beta \log(x)$ | $x$ opp 1% $\rightarrow$ $y$ endres med ca. $\beta$ prosent (elastisitet) |
 
-Denne tabellen er verd å ha i bakhodet. Det siste tilfellet, der begge er log-transformert, er det man kaller en *elastisitet* i økonomi.
+Denne tabellen er verdt å ha i bakhodet. Det siste tilfellet, der begge er log-transformert, er det man kaller en *elastisitet* i økonomi.
 
 
 ## Robuste standardfeil

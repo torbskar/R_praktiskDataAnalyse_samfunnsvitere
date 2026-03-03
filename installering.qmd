@@ -7,7 +7,7 @@
 invisible(Sys.setlocale(locale='no_NB.utf8'))
 ```
 
-Vi forutsetter grunnleggende kunnskap til bruk av datamaskiner, og hvis du oppdager at det er tekniske ting du ikke får til forutsetter vi at du lærer deg det. Det går også an å spørres seminarleder om hjelp, men gjør det unna tidlig i semesteret. Her er noe av det vi forutsetter: 
+Vi forutsetter grunnleggende kunnskap til bruk av datamaskiner, og hvis du oppdager at det er tekniske ting du ikke får til forutsetter vi at du lærer deg det. Det går også an å spørre seminarleder om hjelp, men gjør det unna tidlig i semesteret. Her er noe av det vi forutsetter: 
 
 Laste ned og installere programmer på datamaskinen
 Lage mapper og mappestruktur på lokal maskin, og holde oversikt over filer på din datamaskin 

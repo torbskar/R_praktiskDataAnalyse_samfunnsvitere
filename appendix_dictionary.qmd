@@ -11,7 +11,7 @@ Nedenfor skal vi vise hvordan vi gjør følgende:
 * Plukker ut alle tabeller og gjør dem om til data.frame-struktur i R
 * Rensker opp i filen til å bare beholde de relevante radene
 
-Dette er egentlig en svært enkel introduksjon til webscraping for et spesfikt formål. Vi skal bruke pakken `rvest` som er laget nettopp for webscraping. 
+Dette er egentlig en svært enkel introduksjon til webscraping for et spesifikt formål. Vi skal bruke pakken `rvest` som er laget nettopp for webscraping. 
 
 ```{r}
 #| echo: false
@@ -49,7 +49,7 @@ cb <- read_html("data/Kodebok.html")
 
 For NorLAG er dokumentasjonsdokumentet inndelt i flere deler, og det er bare den siste delen som inneholder kodeskjemaene. Det er denne siste delen vi trenger, så første utfordring er å plukke ut denne delen. 
 
-En html-fil er strukturert innenfor "noder" som har en start og en slutt. Et avsnitt starter med en kode `<a>` og avsluttes med `</a>`. Tilsvarende koder finnes for tabeller og andre elementer. Disse delene har er oftest gitt et navn som man kan identififiseres og brukes til lage lenker til spesifikke deler av siden (jf. innholdsfortegnelsen). Vi bruker denne til å filtrere filen. 
+En html-fil er strukturert innenfor "noder" som har en start og en slutt. Et avsnitt starter med en kode `<a>` og avsluttes med `</a>`. Tilsvarende koder finnes for tabeller og andre elementer. Disse delene har er oftest gitt et navn som man kan identifiseres og brukes til å lage lenker til spesifikke deler av siden (jf. innholdsfortegnelsen). Vi bruker denne til å filtrere filen. 
 
 I akkurat denne filen trenger vi informasjonen som ligger etter overskriften "Variables Description". For å finne navnet på dette avsnittet kan man undersøke lenken i innholdsfortegnelsen der det fremkommer som `#variables`. Eller man kan åpne html-filen i et tekstdokument og søke opp tittelen, så finner man koden `name='variables` innenfor det avsnittet. 
 

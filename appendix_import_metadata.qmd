@@ -54,7 +54,7 @@ Men i den virkelige verden er det sjelden så enkelt. Alle datasett har en del m
 
 For datasettet NorLAG vil det være ulike sett av missing-verdier for de ulike variablene. Dette kan helt fint håndteres manuelt variabel for variabel. Men for å ha ordentlig kontroll på at det blir riktig bør det automatiseres. Logikken i denne delen går et stykke utover hva vi forventer at den jevne sosiologistudent skal lære.
 
-En første sted er å lese inn dokumentasjonsrapporten fra en html-fil slik den leveres fra Sikt og gjør det om til et håndterbart oppslags-datasett. Dette er beskrevet i eget appendix. Det følgende tar utgangspunkt i at en slik oppslagsfil finnes.
+Et første steg er å lese inn dokumentasjonsrapporten fra en html-fil slik den leveres fra Sikt og gjør det om til et håndterbart oppslags-datasett. Dette er beskrevet i eget appendix. Det følgende tar utgangspunkt i at en slik oppslagsfil finnes.
 
 Det er noen verdier som i dokumentasjonen er spesifisert som spesielle typer missing. Disse skal vi kode om til NA. Disse verdiene har labler som starter med "filter:" eller "vil ikke svare" etc. Disse danner basis for omkoding til `NA`. Dette er ikke en komplett liste over koder som innebærer at det egentlig mangler informasjon. (Dvs. fordi koden indikerer grunner til at det mangler informasjon). Etter denne oppryddingen kan det altså fremdeles hende at det dukker opp noe slikt, så vær påpasselig med å sjekke variabelens fordeling før du analyserer med regresjonsmodeller.
 
@@ -134,7 +134,7 @@ register <- read_stata(paste0(infilbane, "NorLAG-lengde-register.dta"), encoding
 ```
 
 
-Når dataene er er fordelt på flere filer, som i NorLAG, må de slås sammen. Dette gjøres ved å bruke `merge()`-funksjonen i R. I NorLAG er det en del variable som er i faste og en del som er i intervju. Så er det et eget datasett med variable hentet fra registre. Vi vil ha alle variable i samme datasett. 
+Når dataene er fordelt på flere filer, som i NorLAG, må de slås sammen. Dette gjøres ved å bruke `merge()`-funksjonen i R. I NorLAG er det en del variable som er i faste og en del som er i intervju. Så er det et eget datasett med variable hentet fra registre. Vi vil ha alle variable i samme datasett. 
 
 
 
@@ -176,7 +176,7 @@ norlag <- norlag_lbl %>%
   mutate(across(where(is.factor), ~fct_drop(.)))
 ```
 
-I tilegg skal vi lage en variabel for det vi kan kalle hovedaktivitet som sysselsettingsstatus. Det er om man er yrkesaktiv, arbeidsledig, student eller annet. I hver runde av NorLAG ble svarkategoriene utformet litt forskjellig, så derfor er svarene fordelt over tre variable. Nedenfor samles disse sammen og kodes om basert på tekststrenger. Dette gjøres noe mer manuelt da det bare gjelder akkurat disse variablene. 
+I tillegg skal vi lage en variabel for det vi kan kalle hovedaktivitet som sysselsettingsstatus. Det er om man er yrkesaktiv, arbeidsledig, student eller annet. I hver runde av NorLAG ble svarkategoriene utformet litt forskjellig, så derfor er svarene fordelt over tre variable. Nedenfor samles disse sammen og kodes om basert på tekststrenger. Dette gjøres noe mer manuelt da det bare gjelder akkurat disse variablene. 
 
 ```{r}
 #| warning: false

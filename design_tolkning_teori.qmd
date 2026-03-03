@@ -5,7 +5,7 @@
 invisible(Sys.setlocale(locale='no_NB.utf8'))
 ```
 
-Denne boken handler primært om *hvordan* du gjør ting i R. Men det er like viktig å forstå *hva* du faktisk gjør og *hvorfor*. Statistiske analyser gir bare mening i lys av forskningsdesignet og den substansielle teorien du jobber med. I dette kapittelet diskuterer vi noen viktige prinsippelle poenger som bør ligge i bakhodet når du gjør dataanalyse.
+Denne boken handler primært om *hvordan* du gjør ting i R. Men det er like viktig å forstå *hva* du faktisk gjør og *hvorfor*. Statistiske analyser gir bare mening i lys av forskningsdesignet og den substansielle teorien du jobber med. I dette kapittelet diskuterer vi noen viktige prinsipielle poenger som bør ligge i bakhodet når du gjør dataanalyse.
 
 ## Observasjonsdata vs. eksperimentelle data
 

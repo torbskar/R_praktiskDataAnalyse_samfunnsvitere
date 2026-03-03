@@ -34,7 +34,7 @@ For å vite hvor mange rader og kolonner det er i datasettet kan man bruke funks
 dim(wagepan)
 ```
 
-Her får vi vite at det er `r dim(wagepan)[1]` rader (dvs. observasjoner) og `r dim(wagepan)[2]` kollonner (dvs. variable).
+Her får vi vite at det er `r dim(wagepan)[1]` rader (dvs. observasjoner) og `r dim(wagepan)[2]` kolonner (dvs. variable).
 
 
 ### Bruke `View()`
@@ -54,7 +54,7 @@ Du kan lukke det vinduet med dataene uten at det har noe å si for dataene, som 
 
 ### Bruke `head()`
 
-Funksjonen `head()` skriver de første 6 observasjonenen til konsollen i Rstudio. Det gir et første inntrykk av datasettet med variabelnavn og de første verdiene uten å åpne hele datasettet. Hva som faktisk vises vil avhenge av hvor stor skjerm du har, men R vil bare vise de første variablene etter hva som er plass til på skjermen din. For datasett med mange variable er ikke dette veldig nyttig, men for datasett med noen få variable fungerer det greit.
+Funksjonen `head()` skriver de første 6 observasjonene til konsollen i Rstudio. Det gir et første inntrykk av datasettet med variabelnavn og de første verdiene uten å åpne hele datasettet. Hva som faktisk vises vil avhenge av hvor stor skjerm du har, men R vil bare vise de første variablene etter hva som er plass til på skjermen din. For datasett med mange variable er ikke dette veldig nyttig, men for datasett med noen få variable fungerer det greit.
 
 ```{r}
 #| eval: false
@@ -63,11 +63,11 @@ head(wagepan)
 
 Legg merke til at under hvert variabelnavn er det en indikasjon på hva slags variabeltype det er. For eksempel betyr `<dbl>` at det er en numerisk variabel mens `<dbl+lbl>` indikerer at variabelen inneholder *labels*.
 
-Det er lite hensiktsmessig å vise alt i konsollen fordi det rett og slett ikke er plass. Nerst står det derfor angitt at det er flere variable som ikke vises og navnet på de første av disse.
+Det er lite hensiktsmessig å vise alt i konsollen fordi det rett og slett ikke er plass. Nederst står det derfor angitt at det er flere variable som ikke vises og navnet på de første av disse.
 
 ### Subset med klammeparenteser
 
-En enkel løsning er å bare se på noen få variable om gangen. Med klammeparentes kan vi angi hvilke radnummer og kolonnenummer vi ønsker se på med følgende syntax: `datasett[rader, kolonner]` der altså komma skiller mellom rader og kolonner. Følgende eksempel viser hvordan man kan bruke `head()` for å vise de første observasjonene i datasettet med bare de første 5 variablene (altså: kollonne nr 1-5).
+En enkel løsning er å bare se på noen få variable om gangen. Med klammeparentes kan vi angi hvilke radnummer og kolonnenummer vi ønsker se på med følgende syntax: `datasett[rader, kolonner]` der altså komma skiller mellom rader og kolonner. Følgende eksempel viser hvordan man kan bruke `head()` for å vise de første observasjonene i datasettet med bare de første 5 variablene (altså: kolonne nr 1-5).
 
 ```{r}
 #| message: false
@@ -75,7 +75,7 @@ En enkel løsning er å bare se på noen få variable om gangen. Med klammeparen
 head(wagepan[, 1:5])
 
 ```
-Vi kan altså også angi både rader og kollonner på denne måten. Her er eksempel som viser første 3 rader og variabelnummer 5 til 8.
+Vi kan altså også angi både rader og kolonner på denne måten. Her er eksempel som viser første 3 rader og variabelnummer 5 til 8.
 
 ```{r}
 #| message: false
@@ -100,7 +100,7 @@ glimpse(wagepan)
 
 ```
 
-I denne output'en er den første kollonnen altså variabelnavnene, deretter er det en kollonne som viser hva slags type variabel det er, og deretter de første observasjonene på hver variabel slik at man får et inntrykk av hvordan det ser ut. `glimpse()` gir altså omtrent samme informasjon som `head()`, men er nok mer hensiktsmessig hvis mange variable.
+I denne output'en er den første kolonnen altså variabelnavnene, deretter er det en kolonne som viser hva slags type variabel det er, og deretter de første observasjonene på hver variabel slik at man får et inntrykk av hvordan det ser ut. `glimpse()` gir altså omtrent samme informasjon som `head()`, men er nok mer hensiktsmessig hvis mange variable.
 
 
 ### Undersøke enkeltvariable med `codebook()` fra pakken {memisc}

@@ -95,9 +95,9 @@ table(is.na(norlagreg$satis))
 
 
 ## En kommentar om reproduserbarhet 
-Det er svært viktig at forskning lar seg reprodusere. I denne sammenhengen gjelder det å kunne reprodusere nøyaktig samme resultat på samme data, som er viktig for uavhengig ettergåelse og kvalitetskontroll. At reproduserbart script kan gjøres tilgjengelig er helt avgjørende, men også at data er tilgjengelig. I dette tilfellet har Morten Blekesaune vært meget velvillig delt script etter forespørsel. Han svarte på epost samme dag, noe som er et tydelig tegn på at han også hadde orden i sakene og visst godt hvor scriptet var. Sånn skal det være! 
+Det er svært viktig at forskning lar seg reprodusere. I denne sammenhengen gjelder det å kunne reprodusere nøyaktig samme resultat på samme data, som er viktig for uavhengig ettergåelse og kvalitetskontroll. At reproduserbart script kan gjøres tilgjengelig er helt avgjørende, men også at data er tilgjengelig. I dette tilfellet har Morten Blekesaune vært meget velvillig til å dele script etter forespørsel. Han svarte på e-post samme dag, noe som er et tydelig tegn på at han også hadde orden i sakene og visste godt hvor scriptet var. Sånn skal det være! 
 
-Data var vanskeligere. NorLAG er ikke åpne data og er ikke opp til forskeren å dele. Vi er derfor avhengig av at også Sikt har orden i sakene. NorLAG er publisert i flere versjoner der det har vært noen endringer underveis. Det ble derfor praktisk vanskelig å få etablert nøyaktig samme utvalg uten å også få nøyaktig samme datauttrekk utlevert. Hvis ikke dataleverandør kan gi nøyaktig samme data, så blir heller ikke scriptet nøyaktig reproduserbart. 
+Data var vanskeligere. NorLAG er ikke åpne data og er det ikke opp til forskeren å dele. Vi er derfor avhengig av at også Sikt har orden i sakene. NorLAG er publisert i flere versjoner der det har vært noen endringer underveis. Det ble derfor praktisk vanskelig å få etablert nøyaktig samme utvalg uten å også få nøyaktig samme datauttrekk utlevert. Hvis ikke dataleverandør kan gi nøyaktig samme data, så blir heller ikke scriptet nøyaktig reproduserbart. 
 
 En viktig side ved å dele scriptet er at det gjøres en del små valg i den faktiske analysen som typisk ikke fremgår med tilstrekkelig detaljgrad i forskningsartikkelen. 
 

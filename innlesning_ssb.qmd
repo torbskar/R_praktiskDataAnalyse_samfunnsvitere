@@ -241,7 +241,7 @@ head(hh_inntekt)
 
 
 
-## SOSIALHJLEP
+## SOSIALHJELP
 
 meta<- ApiData("http://data.ssb.no/api/v0/en/table/12210",  returnMetaFrames = TRUE)
 names(meta)

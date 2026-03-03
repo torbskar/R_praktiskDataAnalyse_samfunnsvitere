@@ -5,9 +5,9 @@ Det er mye snakk om kunstig intelligens for tiden, og i praksis er det ofte chat
 Vi skal her gi en introduksjon til hvordan bruke prompt engineering i R på to måter: 
 
 1) Den første fremgangsmåten er å bruke chatGPT. Til dette kan bruke en vanlig brukerkonto på OpenAI eller en tilrettelagt tjeneste for sikrere bruk som [GPT UiO](gpt.uio.no).  
-1) Den andre er å bruke Github Copilot, som er en LLM som er spesialisert på kode og som er kan integreres direkte i Rstudio. 
+1) Den andre er å bruke Github Copilot, som er en LLM som er spesialisert på kode og som kan integreres direkte i Rstudio. 
 
-*Hensikten* med å bruke LLM for koding kan være flere, men som nybegynner i programmering bør første steget være å lære seg å skrive kode selv. Når du vet hva du driver med må du gjerne bruke LLM for å skrive kode fortere slik at du kan gjøre kjedelige oppgaver fortere, eller for å lære deg helt nye ting. Vi fokuserer her på å bruke LLM for å lære seg R og å kunne fokusere på data analyse i stedet for å bruke tid på å forstå selve kodingen. 
+*Hensikten* med å bruke LLM for koding kan være flere, men som nybegynner i programmering bør første steget være å lære seg å skrive kode selv. Når du vet hva du driver med må du gjerne bruke LLM for å skrive kode fortere slik at du kan gjøre kjedelige oppgaver fortere, eller for å lære deg helt nye ting. Vi fokuserer her på å bruke LLM for å lære seg R og å kunne fokusere på dataanalyse i stedet for å bruke tid på å forstå selve kodingen. 
 
 Det er ingenting ved LLM/GPT som gjør at du ikke trenger å tenke selv og du må fremdeles lære deg å kode. For det første er egen kunnskap din viktigste ressurs for å skrive gode promt. Det kan faktisk innebære noe kode og forståelse av datastruktur og databehandling. For det andre er du nødt til å vite om de foreslåtte løsningene gjør det du faktisk ønsker. Det er ingen garanti for at det som foreslås er riktig. Du må altså kunne vurdere output og sjekke i praksis. Kort sagt: du må vite hva du driver med. 
 
@@ -96,7 +96,7 @@ For å få et godt svar er det viktig at du i promptet gir en god beskrivelse av
 
 ## Github Copilot i Rstudio
 
-Github Copilot er en LLM som er spesialisert på kode og som er kan integreres direkte i Rstudio. Den er spesielt god på å foreslå kode, og kan være en god hjelp til å skrive kode raskere. 
+Github Copilot er en LLM som er spesialisert på kode og som kan integreres direkte i Rstudio. Den er spesielt god på å foreslå kode, og kan være en god hjelp til å skrive kode raskere. 
 
 For installasjon i Rstudio, se på (hjemmesiden)[https://docs.posit.co/ide/user/ide/guide/tools/copilot.html]
 

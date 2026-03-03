@@ -15,7 +15,7 @@ I de foregående kapitlene har vi jobbet med datasett som er relativt små og h�
 
 ## Når blir data "store"?
 
-For de fleste samfunnsvitenskapelige datasett vil du aldri oppleve problemer med størrelsen. Et spørreundersøkelse med noen tusen respondenter og noen hundre variable er egentlig ganske lite i dataverdenen. Men det finnes situasjoner der ting kan bli tyngre:
+For de fleste samfunnsvitenskapelige datasett vil du aldri oppleve problemer med størrelsen. En spørreundersøkelse med noen tusen respondenter og noen hundre variable er egentlig ganske lite i dataverdenen. Men det finnes situasjoner der ting kan bli tyngre:
 
 - Registerdata med millioner av observasjoner over mange år
 - Tekstdata, f.eks. fra sosiale medier, med millioner av poster

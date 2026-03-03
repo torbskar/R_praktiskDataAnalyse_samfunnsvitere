@@ -32,7 +32,7 @@ ungdata_kont <- readRDS( "data/ungdata_kont.rds")
 
 ```
 
-## Scatterplot og bivariat regersjon
+## Scatterplot og bivariat regresjon
 
 Bivariat regresjon beskriver sammenhengen mellom to variable, i
 utgangspunktet to kontinuerlige variable. En naturlig start grafisk
@@ -118,7 +118,7 @@ ggplot(ungdata_kont, aes(x = livskval, y = samfunnstillit, color = klasse, group
 
 ```
 
-Merk at disse regresjonslinjene er estimert separat for hver gruppe og vil da typisk ikke være parallelle. Hvis man ønsker det må ta gjøre noen andre grep. Det kommer vi tilbake til etter at vi har dekket estimering og plotte en spesifikk modell.
+Merk at disse regresjonslinjene er estimert separat for hver gruppe og vil da typisk ikke være parallelle. Hvis man ønsker det må man gjøre noen andre grep. Det kommer vi tilbake til etter at vi har dekket estimering og plotte en spesifikk modell.
 
 
 ## Estimering
@@ -126,9 +126,9 @@ I det ovenstående er det brukt `geom_smooth` for å legge til en linje i et plo
 
 I R estimeres regresjonsmodeller med funksjonen `lm`. Første argument er en formel på formen `y ~ X`. Utfallsvariabelen angis altså til venstre for `~`, etterfulgt av en eller flere forklaringsvariable til høyre for `~`. Dernest må det spesifiseres fra hvilket datasett variablene hentes fra med `data =` .
 
-Legg alltid resultatene i et eget objekt, og gi det gjerne et navnt som er rimelig enkelt å forstå hva er. I følgende kode legges resultatet i en nytt objekt `lm_est1`. 
+Legg alltid resultatene i et eget objekt, og gi det gjerne et navn som er rimelig enkelt å forstå hva er. I følgende kode legges resultatet i en nytt objekt `lm_est1`. 
 
-Deretter kan man hente ut de delene av resultatet vi er interessert i. I aller første omgang er bare interessert i regresjonskoeffisientene, det vil si regresjonslinjas konstantledd (startpunktet) og stigningstall. Disse får man hvis man skriver regresjonsobjektet til konsollen. 
+Deretter kan man hente ut de delene av resultatet vi er interessert i. I aller første omgang er vi bare interessert i regresjonskoeffisientene, det vil si regresjonslinjas konstantledd (startpunktet) og stigningstall. Disse får man hvis man skriver regresjonsobjektet til konsollen. 
 
 ```{r}
 #| warning: false
@@ -281,7 +281,7 @@ factor-variable i alle standard analysemetoder. I regresjon vil R
 automatisk bruke den første kategorien som referansekategori.
 
 Vi kan gjøre den samme analysen med kjønn som en factor variabel og få
-de samme resultatene som ovenefor.
+de samme resultatene som ovenfor.
 
 ```{r}
 #| warning: false
@@ -358,9 +358,9 @@ ggplot( abu89x, aes(x =klasse89, y = time89))+
 ```
 
 Den generelle regresjonsligningen skrives som $y=a+bx$, der $x$ er
-forklaringsvariabelen. Regresjonskoeffisienten, $b$, tolkes som hvor
-forskjellen i gjennomsnittet på utfallsvariabelen, $y$, mellom de som er
-en enhets forskjell på $x$-variabelen.
+forklaringsvariabelen. Regresjonskoeffisienten, $b$, tolkes som forskjellen i gjennomsnittet på
+utfallsvariabelen, $y$, mellom de som er en enhets forskjell på
+$x$-variabelen.
 
 Så kan vi kjøre en regresjon og få ut regresjonskoeffisientene på samme
 måte som før. Akkurat her er `coef` lagt inn i en parentes for
@@ -391,7 +391,7 @@ tallene ser riktige ut.
 ## Flere variable
 
 Det er ikke så ofte vi bruker regresjon med bare en forklaringsvariabel,
-såklat "enkel lineær regresjon".[^linearregresjon-4] Langt mer vanlig er
+såkalt "enkel lineær regresjon".[^linearregresjon-4] Langt mer vanlig er
 å bruke flere variable samtidig i det vi kaller "multippel
 regresjon".[^linearregresjon-5] I multippel regresjon kan man altså
 beskrive mer kompliserte mønstre i dataene.
@@ -519,7 +519,7 @@ maskinlæring, vil dette være en god inngang til det.[^linearregresjon-6]
 
 Merk at konstantleddet er tolkbart som forventet verdi på
 utfallsvariabelen når alle andre prediktorer er null. I eksempelet
-ovenfor med timelønn og klassetilhøringhet, er det altså ikke noen
+ovenfor med timelønn og klassetilhørighet, er det altså ikke noen
 koeffisient for klasse I. Gjennomsnittlig timelønn i klasse I er når de
 andre dummyene er 0, altså `r round(coef(est2)[1],1)` kroner.
 Gjennomsnittlig timelønn for klasse II er tilsvarende
@@ -612,7 +612,7 @@ samme variabelnavn og variabeltype som i opprinnelige data.
 
 ## Pene tabeller og eksport til fil
 
-Slik resultatene ser ut med bruk av `summary` er forsåvidt fint, og du
+Slik resultatene ser ut med bruk av `summary` er for så vidt fint, og du
 får den informasjonen du trenger. Men det er ikke særlig presentabelt
 som ferdig produkt i en analyse. Du trenger typisk to ting: 1) Samle
 flere regresjonsmodeller i samme tabell, og 2) gjøre tabellene penere og
@@ -667,7 +667,7 @@ markdown
 Fordel: Gir pene og oversiktlige tabeller med enkel kode, og relativt
 enkelt å modifisere videre. Eksporterer direkte til alle viktigste
 formater. Kan også lett integreres med andre eksterne verktøy, først og
-fremst "grammar of tables" i pakket {gt} Ulempe:
+fremst "grammar of tables" i pakken {gt} Ulempe:
 
 Her er kode for en enkel tabell med to regresjonsmodeller som vist
 ovenfor. Merk at objektene med regresjonsresultatene må legges inni
@@ -762,7 +762,7 @@ modelsummary(list(lm_est2, lm_est3),
 
 Merk at Word vil vise tabellen med de fonter etc som er forvalgt for
 Word. Dette kan du endre i Word etterpå. Det er en rekke funksjoner i
-Word for å formattere tabeller som du kan bruke.
+Word for å formatere tabeller som du kan bruke.
 
 Pakken {modelsummary} har også en rekke andre funksjoner for å redigere
 tabeller som du kan utforske ved behov. For avanserte brukere kan man
@@ -859,7 +859,7 @@ redigere ferdig der mer manuelt.
 
 {gtsummary} kan eksportere til følgende formater: Word, rtf, html, latex
 og markdown. Resultatene kan også lett integreres med andre funksjoner,
-først og fremst "grammar of tables" i pakket {gt} og {flextable} - altså
+først og fremst "grammar of tables" i pakken {gt} og {flextable} - altså
 for mer avanserte ting som vi ikke dekker her.
 
 Prinsippet er å lage hver tabell for seg og så slå dem sammen med

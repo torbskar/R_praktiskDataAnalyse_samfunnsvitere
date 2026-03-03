@@ -33,7 +33,7 @@ Vi skal her se på helt grunnleggende lineær regresjon med en og to forklarings
 
 Bivariat regresjon beskriver sammenhengen mellom to variable. En naturlig start er å se på et scatterplot. Her er en figur som viser hvordan timelønn varierer med alder. I det nedenforstående er det brukt jitter og gjennomsiktig farge for å håndtere overplotting.
 
-I tillegg er det tegnet inn en linje som illustrerer *trenden i gjennomsnittlig lønn* med alder. Denne linjen skrår svakt oppover, som altså betyr at gjennomsnittlig lønn øker noe med alder. Vi ser med det blotte øyet at en rett linje ikke beskriver denne sammenhengen perfekt. Først og fremst er det en stor variasjon rundt denne linjen, så det er mye annet som påvirker lønna enn alder. Det er også verd å legge merke til at i de yngste aldersgruppene er lønna en god del lavere - og kanskje litt lavere i eldste aldersgrupper også. Så en rett linje er kanskje ikke optimalt i utgangspunktet. Fordelen med en rett linje er at vi kan si noe slikt som at "gjennosmsnittslønna øker med x antall kroner for hvert år eldre man blir". Hvis linja er kurvlineær blir det litt mer komplisert. Så et første poeng er at en slik linje er en *forenkling*, og det er en tilsiktet forenkling.
+I tillegg er det tegnet inn en linje som illustrerer *trenden i gjennomsnittlig lønn* med alder. Denne linjen skrår svakt oppover, som altså betyr at gjennomsnittlig lønn øker noe med alder. Vi ser med det blotte øyet at en rett linje ikke beskriver denne sammenhengen perfekt. Først og fremst er det en stor variasjon rundt denne linjen, så det er mye annet som påvirker lønna enn alder. Det er også verd å legge merke til at i de yngste aldersgruppene er lønna en god del lavere - og kanskje litt lavere i eldste aldersgrupper også. Så en rett linje er kanskje ikke optimalt i utgangspunktet. Fordelen med en rett linje er at vi kan si noe slikt som at "gjennomsnittslønna øker med x antall kroner for hvert år eldre man blir". Hvis linja er kurvlineær blir det litt mer komplisert. Så et første poeng er at en slik linje er en *forenkling*, og det er en tilsiktet forenkling.
 
 ```{r}
 #| message: false
@@ -73,7 +73,7 @@ I R estimeres regresjonsmodeller med funksjonen `lm`. Første argument er en for
 
 [^linearregresjon-2]: Grunnen til det siste er at R kan ha flere datasett oppe samtidig, så R vet ikke nødvendigvis hvilket datasett du tenker på
 
-Legg alltid resultatene i et eget objekt med et navnt som er rimelig enkelt å forstå hva er. I følgende kode legges resultatet i en nytt objekt `lm_est1`. Deretter bruker kan man hente ut de delene av resultatet vi er interessert i. I aller første omgang er bare interessert i regresjonslinjas konstantledd (startpunktet) og stigningstall. Disse kaller vi vanligvis *regresjonskoeffisienter*. Det kan vi få ut ved å bruke funksjonen `coef`. (Vi kommer tilbake til å se på de fulle resultatene senere, som vi oftest er interessert i).
+Legg alltid resultatene i et eget objekt med et navn som er rimelig enkelt å forstå hva er. I følgende kode legges resultatet i et nytt objekt `lm_est1`. Deretter kan man hente ut de delene av resultatet vi er interessert i. I aller første omgang er vi bare interessert i regresjonslinjas konstantledd (startpunktet) og stigningstall. Disse kaller vi vanligvis *regresjonskoeffisienter*. Det kan vi få ut ved å bruke funksjonen `coef`. (Vi kommer tilbake til å se på de fulle resultatene senere, som vi oftest er interessert i).
 
 ```{r}
 #| warning: false
@@ -176,7 +176,7 @@ Regresjonskoeffisenten for variabelen female uttrykker nettopp differansen mello
 
 I R vil vi ofte gjøre om kategoriske variable til såkalte factor-variable. En factor-variabel vil håndtere kategoriske variable som tekst, men med en underliggende numerisk verdi. Da kan man bruke factor-variable i alle standard analysemetoder. I regresjon vil R automatisk bruke den første kategorien som referansekategori. 
 
-Vi kan gjøre den samme analysen med kjønn som en factor variabel og få de samme resultatene som ovenefor. 
+Vi kan gjøre den samme analysen med kjønn som en factor variabel og få de samme resultatene som ovenfor. 
 
 
 ```{r}
@@ -240,7 +240,7 @@ ggplot( abu89x, aes(x =klasse89, y = time89))+
 
 
 
-Den generelle regresjonsligningen skrives som $y=a+bx$, der $x$ er forklaringsvariabelen. Regresjonskoeffisienten, $b$, tolkes som hvor forskjellen i gjennomsnittet på utfallsvariabelen, $y$, mellom de som er en enhets forskjell på $x$-variabelen. 
+Den generelle regresjonsligningen skrives som $y=a+bx$, der $x$ er forklaringsvariabelen. Regresjonskoeffisienten, $b$, tolkes som forskjellen i gjennomsnittet på utfallsvariabelen, $y$, mellom de som er en enhets forskjell på $x$-variabelen. 
 
 Så kan vi kjøre en regresjon og få ut regresjonskoeffisientene på samme måte som før. Akkurat her er `coef` lagt inn i en parentes for `data.frame`, men det er bare for at det skal bli en pen kolonne. Vi kommer altså tilbake til teknikker for penere output nedenfor. 
 
@@ -263,7 +263,7 @@ Forskjellen mellom andre grupper er således differansen mellom disse estimatene
 
 
 ## Flere variable
-Det er ikke så ofte vi bruker regresjon med bare en forklaringsvariabel, såklat "enkel lineær regresjon".[^linearregresjon-4] Langt mer vanlig er å bruke flere variable samtidig i det vi kaller "multippel regresjon".[^linearregresjon-5] I multippel regresjon kan man altså beskrive mer kompliserte mønstre i dataene.
+Det er ikke så ofte vi bruker regresjon med bare en forklaringsvariabel, såkalt "enkel lineær regresjon".[^linearregresjon-4] Langt mer vanlig er å bruke flere variable samtidig i det vi kaller "multippel regresjon".[^linearregresjon-5] I multippel regresjon kan man altså beskrive mer kompliserte mønstre i dataene.
 
 [^linearregresjon-4]: Det er selvsagt ingenting *enkelt* med slike modeller utover at det finnes mer kompliserte varianter.
 
@@ -360,7 +360,7 @@ Lineær regresjon kan også brukes til *prediksjon* selv om dette i liten grad e
 
 
 ### Regne ut forventet verdi
-Merk at konstantleddet er tolkbart som forventet verdi på utfallsvariabelen når alle andre prediktorer er null. I eksempelet ovenfor med timelønn og klassetilhøringhet, er det altså ikke noen koeffisient for klasse I. Gjennomsnittlig timelønn i klasse I er når de andre dummyene er 0, altså `r round(coef(est2)[1],1)` kroner. Gjennomsnittlig timelønn for klasse II er tilsvarende `r round(coef(est2)[1],1)` + (`r round(coef(est2)[2],2)`) = `r round(coef(est2)[1],1) + round(coef(est2)[2],1)`.  
+Merk at konstantleddet er tolkbart som forventet verdi på utfallsvariabelen når alle andre prediktorer er null. I eksempelet ovenfor med timelønn og klassetilhørighet, er det altså ikke noen koeffisient for klasse I. Gjennomsnittlig timelønn i klasse I er når de andre dummyene er 0, altså `r round(coef(est2)[1],1)` kroner. Gjennomsnittlig timelønn for klasse II er tilsvarende `r round(coef(est2)[1],1)` + (`r round(coef(est2)[2],2)`) = `r round(coef(est2)[1],1) + round(coef(est2)[2],1)`.  
 
 Hvis du skulle gjette timelønna til en person uten å vite noe annet enn klasseposisjon ville det være fornuftig å gjette på gjennomsnittet for denne klassen. Så vi kan bruke regresjonsmodeller til å regne ut gjennomsnittslønn for gitte verdier av forklaringsvariable. I dette eksempelet er det kanskje litt i overkant komplisert da vi jo også bare kunne regnet ut gjennomsnittet per gruppe i en enkel tabell. Det ville faktisk gitt akkurat samme resultat. Det er mer nyttig med kontinuerlige variable og mer kompliserte modeller. 
 
@@ -442,7 +442,7 @@ Vi vil som regel ha behov for å flytte resultatene over til et tekstbehandlings
 Eksporterer til bl.a. følgende formater: Word, rtf, html, latex, markdown
 
 Fordel: Gir pene og oversiktlige tabeller med enkel kode, og relativt enkelt å  modifisere videre. Eksporterer direkte til alle viktigste formater. 
-Kan også lett integreres med andre eksterne verktøy, først og fremst "grammar of tables" i pakket {gt} 
+Kan også lett integreres med andre eksterne verktøy, først og fremst "grammar of tables" i pakken {gt}
 Ulempe: 
 
 
@@ -507,7 +507,7 @@ modelsummary(list(lm_est2, lm_est3),
 
 ```
 
-Merk at Word vil vise tabellen med de fonter etc som er forvalgt for Word. Dette kan du endre i Word etterpå. Det er en rekke funksjoner i Word for å formattere tabeller som du kan bruke. 
+Merk at Word vil vise tabellen med de fonter etc som er forvalgt for Word. Dette kan du endre i Word etterpå. Det er en rekke funksjoner i Word for å formatere tabeller som du kan bruke. 
 
 Pakken {modelsummary} har også en rekke andre funksjoner for å redigere tabeller som du kan utforske ved behov. For avanserte brukere kan man også gjøre om tabellen til et gt-objekt og redigere videre med pakken {gt} eller tilsvarende med pakken {flextable}. Det er altså tilnærmet uendelige muligheter for avanserte tabeller. Dette går imidlertid langt utenfor hva de fleste av dere vil trenge. {modelsummary} har [egen hjemmeside](https://vincentarelbundock.github.io/modelsummary/index.html) med mer detaljer og instruksjoner.
 
@@ -575,7 +575,7 @@ Vi har tidligere brukt {gtsummary} for å lage deskriptive tabeller, som er det 
 
 Fordel med å bruke denne pakken er at man slipper å lære enda en ny pakke og slik sett ha ett sett med konsistent syntaks. En mulighet er selvsagt å ikke lage tabellene så ferdig i R, men eksportere til Word og redigere ferdig der mer manuelt. 
 
-{gtsummary} kan eksportere til følgende formater: Word, rtf, html, latex og markdown. Resultatene kan også lett integreres med andre funksjoner, først og fremst "grammar of tables" i pakket {gt} og {flextable} - altså for mer avanserte ting som vi ikke dekker her.
+{gtsummary} kan eksportere til følgende formater: Word, rtf, html, latex og markdown. Resultatene kan også lett integreres med andre funksjoner, først og fremst "grammar of tables" i pakken {gt} og {flextable} - altså for mer avanserte ting som vi ikke dekker her.
 
 Prinsippet er å lage hver tabell for seg og så slå dem sammen med `tbl_merge` etterpå. Det innebærer en del mer kode, rett og slett. I utgangspunktet virker det ganske greit, men det er alltid en del småting som krever litt mer. 
 

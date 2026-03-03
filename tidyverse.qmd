@@ -214,7 +214,7 @@ abu89 %>%
   head()
 ```
 
-Når man skriver flere betingelser adskilt med komma inni `filter()` tolkes det som "og" (`&`). Alternativt kan man bruke `|` for "eller":
+Når man skriver flere betingelser atskilt med komma inni `filter()` tolkes det som "og" (`&`). Alternativt kan man bruke `|` for "eller":
 
 ```{r}
 #| echo: true

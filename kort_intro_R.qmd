@@ -11,7 +11,7 @@ invisible(Sys.setlocale(locale='no_NB.utf8'))
 Før vi setter igang trengs det en kort introduksjon til noe grunnleggende om hvordan R fungerer. Så lærer man mer underveis, og et senere kapittel går grundigere inn i omkoding av variable. En grundigere gjennomgang av R finner du i @r4ds.
 
 ### Et par hurtigtaster
-Du skriver altså kode i script-vinduet i RStudio. For å kjøre koden kan du klikke på "Run" opp i høyre hjørne av script-vinduet. Det kan være lurt å markere det du vil kjøre før du klikker "Run" slik at du bare kjører akkurat det du har tenkt til. Man blir fort lei av å klikke på den måten. En hurtigtast er **Ctlr + Enter** som altså gjør det samme. 
+Du skriver altså kode i script-vinduet i RStudio. For å kjøre koden kan du klikke på "Run" opp i høyre hjørne av script-vinduet. Det kan være lurt å markere det du vil kjøre før du klikker "Run" slik at du bare kjører akkurat det du har tenkt til. Man blir fort lei av å klikke på den måten. En hurtigtast er **Ctrl + Enter** som altså gjør det samme. 
 
 Du vil komme til å skrive '%>%' ganske mange ganger etterhvert. Det er litt styrete å skrive pga hvordan tastene ligger på tastaturet ditt. En hurtigtast for dette tegnet er **Ctrl + Shift + M**. 
 
@@ -41,7 +41,7 @@ Men poenget er: Alt du jobber med i R er objekter. Alle objekter har et navn som
 
 Alt man gjør i R gjøres med "funksjoner", og man bruker funksjonene på objekter eller deler av objekter. Funksjonenen har et navn og etterfulgt av en parentes slik som f.eks. `dinfunksjon(...)`. Funksjonen starter og slutter med en parentes. Du kan tenke på funksjoner som en liten maskin der du putter noe inn, og så kommer noe annet ut. Det du putter inn skal står inni parentes. Det som kommer ut kan du enten legge i et eget objekt eller la det skrives til output-vinduet.
 
-Det du legger inn i funksjonen - altså inni parentesn - kalles "argumenter". Hvert argument har et navn og du skal normalt oppgi i hvert fall hvilket datasett funksjonen skal brukes på. Argumentet for data er nettopp `data =` og så oppgis navnet på det objektet dataene ligger i. En god del slike argumenter har navn som er standardisert på tvers av funksjoner, og `data =` er et eksempel på dette.
+Det du legger inn i funksjonen - altså inni parentesen - kalles "argumenter". Hvert argument har et navn og du skal normalt oppgi i hvert fall hvilket datasett funksjonen skal brukes på. Argumentet for data er nettopp `data =` og så oppgis navnet på det objektet dataene ligger i. En god del slike argumenter har navn som er standardisert på tvers av funksjoner, og `data =` er et eksempel på dette.
 
 I tillegg kan det være en rekke andre argumenter som vi kommer tilbake til i de ulike funksjonene vi bruker. Et poeng er viktig å presisere: argumentene har også en forventet *rekkefølge*. Man kan også oppgi argumentene uten å angi navnet hvis de kommer i riktig rekkefølge. For eksempel vil en funksjon for regresjon ha den forventede rekkefølgen: 1) Spesifisering av utfallsvariabel og forklaringsvariable på en form som heter "formula", deretter og 2) Angitt objektnavnet til dataene. Så kan det være andre argumenter i tillegg. Man kan godt oppgi argumentene i annen rekkefølge, men da er man nødt til å bruke argumentnavnet slik at R forstår hva som er hva.
 
@@ -318,7 +318,7 @@ Hvis du skal lagre et bearbeidet datasett *permanent* (f.eks. hos sikt.no) for �
 write_csv(dinedata, "data/dinedata_temp.csv")
 ```
 
-Det kan være andre grunner til å lagre i helt andre formater. R støtter mange forskjellige, men du må la behovet styre hvilket format du velger. Foreløpig kan du tenke at du primært bruker .rds. Bare hvis du bare skal skal lagre et datasett permanent skal du bruker .rds. For å bruke noe annet trenger du en god grunn.  
+Det kan være andre grunner til å lagre i helt andre formater. R støtter mange forskjellige, men du må la behovet styre hvilket format du velger. Foreløpig kan du tenke at du primært bruker .rds. Bare hvis du skal lagre et datasett permanent skal du bruker .rds. For å bruke noe annet trenger du en god grunn.  
 
 
 
@@ -328,11 +328,11 @@ Det kan være andre grunner til å lagre i helt andre formater. R støtter mange
 
 1) `ggplot` fungerer det sømløst med arbeidsflyten vi har vist over 
 1) `ggplot` er en fullstendig *gramatikk* for all slags grafiske fremstillinger av data. Vi ser på det grunnleggende her, men dette kan også brukes til å lage 3D-fremstillinger, kart og animasjoner og mye mer.^[Dette er i kontrast til annen statistikksoftware som i større grad er basert på enkeltfunksjoner for mer avgrensede typer grafikk.] 
-1) `ggplot` gir ikke bare funksjonelle plot, men også i professjonelt publiserbar kvalitet. Selv hvis forlag har sære krav til fonter, fargebruk, dimensjoner og formater, så kan det fikses i `ggplot`. Dessuten blir det pent.
+1) `ggplot` gir ikke bare funksjonelle plot, men også i profesjonelt publiserbar kvalitet. Selv hvis forlag har sære krav til fonter, fargebruk, dimensjoner og formater, så kan det fikses i `ggplot`. Dessuten blir det pent.
 
 Første kapittel om deskriptiv statistikk handler om grafikk og vi går inn i detaljene der etterhvert som det trengs der. 
 
-Et viktig moment i `ggplot` er at det er *lagdelt* og hvert lag skilles med `+` på en måte som ligner på "pipe". Man kan så legge på flere lag oppgå det første laget. En vanlig feilmelding i starten er at man bruker `%>%` når det skulle vært `+`. 
+Et viktig moment i `ggplot` er at det er *lagdelt* og hvert lag skilles med `+` på en måte som ligner på "pipe". Man kan så legge på flere lag oppå det første laget. En vanlig feilmelding i starten er at man bruker `%>%` når det skulle vært `+`. 
 
 
 
@@ -366,7 +366,7 @@ Overskriften **Examples** er gjerne den mest nyttige. Det er rett og slett noen 
 #### Vignetter
 Alle R-pakker publiseres på en server, CRAN, og hver pakke har sin egen side. Du kan gå inn på denne direkte. [Her er lenken til tidyverse på CRAN](https://cran.r-project.org/web/packages/tidyverse/index.html). Under overskriften **Dokumentation** vil det være en lenke til en referansemanual, som er den samme som når du bruker `?` i R, men her får du alt tilhørende pakken i en samlet pdf-fil. 
 
-For mange pakker vil deg også være lenker til "Vignettes". Disse er gjerne mer utførlige tekster som forklarer pakkens struktur og viser bruk. Disse er gjerne de mest nyttige for vanlige brukere. Noen ganger er det egne nettsider for disse pakkene og vignettene. Det er lenket til flere slike i det etterfølgende. 
+For mange pakker vil det også være lenker til "Vignettes". Disse er gjerne mer utførlige tekster som forklarer pakkens struktur og viser bruk. Disse er gjerne de mest nyttige for vanlige brukere. Noen ganger er det egne nettsider for disse pakkene og vignettene. Det er lenket til flere slike i det etterfølgende. 
 
 
 ### Bruke pakker uten å laste dem

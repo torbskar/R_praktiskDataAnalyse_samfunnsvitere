@@ -5,6 +5,8 @@ project:
 execute:
   freeze: auto
 
+lang: nb
+
 book:
   navbar:
     search: true

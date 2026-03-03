@@ -26,7 +26,7 @@ Til sist avhenger feilmarginen av en grense vi selv setter, som gjerne kalles *k
  
 En stokastisk variabel er en funksjon som tilordner en numerisk verdi til utfallet av et eksperiment. For eksempel, et terningkast er et eksperiment med et utfallsrom som omfatter tallene 1 til 6. Det er usikkerhet knyttet til utfallet av eksperimentet (vi vet ikke på forhånd hva utfallet er, altså om vi kaster 2 eller 5 eller noe annet). La oss si at jeg kaster terningen 100 ganger og teller antall ganger jeg får 6. Vi kan se på denne prosessen som en stokastisk variabel som måler antall 6'ere (den gir utfallet en numerisk verdi).
  
-Hvis vi kaster en vanlig terning, har alle mulige utfall den samme sannsynligheten (1/6). I andre tilfeller, dvs. for andre stokastiske variabler, kan det hende at noen utfall er mer sannsynlige enn andre. Alle stokastiske variabler er derfor forbundet med en tilsvarende sannsynlighetsfordeling. En sannsynlighetsfordeling er en funksjon som tilordner en sannsynlighetsverdi (et tall mellom 0 og 1) til alle mulige verdier av den stokastiske variabelen. Et terningkast følger en binomisk fordeling. Andre fordelinger du kanskje har hørt om er Bernoulli-fordelingen, uniformfordelingen, Poisson-fordelingen og selsvsagt normalfordelingen. 
+Hvis vi kaster en vanlig terning, har alle mulige utfall den samme sannsynligheten (1/6). I andre tilfeller, dvs. for andre stokastiske variabler, kan det hende at noen utfall er mer sannsynlige enn andre. Alle stokastiske variabler er derfor forbundet med en tilsvarende sannsynlighetsfordeling. En sannsynlighetsfordeling er en funksjon som tilordner en sannsynlighetsverdi (et tall mellom 0 og 1) til alle mulige verdier av den stokastiske variabelen. Et terningkast følger en binomisk fordeling. Andre fordelinger du kanskje har hørt om er Bernoulli-fordelingen, uniformfordelingen, Poisson-fordelingen og selvsagt normalfordelingen. 
  
 Mini-oppgave: Kan du tenke på og forklare hvordan en survey er et stokastisk utfall (en realisering) av et eksperiment?
  
@@ -47,11 +47,11 @@ La oss si at du ønsker å si noe om gjennomsnittet i *populasjonen*, men har ba
 ### Standardfeil 
 Standardfeilen uttrykker usikkerheten ved *estimatet*. Standardfeilen til estimatet er et mål på usikkerheten ved målemetoden. Usikker målemetode gjør at feilen kan være større.
 
-Ordet standard*feil* er lett å blande sammen med standard*avvik* i mer generell forstand, så la oss ta det med det samme. Standardavviket beskriver som regel variasjon i observerte data, f.eks. hvis man vil beskrive hvordan personers inntekt varierer rundt gjennomsnittet. Standardavviket beskriver altå variasjon i *data*. 
+Ordet standard*feil* er lett å blande sammen med standard*avvik* i mer generell forstand, så la oss ta det med det samme. Standardavviket beskriver som regel variasjon i observerte data, f.eks. hvis man vil beskrive hvordan personers inntekt varierer rundt gjennomsnittet. Standardavviket beskriver altså variasjon i *data*. 
 
 Standard*feilen* beskriver derimot ikke data, men *sannsynlighetsfordelingen* for hvordan vi forventer at **estimatet** vil kunne avvike fra den sanne verdien på grunn av tilfeldigheter. 
 
-Sentralgrenseteoremet sier at estimatet på et gjennomsnitt vil ha tilfeldige feil som er *normalfordelt*, og dermed kan vi bruke normalfordelingen til å si noe om usikkerheten ved estimatet. Dette er forsøkt illustrert nedenfor der x-aksen viser hvor mye estimatet kan avvike fra den sanne verdien, mens kurven viser hvor sannsynligsfordelingen til avviket. Den stiplede linjen viser den sanne verdien. Når x-aksen er avvik fra sanne verdien, så vil altså $x = 0$ bety null avvik fra sanne verdien: helt riktig estimat. 
+Sentralgrenseteoremet sier at estimatet på et gjennomsnitt vil ha tilfeldige feil som er *normalfordelt*, og dermed kan vi bruke normalfordelingen til å si noe om usikkerheten ved estimatet. Dette er forsøkt illustrert nedenfor der x-aksen viser hvor mye estimatet kan avvike fra den sanne verdien, mens kurven viser sannsynlighetsfordelingen til avviket. Den stiplede linjen viser den sanne verdien. Når x-aksen er avvik fra sanne verdien, så vil altså $x = 0$ bety null avvik fra sanne verdien: helt riktig estimat. 
 
 Altså: det er aller mest sannsynlig å få et estimat som ligger nærme den sanne verdien, men litt avvik (større eller lavere estimat) er nesten like sannsynlig. Jo lengre til hver av sidene man går (større feil), jo mindre sannsynlig er det å få et slikt estimat. 
 

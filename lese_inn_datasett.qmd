@@ -62,7 +62,7 @@ Hvis det er mange variable i datasettet vil det ikke bli plass i consoll-vinduet
 glimpse(ungdata_alko)
 ```
 
-`glimpse` gir også noe ytterligere informasjon, som antall observasjoner i datasettet og og hvilken type variablene er. Når det i output står "dbl" betyr at det er en numerisk variabel, og "fct" betyr at det er en faktorvariabel.
+`glimpse` gir også noe ytterligere informasjon, som antall observasjoner i datasettet og hvilken type variablene er. Når det i output står "dbl" betyr at det er en numerisk variabel, og "fct" betyr at det er en faktorvariabel.
 
 Det finnes også andre variabeltyper enn det som er i eksempelet, herunder betyr "chr" at det er en tekstvariabel, "int" betyr at det er en heltallsvariabel, "date" betyr at det er en dato-variabel, og "lgl" betyr at det er en logisk variabel (dvs. en variabel som kan ha verdiene TRUE eller FALSE). Vi kommer tilbake til disse variabeltypene etterhvert.
 
@@ -83,7 +83,7 @@ dim(ungdata_alko)
 
 ```
 
-Her får vi vite at det er `r dim(ungdata_alko)[1]` rader (dvs. observasjoner) og `r dim(ungdata_alko)[2]` kollonner (dvs. variable).
+Her får vi vite at det er `r dim(ungdata_alko)[1]` rader (dvs. observasjoner) og `r dim(ungdata_alko)[2]` kolonner (dvs. variable).
 
 ### Undersøke enkeltvariable med `codebook()` fra pakken {memisc}
 
