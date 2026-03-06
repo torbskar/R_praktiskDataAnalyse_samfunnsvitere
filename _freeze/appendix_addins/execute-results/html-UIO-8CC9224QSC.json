@@ -1,0 +1,15 @@
+{
+  "hash": "3ce02a02651552be54aa8a68c81e65ab",
+  "result": {
+    "engine": "knitr",
+    "markdown": "# Rstudio addins \n\n\n\n\n\n\n\n::: {.cell}\n\n:::\n\n\n\n\n\n\n\n\nRstudio er det mulig å installere såkalte \"addins\". Dette gir ikke økt funksjonalitet til R, men til Rstudio. De fleste addins er imidlertid laget med tanke på helt andre brukere enn studenter og kan fremstå nokså kryptiske. Nedenfor er det omtalt tre pakker som kan være nyttige for nybegynnere i R-programmering ved å tilby en \"pek-og-klikk\" funksjonalitet til å skrive kode. Dette kan være nyttig for å finne ut av problemer og vanskelig syntaks - men er ikke noe du skal bruke på daglig basis. Det er *hjelp* til å finne ut av ting, så bruk det til å lære!  \n\nAddins installeres på samme måte som R-pakker med `install.packages`, men du trenger ikke laste det med `library` for å brukes. I stedet er funksjonene tilgjengelig i Rstudio-menyen \"Addins\". For en liste over addins, se [hjelpesiden til pakken addinslist](https://cran.r-project.org/web/packages/addinslist/readme/README.html#addinslist-table). \n\nDet er veldig viktig at du bruker slike addins på en måte som gjør at du *lærer deg R* på ordentlig. Du kan ikke belage deg på å bruke addins for å skrive kode i det lange løp. De som nevnes nedenfor genererer kode for deg og du bør så lime den koden inn i scriptet ditt! \n\n\n## Styler - skriv pent \nI R spiller det ingen rolle *hvordan* du skriver kode: linjeskift, innrykk og mellomrom etter parentes osv gir det samme resultatet. (Komma og parenteser er derimot viktig!). Men det er ikke likegyldig for lesbarheten. {styler} kan brukes til å bedre lesbarheten av egen kode. Denne addin'en er laget av de samme som lager tidyverse, og er derfor utmerket verktøy for å skrive bedre kode. \"Bedre\" er da her i betydningen ryddig og ordentlig, noe som gjør den lettere å lese, de-bugge og at andre forstår koden din. \n\nDu kan se nærmere på [vignetten til Styler](https://www.tidyverse.org/blog/2017/12/styler-1.0.0/) \n\n\n## Esquisse - grafikk \nEsquisse kan brukes til å lage grafikk med \"drag-and-drop\". Noen synes det er lettere i begynnelsen. Men det viktigste med å bruke slike verktøy er at du etterpå kan vise koden slik den lages med `ggplot`.  \n\nDu kan se nærmere på [vignetten til Esquisse](https://cran.r-project.org/web/packages/esquisse/vignettes/get-started.html). \n\n## Questionr - omkode factor\nÅ omkode factor-variable kan være litt styr. Det er en egen addin for dette formålet. \n\nOBS! Questionr generer kode i base-R. Det er altså *ikke* helt den samme dialekten som ellers er dekket her. Men det er likheter, så det kan være til hjelp likevel. Dessuten funker det, jo. \n\nDu kan se nærmere på [vignetten til questionr](https://cran.r-project.org/web/packages/questionr/vignettes/recoding_addins.html). \n\n\n\n\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
